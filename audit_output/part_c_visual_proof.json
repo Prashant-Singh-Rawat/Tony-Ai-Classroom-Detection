@@ -1,0 +1,509 @@
+{
+  "timestamp": "2026-11-01T07:32:21Z",
+  "url_tested": "http://127.0.0.1:5174",
+  "routes": {
+    "dashboard": {
+      "viewports": {
+        "1920x1080": {
+          "after_file": "docs\\screenshots\\after\\after_1920x1080_dashboard.png",
+          "after_brightness": 248.7,
+          "after_near_black_ratio": 0.0026,
+          "before_file": "docs\\screenshots\\before\\before_1920_dashboard.png",
+          "before_brightness": 24.09,
+          "before_near_black_ratio": 0.8456,
+          "brightness_increase": 224.61
+        },
+        "1366x768": {
+          "after_file": "docs\\screenshots\\after\\after_1366x768_dashboard.png",
+          "after_brightness": 246.51,
+          "after_near_black_ratio": 0.0051,
+          "before_file": "docs\\screenshots\\before\\before_1366_dashboard.png",
+          "before_brightness": 25.82,
+          "before_near_black_ratio": 0.8516,
+          "brightness_increase": 220.69
+        },
+        "tablet_768x1024": {
+          "after_file": "docs\\screenshots\\after\\after_tablet_768x1024_dashboard.png",
+          "after_brightness": 247.54,
+          "after_near_black_ratio": 0.0047,
+          "before_file": null,
+          "before_brightness": null,
+          "before_near_black_ratio": null,
+          "brightness_increase": null
+        },
+        "mobile_375x667": {
+          "after_file": "docs\\screenshots\\after\\after_mobile_375x667_dashboard.png",
+          "after_brightness": 245.45,
+          "after_near_black_ratio": 0.0031,
+          "before_file": null,
+          "before_brightness": null,
+          "before_near_black_ratio": null,
+          "brightness_increase": null
+        }
+      },
+      "prohibited_hits": []
+    },
+    "live": {
+      "viewports": {
+        "1920x1080": {
+          "after_file": "docs\\screenshots\\after\\after_1920x1080_live.png",
+          "after_brightness": 154.25,
+          "after_near_black_ratio": 0.3871,
+          "before_file": "docs\\screenshots\\before\\before_1920_monitoring.png",
+          "before_brightness": 18.2,
+          "before_near_black_ratio": 0.9144,
+          "brightness_increase": 136.05
+        },
+        "1366x768": {
+          "after_file": "docs\\screenshots\\after\\after_1366x768_live.png",
+          "after_brightness": 168.41,
+          "after_near_black_ratio": 0.3228,
+          "before_file": "docs\\screenshots\\before\\before_1366_monitoring.png",
+          "before_brightness": 20.61,
+          "before_near_black_ratio": 0.8858,
+          "brightness_increase": 147.8
+        },
+        "tablet_768x1024": {
+          "after_file": "docs\\screenshots\\after\\after_tablet_768x1024_live.png",
+          "after_brightness": 213.19,
+          "after_near_black_ratio": 0.14,
+          "before_file": null,
+          "before_brightness": null,
+          "before_near_black_ratio": null,
+          "brightness_increase": null
+        },
+        "mobile_375x667": {
+          "after_file": "docs\\screenshots\\after\\after_mobile_375x667_live.png",
+          "after_brightness": 245.31,
+          "after_near_black_ratio": 0.0106,
+          "before_file": null,
+          "before_brightness": null,
+          "before_near_black_ratio": null,
+          "brightness_increase": null
+        }
+      },
+      "prohibited_hits": []
+    },
+    "analytics": {
+      "viewports": {
+        "1920x1080": {
+          "after_file": "docs\\screenshots\\after\\after_1920x1080_analytics.png",
+          "after_brightness": 248.46,
+          "after_near_black_ratio": 0.0019,
+          "before_file": "docs\\screenshots\\before\\before_1920_analytics.png",
+          "before_brightness": 23.74,
+          "before_near_black_ratio": 0.8828,
+          "brightness_increase": 224.72
+        },
+        "1366x768": {
+          "after_file": "docs\\screenshots\\after\\after_1366x768_analytics.png",
+          "after_brightness": 247.69,
+          "after_near_black_ratio": 0.0036,
+          "before_file": "docs\\screenshots\\before\\before_1366_analytics.png",
+          "before_brightness": 26.31,
+          "before_near_black_ratio": 0.8442,
+          "brightness_increase": 221.38
+        },
+        "tablet_768x1024": {
+          "after_file": "docs\\screenshots\\after\\after_tablet_768x1024_analytics.png",
+          "after_brightness": 247.67,
+          "after_near_black_ratio": 0.0044,
+          "before_file": null,
+          "before_brightness": null,
+          "before_near_black_ratio": null,
+          "brightness_increase": null
+        },
+        "mobile_375x667": {
+          "after_file": "docs\\screenshots\\after\\after_mobile_375x667_analytics.png",
+          "after_brightness": 246.83,
+          "after_near_black_ratio": 0.0047,
+          "before_file": null,
+          "before_brightness": null,
+          "before_near_black_ratio": null,
+          "brightness_increase": null
+        }
+      },
+      "prohibited_hits": []
+    },
+    "intelligence": {
+      "viewports": {
+        "1920x1080": {
+          "after_file": "docs\\screenshots\\after\\after_1920x1080_intelligence.png",
+          "after_brightness": 250.16,
+          "after_near_black_ratio": 0.0002,
+          "before_file": "docs\\screenshots\\before\\before_1920_intelligence.png",
+          "before_brightness": 15.85,
+          "before_near_black_ratio": 0.9433,
+          "brightness_increase": 234.31
+        },
+        "1366x768": {
+          "after_file": "docs\\screenshots\\after\\after_1366x768_intelligence.png",
+          "after_brightness": 249.63,
+          "after_near_black_ratio": 0.0003,
+          "before_file": "docs\\screenshots\\before\\before_1366_intelligence.png",
+          "before_brightness": 19.32,
+          "before_near_black_ratio": 0.9099,
+          "brightness_increase": 230.31
+        },
+        "tablet_768x1024": {
+          "after_file": "docs\\screenshots\\after\\after_tablet_768x1024_intelligence.png",
+          "after_brightness": 248.95,
+          "after_near_black_ratio": 0.0004,
+          "before_file": null,
+          "before_brightness": null,
+          "before_near_black_ratio": null,
+          "brightness_increase": null
+        },
+        "mobile_375x667": {
+          "after_file": "docs\\screenshots\\after\\after_mobile_375x667_intelligence.png",
+          "after_brightness": 246.75,
+          "after_near_black_ratio": 0.0013,
+          "before_file": null,
+          "before_brightness": null,
+          "before_near_black_ratio": null,
+          "brightness_increase": null
+        }
+      },
+      "prohibited_hits": []
+    },
+    "ask": {
+      "viewports": {
+        "1920x1080": {
+          "after_file": "docs\\screenshots\\after\\after_1920x1080_ask.png",
+          "after_brightness": 249.48,
+          "after_near_black_ratio": 0.0001,
+          "before_file": "docs\\screenshots\\before\\before_1920_ask.png",
+          "before_brightness": 20.51,
+          "before_near_black_ratio": 0.9095,
+          "brightness_increase": 228.97
+        },
+        "1366x768": {
+          "after_file": "docs\\screenshots\\after\\after_1366x768_ask.png",
+          "after_brightness": 248.03,
+          "after_near_black_ratio": 0.0003,
+          "before_file": "docs\\screenshots\\before\\before_1366_ask.png",
+          "before_brightness": 25.72,
+          "before_near_black_ratio": 0.8592,
+          "brightness_increase": 222.31
+        },
+        "tablet_768x1024": {
+          "after_file": "docs\\screenshots\\after\\after_tablet_768x1024_ask.png",
+          "after_brightness": 247.25,
+          "after_near_black_ratio": 0.0004,
+          "before_file": null,
+          "before_brightness": null,
+          "before_near_black_ratio": null,
+          "brightness_increase": null
+        },
+        "mobile_375x667": {
+          "after_file": "docs\\screenshots\\after\\after_mobile_375x667_ask.png",
+          "after_brightness": 246.27,
+          "after_near_black_ratio": 0.0013,
+          "before_file": null,
+          "before_brightness": null,
+          "before_near_black_ratio": null,
+          "brightness_increase": null
+        }
+      },
+      "prohibited_hits": []
+    },
+    "reports": {
+      "viewports": {
+        "1920x1080": {
+          "after_file": "docs\\screenshots\\after\\after_1920x1080_reports.png",
+          "after_brightness": 249.33,
+          "after_near_black_ratio": 0.0015,
+          "before_file": "docs\\screenshots\\before\\before_1920_reports.png",
+          "before_brightness": 17.74,
+          "before_near_black_ratio": 0.9112,
+          "brightness_increase": 231.59
+        },
+        "1366x768": {
+          "after_file": "docs\\screenshots\\after\\after_1366x768_reports.png",
+          "after_brightness": 247.77,
+          "after_near_black_ratio": 0.0029,
+          "before_file": "docs\\screenshots\\before\\before_1366_reports.png",
+          "before_brightness": 23.22,
+          "before_near_black_ratio": 0.8582,
+          "brightness_increase": 224.55
+        },
+        "tablet_768x1024": {
+          "after_file": "docs\\screenshots\\after\\after_tablet_768x1024_reports.png",
+          "after_brightness": 246.33,
+          "after_near_black_ratio": 0.0038,
+          "before_file": null,
+          "before_brightness": null,
+          "before_near_black_ratio": null,
+          "brightness_increase": null
+        },
+        "mobile_375x667": {
+          "after_file": "docs\\screenshots\\after\\after_mobile_375x667_reports.png",
+          "after_brightness": 246.39,
+          "after_near_black_ratio": 0.0052,
+          "before_file": null,
+          "before_brightness": null,
+          "before_near_black_ratio": null,
+          "brightness_increase": null
+        }
+      },
+      "prohibited_hits": []
+    },
+    "settings": {
+      "viewports": {
+        "1920x1080": {
+          "after_file": "docs\\screenshots\\after\\after_1920x1080_settings.png",
+          "after_brightness": 249.3,
+          "after_near_black_ratio": 0.0002,
+          "before_file": "docs\\screenshots\\before\\before_1920_settings.png",
+          "before_brightness": 19.71,
+          "before_near_black_ratio": 0.916,
+          "brightness_increase": 229.59
+        },
+        "1366x768": {
+          "after_file": "docs\\screenshots\\after\\after_1366x768_settings.png",
+          "after_brightness": 248.81,
+          "after_near_black_ratio": 0.0004,
+          "before_file": "docs\\screenshots\\before\\before_1366_settings.png",
+          "before_brightness": 22.25,
+          "before_near_black_ratio": 0.8818,
+          "brightness_increase": 226.56
+        },
+        "tablet_768x1024": {
+          "after_file": "docs\\screenshots\\after\\after_tablet_768x1024_settings.png",
+          "after_brightness": 246.13,
+          "after_near_black_ratio": 0.0006,
+          "before_file": null,
+          "before_brightness": null,
+          "before_near_black_ratio": null,
+          "brightness_increase": null
+        },
+        "mobile_375x667": {
+          "after_file": "docs\\screenshots\\after\\after_mobile_375x667_settings.png",
+          "after_brightness": 247.46,
+          "after_near_black_ratio": 0.0012,
+          "before_file": null,
+          "before_brightness": null,
+          "before_near_black_ratio": null,
+          "brightness_increase": null
+        }
+      },
+      "prohibited_hits": []
+    },
+    "landing": {
+      "viewports": {
+        "1920x1080": {
+          "after_file": "docs\\screenshots\\after\\after_1920x1080_landing.png",
+          "after_brightness": 245.8,
+          "after_near_black_ratio": 0.0053,
+          "before_file": "docs\\screenshots\\before\\before_1920_landing.png",
+          "before_brightness": 16.42,
+          "before_near_black_ratio": 0.9405,
+          "brightness_increase": 229.38
+        },
+        "1366x768": {
+          "after_file": "docs\\screenshots\\after\\after_1366x768_landing.png",
+          "after_brightness": 241.09,
+          "after_near_black_ratio": 0.0104,
+          "before_file": "docs\\screenshots\\before\\before_1366_landing.png",
+          "before_brightness": 23.44,
+          "before_near_black_ratio": 0.8835,
+          "brightness_increase": 217.65
+        },
+        "tablet_768x1024": {
+          "after_file": "docs\\screenshots\\after\\after_tablet_768x1024_landing.png",
+          "after_brightness": 240.61,
+          "after_near_black_ratio": 0.008,
+          "before_file": null,
+          "before_brightness": null,
+          "before_near_black_ratio": null,
+          "brightness_increase": null
+        },
+        "mobile_375x667": {
+          "after_file": "docs\\screenshots\\after\\after_mobile_375x667_landing.png",
+          "after_brightness": 233.3,
+          "after_near_black_ratio": 0.0225,
+          "before_file": null,
+          "before_brightness": null,
+          "before_near_black_ratio": null,
+          "brightness_increase": null
+        }
+      },
+      "prohibited_hits": []
+    }
+  },
+  "prohibited_strings_check": {
+    "dashboard": {
+      "hits": [],
+      "pass": true
+    },
+    "live": {
+      "hits": [],
+      "pass": true
+    },
+    "analytics": {
+      "hits": [],
+      "pass": true
+    },
+    "intelligence": {
+      "hits": [],
+      "pass": true
+    },
+    "ask": {
+      "hits": [],
+      "pass": true
+    },
+    "reports": {
+      "hits": [],
+      "pass": true
+    },
+    "settings": {
+      "hits": [],
+      "pass": true
+    },
+    "landing": {
+      "hits": [],
+      "pass": true
+    }
+  },
+  "sidebar_verification": {
+    "dashboard": {
+      "found_items": [
+        "Overview",
+        "Live Classroom",
+        "Analytics",
+        "Lecture Intelligence",
+        "Ask ClassVision",
+        "Reports",
+        "Settings"
+      ],
+      "primary_count": 7,
+      "exact_match": true,
+      "pass": true
+    },
+    "live": {
+      "found_items": [
+        "Overview",
+        "Live Classroom",
+        "Analytics",
+        "Lecture Intelligence",
+        "Ask ClassVision",
+        "Reports",
+        "Settings"
+      ],
+      "primary_count": 7,
+      "exact_match": true,
+      "pass": true
+    },
+    "analytics": {
+      "found_items": [
+        "Overview",
+        "Live Classroom",
+        "Analytics",
+        "Lecture Intelligence",
+        "Ask ClassVision",
+        "Reports",
+        "Settings"
+      ],
+      "primary_count": 7,
+      "exact_match": true,
+      "pass": true
+    },
+    "intelligence": {
+      "found_items": [
+        "Overview",
+        "Live Classroom",
+        "Analytics",
+        "Lecture Intelligence",
+        "Ask ClassVision",
+        "Reports",
+        "Settings"
+      ],
+      "primary_count": 7,
+      "exact_match": true,
+      "pass": true
+    },
+    "ask": {
+      "found_items": [
+        "Overview",
+        "Live Classroom",
+        "Analytics",
+        "Lecture Intelligence",
+        "Ask ClassVision",
+        "Reports",
+        "Settings"
+      ],
+      "primary_count": 7,
+      "exact_match": true,
+      "pass": true
+    },
+    "reports": {
+      "found_items": [
+        "Overview",
+        "Live Classroom",
+        "Analytics",
+        "Lecture Intelligence",
+        "Ask ClassVision",
+        "Reports",
+        "Settings"
+      ],
+      "primary_count": 7,
+      "exact_match": true,
+      "pass": true
+    },
+    "settings": {
+      "found_items": [
+        "Overview",
+        "Live Classroom",
+        "Analytics",
+        "Lecture Intelligence",
+        "Ask ClassVision",
+        "Reports",
+        "Settings"
+      ],
+      "primary_count": 7,
+      "exact_match": true,
+      "pass": true
+    }
+  },
+  "body_background_check": {
+    "dashboard": {
+      "computed": "rgb(247, 248, 250)",
+      "pass": true
+    },
+    "live": {
+      "computed": "rgb(247, 248, 250)",
+      "pass": true
+    },
+    "analytics": {
+      "computed": "rgb(247, 248, 250)",
+      "pass": true
+    },
+    "intelligence": {
+      "computed": "rgb(247, 248, 250)",
+      "pass": true
+    },
+    "ask": {
+      "computed": "rgb(247, 248, 250)",
+      "pass": true
+    },
+    "reports": {
+      "computed": "rgb(247, 248, 250)",
+      "pass": true
+    },
+    "settings": {
+      "computed": "rgb(247, 248, 250)",
+      "pass": true
+    },
+    "landing": {
+      "computed": "rgb(247, 248, 250)",
+      "pass": true
+    }
+  },
+  "brightness_and_contrast_metrics": {},
+  "console_errors": {},
+  "old_color_scan": {
+    "files_with_hits": {},
+    "total_non_dev_hits": 0,
+    "pass": true
+  }
+}
