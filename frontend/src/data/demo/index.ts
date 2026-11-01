@@ -203,7 +203,7 @@ export const DEMO_ANALYTICS: AnalyticsData = {
     { minute: 40, timestamp: '09:55', handRaises: 3, attentionIndex: 87, questionsLogged: 1 },
   ],
   activityDistribution: [
-    { name: 'Listening & Attentive', count: 20, percentage: 71.4, color: '#06b6d4' },
+    { name: 'Listening & Attentive', count: 20, percentage: 71.4, color: '#0F766E' },
     { name: 'Active Hand Raise', count: 4, percentage: 14.3, color: '#8b5cf6' },
     { name: 'Note Taking & Typing', count: 3, percentage: 10.7, color: '#10b981' },
     { name: 'Ambiguous / Occluded', count: 1, percentage: 3.6, color: '#f59e0b' },

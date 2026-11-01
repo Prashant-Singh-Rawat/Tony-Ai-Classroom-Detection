@@ -2385,11 +2385,11 @@ export const MonitoringPage: React.FC = () => {
 
               <div className="absolute inset-0 opacity-15 pointer-events-none">
                 <svg width="100%" height="100%">
-                  <line x1="0" y1="30%" x2="100%" y2="30%" stroke="#8b5cf6" strokeWidth="1" strokeDasharray="4 4" />
-                  <line x1="0" y1="55%" x2="100%" y2="55%" stroke="#8b5cf6" strokeWidth="1" strokeDasharray="4 4" />
-                  <line x1="0" y1="80%" x2="100%" y2="80%" stroke="#8b5cf6" strokeWidth="1" strokeDasharray="4 4" />
-                  <line x1="15%" y1="0" x2="35%" y2="100%" stroke="#06b6d4" strokeWidth="1" strokeDasharray="4 4" />
-                  <line x1="85%" y1="0" x2="65%" y2="100%" stroke="#06b6d4" strokeWidth="1" strokeDasharray="4 4" />
+                  <line x1="0" y1="30%" x2="100%" y2="30%" stroke="#94a3b8" strokeWidth="1" strokeDasharray="4 4" />
+                  <line x1="0" y1="55%" x2="100%" y2="55%" stroke="#94a3b8" strokeWidth="1" strokeDasharray="4 4" />
+                  <line x1="0" y1="80%" x2="100%" y2="80%" stroke="#94a3b8" strokeWidth="1" strokeDasharray="4 4" />
+                  <line x1="15%" y1="0" x2="35%" y2="100%" stroke="#94a3b8" strokeWidth="1" strokeDasharray="4 4" />
+                  <line x1="85%" y1="0" x2="65%" y2="100%" stroke="#94a3b8" strokeWidth="1" strokeDasharray="4 4" />
                 </svg>
               </div>
 
