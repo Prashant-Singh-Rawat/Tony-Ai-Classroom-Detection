@@ -112,6 +112,8 @@ interface VideoProcessResult {
 }
 
 export const MonitoringPage: React.FC = () => {
+  const showDevTools = import.meta.env.VITE_SHOW_DEV_TOOLS === 'true'
+
   // Mode selection
   const [activeTab, setActiveTab] = useState<'real_yolo' | 'simulated_viewport'>('real_yolo')
 
@@ -897,7 +899,7 @@ export const MonitoringPage: React.FC = () => {
             <span>ClassVision AI — Live Classroom Studio</span>
           </h2>
           <p className="text-xs text-slate-500 mt-0.5">
-            Real-time YOLOv8n-pose 17-Keypoint Detection &amp; Teacher ROI Tracking (Offline Edge Mode)
+            {showDevTools ? 'Real-time YOLOv8n-pose 17-Keypoint Detection & Teacher ROI Tracking (Offline Edge Mode)' : 'Real-time YOLOv8n-pose 17-Keypoint Detection & Classroom Activity Analysis'}
           </p>
         </div>
 
@@ -907,17 +909,17 @@ export const MonitoringPage: React.FC = () => {
             {wsStatus === 'connected' ? (
               <>
                 <Radio className="h-3.5 w-3.5 text-emerald-600 animate-pulse" />
-                <span className="text-emerald-700 font-semibold text-[11px]">WS Live</span>
+                <span className="text-emerald-700 font-semibold text-[11px]">{showDevTools ? 'WS Live' : 'Stream Connected'}</span>
               </>
             ) : wsStatus === 'connecting' ? (
               <>
                 <Activity className="h-3.5 w-3.5 text-amber-600 animate-spin" />
-                <span className="text-amber-700 font-semibold text-[11px]">WS Connecting</span>
+                <span className="text-amber-700 font-semibold text-[11px]">{showDevTools ? 'WS Connecting' : 'Connecting Stream'}</span>
               </>
             ) : (
               <>
                 <WifiOff className="h-3.5 w-3.5 text-slate-400" />
-                <span className="text-slate-500 text-[11px]">WS Offline</span>
+                <span className="text-slate-500 text-[11px]">{showDevTools ? 'WS Offline' : 'Stream Offline'}</span>
               </>
             )}
           </div>
@@ -933,6 +935,7 @@ export const MonitoringPage: React.FC = () => {
             >
               Live Classroom AI
             </button>
+            {showDevTools && (
             <button
               onClick={() => setActiveTab('simulated_viewport')}
               className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold border transition-all ${
@@ -943,6 +946,7 @@ export const MonitoringPage: React.FC = () => {
             >
               Simulated Viewport
             </button>
+            )}
           </div>
         </div>
       </div>
@@ -1845,7 +1849,7 @@ export const MonitoringPage: React.FC = () => {
                     </span>
                   </div>
                   <p className="text-[11px] text-slate-500 mt-0.5">
-                    IoU Trajectory Continuity &bull; Gap Tolerance &bull; Cooldown Protection &bull; SQLite Persistence
+                    {showDevTools ? 'IoU Trajectory Continuity • Gap Tolerance • Cooldown Protection • SQLite Persistence' : 'Continuous Motion Tracking & Session Analytics'}
                   </p>
                 </div>
 
@@ -2141,6 +2145,7 @@ export const MonitoringPage: React.FC = () => {
                 </button>
               )}
 
+              {showDevTools && (
               <button
                 type="button"
                 onClick={handleRunSyntheticSample}
@@ -2150,6 +2155,7 @@ export const MonitoringPage: React.FC = () => {
                 <Cpu className="h-3.5 w-3.5 text-slate-500" />
                 <span>Test Sample Frame</span>
               </button>
+              )}
             </div>
 
             {/* Detection Group */}

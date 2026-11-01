@@ -180,11 +180,11 @@ class ComputerVisionService:
         model = self._get_yolo()
         device = self.get_device()
 
-        # Execute inference with CUDA OOM safety — detects persons (0) and cell phones (67)
+        # Execute inference with CUDA OOM safety — strictly filters for class 0 (person)
         try:
             results = model(
                 img,
-                classes=[0, 67],
+                classes=[0],
                 conf=confidence_threshold,
                 imgsz=imgsz,
                 device=device,
@@ -195,7 +195,7 @@ class ComputerVisionService:
                 # Fallback to CPU immediately
                 results = model(
                     img,
-                    classes=[0, 67],
+                    classes=[0],
                     conf=confidence_threshold,
                     imgsz=imgsz,
                     device="cpu",
@@ -207,7 +207,6 @@ class ComputerVisionService:
 
         detections: List[PersonDetection] = []
         bounding_boxes: List[BoundingBox] = []
-        detected_phones: List[Dict[str, Any]] = []
 
         if results and len(results) > 0:
             boxes = results[0].boxes
@@ -218,11 +217,7 @@ class ComputerVisionService:
                 cls_id = int(box.cls[0].cpu().numpy()) if hasattr(box, "cls") and box.cls is not None else 0
                 x1, y1, x2, y2 = coords
 
-                if cls_id == 67:
-                    detected_phones.append({
-                        "bbox": [float(x1), float(y1), float(x2), float(y2)],
-                        "confidence": conf,
-                    })
+                if cls_id != 0:
                     continue
 
                 person_id = f"anon_{person_idx:03d}"
@@ -271,7 +266,7 @@ class ComputerVisionService:
         from backend.app.services.activity_recognition.service import activity_service
         bounding_boxes, _ = activity_service.analyze_frame(
             person_boxes=bounding_boxes,
-            detected_phones=detected_phones,
+            detected_phones=[],
             is_pose_mode=False,
         )
 
@@ -362,7 +357,7 @@ class ComputerVisionService:
         video_source: str | bytes,
         filename_hint: str = "classroom_video.mp4",
         frame_skip: int = 5,
-        confidence_threshold: float = 0.25,
+        confidence_threshold: float = 0.20,
         imgsz: int = 640,
         detect_pose: bool = False,
         session_id: Optional[str] = None,
@@ -517,6 +512,16 @@ class ComputerVisionService:
                                 except Exception:
                                     pass
 
+                            kp_models = [
+                                Keypoint(
+                                    name=kp.name,
+                                    x=round(kp.x, 1),
+                                    y=round(kp.y, 1),
+                                    confidence=round(kp.confidence, 3),
+                                )
+                                for kp in p.keypoints
+                            ] if hasattr(p, "keypoints") and p.keypoints else None
+
                             frame_boxes.append(BoundingBox(
                                 id=p.id,
                                 personId=int(p.id.replace("anon_", "")) if "anon_" in p.id else 1,
@@ -532,7 +537,19 @@ class ComputerVisionService:
                                 handRaised=is_raised,
                                 status=p.posture.value if hasattr(p.posture, "value") else str(p.posture),
                                 zoneClassification=zone_cls_val,
+                                keypoints=kp_models,
                             ))
+
+                        # Explainable activity recognition on pose frame boxes
+                        try:
+                            from backend.app.services.activity_recognition.service import activity_service
+                            frame_boxes, _ = activity_service.analyze_frame(
+                                person_boxes=frame_boxes,
+                                detected_phones=[],
+                                is_pose_mode=True,
+                            )
+                        except Exception:
+                            pass
 
                         total_hand_raises += hr_count
                         total_needs_review += nr_count
@@ -748,12 +765,26 @@ class ComputerVisionService:
                 left_ambiguous = False
                 right_ambiguous = False
                 margin = 15.0
+                b_height = float(y2 - y1)
+                effective_margin = max(margin, 0.15 * b_height)
+
+                nose = kpts[0] if len(kpts) > 0 else None
+                lear = kpts[3] if len(kpts) > 3 else None
+                rear = kpts[4] if len(kpts) > 4 else None
+                head_ref_y = None
+                if lear is not None and lear[2] >= 0.35:
+                    head_ref_y = lear[1] + 15.0
+                elif rear is not None and rear[2] >= 0.35:
+                    head_ref_y = rear[1] + 15.0
+                elif nose is not None and nose[2] >= 0.35:
+                    head_ref_y = nose[1] + 20.0
 
                 if left_shoulder is not None and left_wrist is not None:
                     ls_y, ls_conf = left_shoulder[1], left_shoulder[2]
                     lw_y, lw_conf = left_wrist[1], left_wrist[2]
+                    is_above_head = True if head_ref_y is None else (lw_y <= head_ref_y)
                     if ls_conf > 0.4 and lw_conf > 0.4:
-                        if lw_y < (ls_y - margin):
+                        if lw_y < (ls_y - effective_margin) and is_above_head:
                             is_left_raised = True
                     elif 0.2 < lw_conf <= 0.4:
                         left_ambiguous = True
@@ -761,8 +792,9 @@ class ComputerVisionService:
                 if right_shoulder is not None and right_wrist is not None:
                     rs_y, rs_conf = right_shoulder[1], right_shoulder[2]
                     rw_y, rw_conf = right_wrist[1], right_wrist[2]
+                    is_above_head = True if head_ref_y is None else (rw_y <= head_ref_y)
                     if rs_conf > 0.4 and rw_conf > 0.4:
-                        if rw_y < (rs_y - margin):
+                        if rw_y < (rs_y - effective_margin) and is_above_head:
                             is_right_raised = True
                     elif 0.2 < rw_conf <= 0.4:
                         right_ambiguous = True

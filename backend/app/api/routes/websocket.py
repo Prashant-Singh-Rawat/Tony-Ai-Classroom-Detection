@@ -245,6 +245,7 @@ async def websocket_detections(websocket: WebSocket) -> None:
                         logger.error("WebSocket DB operation exception: %s", db_op_err)
                     finally:
                         db.close()
+                        db = None
 
                     privacy_safeguards = {
                         "inMemoryOnly": True,
@@ -294,6 +295,12 @@ async def websocket_detections(websocket: WebSocket) -> None:
                     )
                     await websocket.send_text(err_msg.model_dump_json(by_alias=True))
                 finally:
+                    # Guarantee closing of SQLAlchemy DB connection to prevent SQLite pool exhaustion
+                    if 'db' in locals() and db is not None:
+                        try:
+                            db.close()
+                        except Exception:
+                            pass
                     # Guarantee release of frame buffers from memory
                     try:
                         del frame_bytes

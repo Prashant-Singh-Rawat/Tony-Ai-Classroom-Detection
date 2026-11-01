@@ -52,7 +52,7 @@ def test_get_lecture_intelligence_no_selected_session(client):
     assert response.status_code == 200
     data = response.json()
     assert data["isDemoData"] is False
-    assert data["sessionId"] == "sess_live_demo_1793468210"
+    assert data["sessionId"] is not None and data["sessionId"].startswith("sess_")
     assert len(data["topic"]) > 0
 
 

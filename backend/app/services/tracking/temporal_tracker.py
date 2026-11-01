@@ -88,6 +88,7 @@ class TrackedPerson:
         self.frames_in_current_state: int = 1
         self.total_frames_tracked: int = 1
         self.missing_frames_count: int = 0
+        self.noise_frames_count: int = 0
         self.is_occluded: bool = False
 
         # Event Tracking
@@ -395,16 +396,22 @@ class TemporalTracker:
         if instant_status == "AMBIGUOUS" or instant_status == "LOW_CONFIDENCE":
             if track.state == HandRaisingState.RAISED:
                 # If currently raised, tolerate brief noise (up to 2 frames) before entering NEEDS_REVIEW
-                if track.frames_in_current_state >= 2:
-                    track.frames_in_current_state += 1
-                else:
+                track.noise_frames_count += 1
+                if track.noise_frames_count > 2:
                     track.state = HandRaisingState.NEEDS_REVIEW
                     track.frames_in_current_state = 1
+                    track.noise_frames_count = 0
+                else:
+                    track.frames_in_current_state += 1
+            elif track.state == HandRaisingState.NEEDS_REVIEW:
+                track.frames_in_current_state += 1
             else:
                 track.state = HandRaisingState.NEEDS_REVIEW
                 track.frames_in_current_state = 1
+                track.noise_frames_count = 0
 
         elif instant_status == "RAISED":
+            track.noise_frames_count = 0
             if in_cooldown and track.state == HandRaisingState.NOT_RAISED:
                 # In cooldown, suppress immediate re-trigger
                 track.state = HandRaisingState.NOT_RAISED
@@ -437,6 +444,7 @@ class TemporalTracker:
                     self._start_event(track, t_sec, frame_idx, hand_side, evidence)
 
         elif instant_status == "RAISING_ZONE":
+            track.noise_frames_count = 0
             if track.state == HandRaisingState.NOT_RAISED:
                 track.state = HandRaisingState.RAISING
                 track.hand_side = hand_side
@@ -450,6 +458,7 @@ class TemporalTracker:
                 track.frames_in_current_state += 1
 
         elif instant_status == "NOT_RAISED":
+            track.noise_frames_count = 0
             if track.state == HandRaisingState.RAISING:
                 # Arm lowered before completing min_raised_frames -> false positive aborted
                 track.state = HandRaisingState.NOT_RAISED

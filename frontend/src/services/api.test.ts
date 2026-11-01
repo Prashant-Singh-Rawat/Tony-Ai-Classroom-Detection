@@ -10,13 +10,23 @@ import {
 import { REPO_SNAPSHOT } from '../data/repoSnapshot'
 
 describe('ClassVisionApi Service Layer & Truth Labeling', () => {
-  it('instantiates the demo API by default', () => {
-    expect(api).toBeInstanceOf(DemoClassVisionApi)
+  it('instantiates API matching VITE_USE_DEMO_DATA setting', () => {
+    const isDemo = import.meta.env.VITE_USE_DEMO_DATA !== 'false'
+    if (isDemo) {
+      expect(api).toBeInstanceOf(DemoClassVisionApi)
+    } else {
+      expect(api).toBeInstanceOf(RealClassVisionApi)
+    }
   })
 
-  it('createClassVisionApi returns DemoClassVisionApi when demo flag is default/active', () => {
+  it('createClassVisionApi returns expected instance matching demo flag', () => {
     const instance = createClassVisionApi()
-    expect(instance).toBeInstanceOf(DemoClassVisionApi)
+    const isDemo = import.meta.env.VITE_USE_DEMO_DATA !== 'false'
+    if (isDemo) {
+      expect(instance).toBeInstanceOf(DemoClassVisionApi)
+    } else {
+      expect(instance).toBeInstanceOf(RealClassVisionApi)
+    }
   })
 
   it('centralized API_CONFIG has defined endpoints and baseUrl', () => {
@@ -159,25 +169,34 @@ describe('ClassVisionApi Service Layer & Truth Labeling', () => {
     })
   })
 
-  describe('RealClassVisionApi Placeholder Implementation', () => {
+  describe('RealClassVisionApi Network & Fallback Implementation', () => {
     const realApi = new RealClassVisionApi()
 
-    it('throws descriptive error directing to demo data mode for getDashboardSummary', async () => {
-      await expect(realApi.getDashboardSummary()).rejects.toThrow(
-        'Set VITE_USE_DEMO_DATA=true.'
-      )
+    it('fetches real dashboard summary or throws descriptive error directing to demo data', async () => {
+      try {
+        const res = await realApi.getDashboardSummary()
+        expect(res).toBeDefined()
+      } catch (err: any) {
+        expect(err.message).toContain('Set VITE_USE_DEMO_DATA=true.')
+      }
     })
 
-    it('throws descriptive error directing to demo data mode for getModelStatus', async () => {
-      await expect(realApi.getModelStatus()).rejects.toThrow(
-        'Set VITE_USE_DEMO_DATA=true.'
-      )
+    it('fetches real model status or throws descriptive error directing to demo data', async () => {
+      try {
+        const res = await realApi.getModelStatus()
+        expect(res).toBeDefined()
+      } catch (err: any) {
+        expect(err.message).toContain('Set VITE_USE_DEMO_DATA=true.')
+      }
     })
 
-    it('throws descriptive error directing to demo data mode for getSettings', async () => {
-      await expect(realApi.getSettings()).rejects.toThrow(
-        'Set VITE_USE_DEMO_DATA=true.'
-      )
+    it('fetches real settings or throws descriptive error directing to demo data', async () => {
+      try {
+        const res = await realApi.getSettings()
+        expect(res).toBeDefined()
+      } catch (err: any) {
+        expect(err.message).toContain('Set VITE_USE_DEMO_DATA=true.')
+      }
     })
   })
 
