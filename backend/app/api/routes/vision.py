@@ -166,7 +166,7 @@ async def detect_frame(
 async def process_video(
     file: UploadFile = File(...),
     frame_skip: int = Form(default=5),
-    confidence_threshold: float = Form(default=0.25),
+    confidence_threshold: float = Form(default=0.20),
     imgsz: int = Form(default=640),
     detect_pose: bool = Form(default=False),
     session_id: Optional[str] = Form(default="sess_video"),
