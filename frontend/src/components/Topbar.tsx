@@ -1,7 +1,7 @@
 // frontend/src/components/Topbar.tsx
 import React from 'react'
-import { Activity, User, HardDrive } from 'lucide-react'
-import { DataStatusBadge } from './DataStatusBadge'
+import { Link } from 'react-router-dom'
+import { Video } from 'lucide-react'
 
 interface TopbarProps {
   title: string
@@ -9,42 +9,33 @@ interface TopbarProps {
 }
 
 export const Topbar: React.FC<TopbarProps> = ({ title, subtitle }) => {
-  const isRealMode = import.meta.env.VITE_USE_DEMO_DATA === 'false'
-
   return (
-    <header className="h-16 flex-shrink-0 border-b border-slate-800/80 bg-[#0d101a]/80 backdrop-blur px-6 flex items-center justify-between z-10">
-      <div>
-        <h2 className="text-base font-bold text-white tracking-tight">{title}</h2>
-        {subtitle && <p className="text-xs text-slate-400">{subtitle}</p>}
+    <header className="h-14 flex-shrink-0 border-b border-slate-200 bg-white px-6 flex items-center justify-between z-10">
+      <div className="flex items-center gap-3">
+        <div>
+          <h2 className="text-sm font-semibold text-slate-900 tracking-tight">{title}</h2>
+          {subtitle && <p className="text-[11px] text-slate-500 hidden sm:block">{subtitle}</p>}
+        </div>
       </div>
 
-      <div className="flex items-center gap-3">
-        {/* Stream health indicator */}
-        <div className="hidden sm:flex items-center gap-2 rounded-full border border-emerald-500/30 bg-emerald-500/10 px-3 py-1 text-xs text-emerald-300 font-medium">
-          <Activity className="h-3.5 w-3.5 animate-pulse" />
-          <span>{isRealMode ? 'FastAPI Backend Online' : 'Local Stream (Demo)'}</span>
+      <div className="flex items-center gap-4">
+        {/* Connectivity dot */}
+        <div className="flex items-center gap-2 text-xs font-medium text-slate-600">
+          <span className="h-2 w-2 rounded-full bg-emerald-500" />
+          <span>Connected</span>
         </div>
 
-        {/* Offline storage status */}
-        <div className="hidden md:flex items-center gap-1.5 text-xs text-slate-400 border border-slate-800 rounded-md px-2.5 py-1 bg-slate-900/60">
-          <HardDrive className="h-3.5 w-3.5 text-cyan-400" />
-          <span>Offline Root</span>
-        </div>
-
-        {/* Data status badge */}
-        <DataStatusBadge status={isRealMode ? 'REAL' : 'DEMO DATA'} size="md" />
-
-        {/* User profile placeholder */}
-        <div className="flex items-center gap-2 pl-2 border-l border-slate-800">
-          <div className="h-8 w-8 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-slate-300">
-            <User className="h-4 w-4" />
-          </div>
-          <div className="hidden lg:block text-left">
-            <p className="text-xs font-semibold text-slate-200">Instructor Session</p>
-            <p className="text-[10px] text-slate-400">ClassVision Observer</p>
-          </div>
-        </div>
+        {/* Quick Launch CTA */}
+        <Link
+          to="/live"
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-600 text-white text-xs font-medium hover:bg-blue-700 active:bg-blue-800 transition-colors shadow-2xs"
+        >
+          <Video className="h-3.5 w-3.5" />
+          <span className="hidden sm:inline">Live Session</span>
+        </Link>
       </div>
     </header>
   )
 }
+
+export default Topbar

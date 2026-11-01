@@ -35,20 +35,20 @@ export const DataStatusBadge: React.FC<DataStatusBadgeProps> = ({
   > = {
     REAL: {
       container:
-        'border-emerald-500/40 bg-emerald-500/15 text-emerald-300 shadow-sm shadow-emerald-950/20',
-      dot: 'bg-emerald-400',
+        'border-emerald-200 bg-emerald-50 text-emerald-700 shadow-2xs',
+      dot: 'bg-emerald-500',
       label: 'REAL',
     },
     'DEMO DATA': {
       container:
-        'border-amber-500/40 bg-amber-500/15 text-amber-300 shadow-sm shadow-amber-950/20',
-      dot: 'bg-amber-400 animate-pulse',
+        'border-amber-200 bg-amber-50 text-amber-800 shadow-2xs',
+      dot: 'bg-amber-500 animate-pulse',
       label: 'DEMO DATA',
     },
     'NOT CONNECTED': {
       container:
-        'border-slate-700 bg-slate-800/80 text-slate-400 shadow-sm shadow-black/30',
-      dot: 'bg-slate-500',
+        'border-slate-200 bg-slate-100 text-slate-600 shadow-2xs',
+      dot: 'bg-slate-400',
       label: 'NOT CONNECTED',
     },
   }
@@ -60,8 +60,11 @@ export const DataStatusBadge: React.FC<DataStatusBadgeProps> = ({
       className={`inline-flex items-center font-bold uppercase rounded-md border ${currentStyle.container} ${sizeClasses[size]} ${className}`}
       title={tooltip || defaultTooltips[status]}
     >
-      <span className={`w-1.5 h-1.5 rounded-full mr-1.5 flex-shrink-0 ${currentStyle.dot}`} />
+      <span
+        className={`mr-1.5 inline-block h-1.5 w-1.5 rounded-full ${currentStyle.dot}`}
+      />
       {currentStyle.label}
     </span>
   )
 }
+export default DataStatusBadge

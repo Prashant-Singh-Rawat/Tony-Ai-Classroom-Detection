@@ -30,6 +30,7 @@ export interface BoundingBox {
   activityEvidence?: string
   statusColor?: 'GREEN' | 'RED' | 'ORANGE' | 'BLUE' | 'YELLOW'
   detectedObjects?: string[]
+  zoneClassification?: string
 }
 
 export interface SessionInfo {

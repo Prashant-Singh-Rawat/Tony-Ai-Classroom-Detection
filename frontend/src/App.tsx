@@ -24,15 +24,19 @@ export const App: React.FC = () => {
         {/* Authenticated Dashboard Core Views */}
         <Route element={<Layout />}>
           <Route path="/dashboard" element={<DashboardPage />} />
-          <Route path="/agents" element={<AgentCommandCenterPage />} />
           <Route path="/live" element={<MonitoringPage />} />
           <Route path="/monitoring" element={<MonitoringPage />} />
           <Route path="/analytics" element={<AnalyticsPage />} />
           <Route path="/intelligence" element={<IntelligencePage />} />
           <Route path="/ask" element={<AskClassVisionPage />} />
           <Route path="/reports" element={<ReportsPage />} />
-          <Route path="/model-status" element={<ModelStatusPage />} />
           <Route path="/settings" element={<SettingsPage />} />
+
+          {/* Developer Tools Routes (under /dev/... and legacy aliases) */}
+          <Route path="/dev/agents" element={<AgentCommandCenterPage />} />
+          <Route path="/agents" element={<AgentCommandCenterPage />} />
+          <Route path="/dev/model-status" element={<ModelStatusPage />} />
+          <Route path="/model-status" element={<ModelStatusPage />} />
         </Route>
 
         {/* Fallback */}

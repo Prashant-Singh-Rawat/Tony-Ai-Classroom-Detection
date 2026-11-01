@@ -21,42 +21,43 @@ export const MetricCard: React.FC<MetricCardProps> = ({
   trendType = 'neutral',
   accentColor = 'violet',
 }) => {
-  const accentClasses = {
-    violet: 'from-violet-500/10 to-transparent border-violet-500/20 text-violet-400',
-    cyan: 'from-cyan-500/10 to-transparent border-cyan-500/20 text-cyan-400',
-    emerald: 'from-emerald-500/10 to-transparent border-emerald-500/20 text-emerald-400',
-    amber: 'from-amber-500/10 to-transparent border-amber-500/20 text-amber-400',
+  const iconColors = {
+    violet: 'bg-blue-50 text-blue-600 border-blue-100',
+    cyan: 'bg-teal-50 text-teal-600 border-teal-100',
+    emerald: 'bg-emerald-50 text-emerald-600 border-emerald-100',
+    amber: 'bg-amber-50 text-amber-600 border-amber-100',
   }
 
   const trendColors = {
-    positive: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/30',
-    negative: 'text-rose-400 bg-rose-500/10 border-rose-500/30',
-    neutral: 'text-slate-400 bg-slate-800/40 border-slate-700/40',
+    positive: 'text-emerald-700 bg-emerald-50 border-emerald-200',
+    negative: 'text-rose-700 bg-rose-50 border-rose-200',
+    neutral: 'text-slate-600 bg-slate-50 border-slate-200',
   }
 
   return (
-    <div className={`relative overflow-hidden rounded-xl border bg-slate-900/60 bg-gradient-to-b p-5 backdrop-blur shadow-lg ${accentClasses[accentColor]}`}>
+    <div className="bg-white rounded-xl border border-slate-200 p-5 shadow-2xs hover:shadow-xs transition-shadow">
       <div className="flex items-start justify-between">
         <div>
-          <p className="text-xs font-medium uppercase tracking-wider text-slate-400">{label}</p>
-          <h3 className="mt-2 text-2xl font-bold tracking-tight text-white">{value}</h3>
-          {subtext && <p className="mt-1 text-xs text-slate-400">{subtext}</p>}
+          <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">{label}</p>
+          <h3 className="mt-2 text-2xl font-bold tracking-tight text-slate-900">{value}</h3>
+          {subtext && <p className="mt-1 text-xs text-slate-500">{subtext}</p>}
         </div>
         {Icon && (
-          <div className="rounded-lg border border-slate-800 bg-slate-800/60 p-2.5 shadow-inner">
+          <div className={`rounded-lg border p-2.5 ${iconColors[accentColor]}`}>
             <Icon className="h-5 w-5" />
           </div>
         )}
       </div>
 
       {trend && (
-        <div className="mt-3.5 flex items-center gap-1.5 pt-2 border-t border-slate-800/60">
-          <span className={`inline-flex items-center rounded px-1.5 py-0.5 text-[11px] font-medium border ${trendColors[trendType]}`}>
+        <div className="mt-3.5 flex items-center gap-1.5 pt-2 border-t border-slate-100 text-[11px]">
+          <span className={`inline-flex items-center rounded px-1.5 py-0.5 font-medium border ${trendColors[trendType]}`}>
             {trend}
           </span>
-          <span className="text-[11px] text-slate-500">vs session avg</span>
+          <span className="text-slate-400">vs session avg</span>
         </div>
       )}
     </div>
   )
 }
+export default MetricCard

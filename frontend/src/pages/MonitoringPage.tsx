@@ -1,5 +1,5 @@
 // frontend/src/pages/MonitoringPage.tsx
-import React, { useEffect, useRef, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import {
   Shield,
   Sliders,
@@ -10,25 +10,23 @@ import {
   Clock,
   Video,
   CheckCircle2,
-  Sparkles,
-  Info,
   Camera,
   CameraOff,
   Radio,
-  Wifi,
   WifiOff,
   Hand,
   Activity,
   Timer,
   UserCheck,
   RefreshCw,
-  Database,
-  Lock,
-  EyeOff,
+  Eye,
+  ChevronDown,
+  Settings,
 } from 'lucide-react'
 import { api } from '../services'
 import type {
   BoundingBox,
+  Keypoint,
   PoseDetectionResponseData,
   TrackedPersonData,
   HandRaiseEventData,
@@ -133,6 +131,42 @@ export const MonitoringPage: React.FC = () => {
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [hardwareStatus, setHardwareStatus] = useState<any>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const uploadedVideoRef = useRef<HTMLVideoElement>(null)
+  const [currentVideoTime, setCurrentVideoTime] = useState<number>(0)
+  const [videoNativeDims, setVideoNativeDims] = useState<{ width: number; height: number }>({ width: 960, height: 540 })
+
+  const handleVideoLoadedMetadata = () => {
+    if (uploadedVideoRef.current) {
+      const nw = uploadedVideoRef.current.videoWidth || 960
+      const nh = uploadedVideoRef.current.videoHeight || 540
+      setVideoNativeDims({ width: nw, height: nh })
+    }
+  }
+
+  const handleVideoTimeUpdate = () => {
+    if (uploadedVideoRef.current) {
+      setCurrentVideoTime(uploadedVideoRef.current.currentTime)
+    }
+  }
+
+  const activeVideoFrame = useMemo(() => {
+    if (!videoResult?.timeline || videoResult.timeline.length === 0) return null
+    const t = currentVideoTime
+    let closest = videoResult.timeline[0]
+    let minDiff = Math.abs(closest.timestampSeconds - t)
+    for (let i = 1; i < videoResult.timeline.length; i++) {
+      const diff = Math.abs(videoResult.timeline[i].timestampSeconds - t)
+      if (diff < minDiff) {
+        minDiff = diff
+        closest = videoResult.timeline[i]
+      }
+    }
+    // Max tolerance: 0.40s to avoid stale detections
+    if (minDiff > 0.40) {
+      return null
+    }
+    return closest
+  }, [videoResult, currentVideoTime])
 
   // Teacher Zone Exclusion (Instructor ROI) State
   const [zoneFilteringEnabled, setZoneFilteringEnabled] = useState<boolean>(true)
@@ -856,34 +890,34 @@ export const MonitoringPage: React.FC = () => {
       <canvas ref={canvasRef} className="hidden" />
 
       {/* Top Header & Tab Controls */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-4 rounded-2xl border border-slate-800 bg-slate-900/60 backdrop-blur">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 p-5 rounded-2xl border border-slate-200 bg-white shadow-2xs">
         <div>
-          <h2 className="text-lg font-bold text-white flex items-center gap-2">
-            <Video className="h-5 w-5 text-cyan-400" />
+          <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
+            <Video className="h-5 w-5 text-blue-600" />
             <span>ClassVision AI — Live Classroom Studio</span>
           </h2>
-          <p className="text-xs text-slate-400 mt-0.5">
-            Phase 2.5: Real YOLOv8n &amp; YOLOv8n-pose 17-Keypoint Hand-Raising Analysis (0% Real Classroom Footage &bull; Anonymous IDs)
+          <p className="text-xs text-slate-500 mt-0.5">
+            Real-time YOLOv8n-pose 17-Keypoint Detection &amp; Teacher ROI Tracking (Offline Edge Mode)
           </p>
         </div>
 
         <div className="flex items-center gap-3">
           {/* WebSocket status pill */}
-          <div className="flex items-center gap-1.5 px-3 py-1 rounded-xl border border-slate-800 bg-slate-950/60 text-xs">
+          <div className="flex items-center gap-1.5 px-3 py-1 rounded-lg border border-slate-200 bg-slate-50 text-xs text-slate-700">
             {wsStatus === 'connected' ? (
               <>
-                <Radio className="h-3.5 w-3.5 text-emerald-400 animate-pulse" />
-                <span className="text-emerald-300 font-semibold text-[11px]">WS Live</span>
+                <Radio className="h-3.5 w-3.5 text-emerald-600 animate-pulse" />
+                <span className="text-emerald-700 font-semibold text-[11px]">WS Live</span>
               </>
             ) : wsStatus === 'connecting' ? (
               <>
-                <Activity className="h-3.5 w-3.5 text-amber-400 animate-spin" />
-                <span className="text-amber-300 font-semibold text-[11px]">WS Connecting</span>
+                <Activity className="h-3.5 w-3.5 text-amber-600 animate-spin" />
+                <span className="text-amber-700 font-semibold text-[11px]">WS Connecting</span>
               </>
             ) : (
               <>
-                <WifiOff className="h-3.5 w-3.5 text-slate-500" />
-                <span className="text-slate-400 text-[11px]">WS Offline</span>
+                <WifiOff className="h-3.5 w-3.5 text-slate-400" />
+                <span className="text-slate-500 text-[11px]">WS Offline</span>
               </>
             )}
           </div>
@@ -891,20 +925,20 @@ export const MonitoringPage: React.FC = () => {
           <div className="flex items-center gap-2">
             <button
               onClick={() => setActiveTab('real_yolo')}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold border transition-all ${
+              className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold border transition-all ${
                 activeTab === 'real_yolo'
-                  ? 'border-cyan-500 bg-cyan-500/20 text-cyan-300 shadow-lg shadow-cyan-500/10'
-                  : 'border-slate-800 bg-slate-800/40 text-slate-400 hover:text-white'
+                  ? 'border-blue-600 bg-blue-50 text-blue-700 shadow-2xs'
+                  : 'border-slate-200 bg-white text-slate-600 hover:text-slate-900 hover:bg-slate-50'
               }`}
             >
               Live Classroom AI
             </button>
             <button
               onClick={() => setActiveTab('simulated_viewport')}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold border transition-all ${
+              className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold border transition-all ${
                 activeTab === 'simulated_viewport'
-                  ? 'border-violet-500 bg-violet-500/20 text-violet-300 shadow-lg shadow-violet-500/10'
-                  : 'border-slate-800 bg-slate-800/40 text-slate-400 hover:text-white'
+                  ? 'border-blue-600 bg-blue-50 text-blue-700 shadow-2xs'
+                  : 'border-slate-200 bg-white text-slate-600 hover:text-slate-900 hover:bg-slate-50'
               }`}
             >
               Simulated Viewport
@@ -914,14 +948,14 @@ export const MonitoringPage: React.FC = () => {
       </div>
 
       {errorMessage && (
-        <div className="rounded-xl border border-rose-500/40 bg-rose-500/10 p-3.5 text-xs text-rose-300 flex items-center justify-between">
+        <div className="rounded-xl border border-rose-200 bg-rose-50 p-3.5 text-xs text-rose-800 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <AlertTriangle className="h-4 w-4 text-rose-400 flex-shrink-0" />
+            <AlertTriangle className="h-4 w-4 text-rose-600 flex-shrink-0" />
             <span>{errorMessage}</span>
           </div>
           <button
             onClick={() => setErrorMessage(null)}
-            className="text-xs text-rose-400 hover:text-rose-200"
+            className="text-xs text-rose-600 hover:text-rose-800 font-semibold"
           >
             Dismiss
           </button>
@@ -929,16 +963,16 @@ export const MonitoringPage: React.FC = () => {
       )}
 
       {dbErrorMessage && (
-        <div className="rounded-xl border border-amber-500/40 bg-amber-500/10 p-3.5 text-xs text-amber-300 flex items-center justify-between">
+        <div className="rounded-xl border border-amber-200 bg-amber-50 p-3.5 text-xs text-amber-850 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <AlertTriangle className="h-4 w-4 text-amber-400 flex-shrink-0" />
+            <AlertTriangle className="h-4 w-4 text-amber-600 flex-shrink-0" />
             <span>
               <strong>SQLite Event Persistence Notice:</strong> {dbErrorMessage} (Live video streaming continues unaffected in volatile RAM).
             </span>
           </div>
           <button
             onClick={() => setDbErrorMessage(null)}
-            className="text-xs text-amber-400 hover:text-amber-200"
+            className="text-xs text-amber-700 hover:text-amber-900 font-semibold"
           >
             Dismiss
           </button>
@@ -950,7 +984,7 @@ export const MonitoringPage: React.FC = () => {
         <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
           {/* Main Visualizer Area (3 Cols) */}
           <div className="xl:col-span-3 space-y-4">
-            <div className="relative aspect-video w-full rounded-2xl border border-slate-800 bg-[#07090e] overflow-hidden shadow-2xl flex flex-col justify-between">
+            <div className="relative aspect-video w-full rounded-2xl border border-slate-300 bg-slate-950 overflow-hidden shadow-md flex flex-col justify-between">
               {/* Visual Display */}
               <div className="relative w-full h-full flex items-center justify-center overflow-hidden">
                 {/* 1. Live Webcam Feed (Always in DOM for immediate media stream binding) */}
@@ -1077,22 +1111,141 @@ export const MonitoringPage: React.FC = () => {
                 {!isWebcamActive && previewUrl && (
                   <div className="relative inline-block max-h-full max-w-full">
                     {selectedFile?.type.startsWith('video/') ? (
-                      videoResult ? (
-                        <div className="bg-slate-900/50 border border-slate-800 rounded-xl p-6 text-center">
-                          <CheckCircle2 className="h-10 w-10 text-cyan-400 mx-auto mb-3" />
-                          <h4 className="text-base font-bold text-white mb-2">Video Processing Complete</h4>
-                          <p className="text-xs text-slate-400">Classroom video analyzed using YOLOv8n</p>
-                        </div>
-                      ) : (
+                      <div className="space-y-3 p-3">
                         <div className="relative inline-block mx-auto max-w-full">
                           <video
+                            ref={uploadedVideoRef}
                             src={previewUrl}
                             controls
                             playsInline
+                            onTimeUpdate={handleVideoTimeUpdate}
+                            onSeeked={handleVideoTimeUpdate}
+                            onLoadedMetadata={handleVideoLoadedMetadata}
                             className="max-h-[460px] w-auto object-contain mx-auto rounded-lg shadow-xl border border-slate-800 block"
                           />
 
-                          {/* Teacher Zone Exclusion Polygon Preview */}
+                          {/* Synchronized Person Bounding Boxes & Skeletons Over Uploaded Video */}
+                          {activeVideoFrame && activeVideoFrame.boxes && activeVideoFrame.boxes.length > 0 && (
+                            <div className="absolute inset-0 pointer-events-none">
+                              {activeVideoFrame.boxes.map((det: BoundingBox) => {
+                                const cfg = getActivityBoxConfig(det)
+                                const isTeacherZone = det.zoneClassification === 'INSTRUCTOR_ZONE'
+
+                                return (
+                                  <div
+                                    key={det.id}
+                                    className={`absolute border-2 rounded shadow-lg transition-all ${
+                                      isTeacherZone ? 'border-amber-500 shadow-amber-500/30' : cfg.border
+                                    }`}
+                                    style={{
+                                      left: `${det.x}%`,
+                                      top: `${det.y}%`,
+                                      width: `${det.w}%`,
+                                      height: `${det.h}%`,
+                                    }}
+                                  >
+                                    <div
+                                      className={`absolute -top-6 left-0 flex items-center gap-1.5 px-2 py-0.5 text-[9px] font-mono uppercase font-bold tracking-wider rounded-t ${
+                                        isTeacherZone ? 'bg-amber-600/90 border-amber-400' : cfg.badgeBg
+                                      } border text-white shadow whitespace-nowrap z-20`}
+                                    >
+                                      {cfg.isHand && <Hand className="h-3 w-3 text-blue-400 fill-current animate-bounce" />}
+                                      <span>{det.id}:</span>
+                                      <span className={isTeacherZone ? 'text-amber-200' : cfg.text}>
+                                        {isTeacherZone ? 'INSTRUCTOR' : cfg.label}
+                                      </span>
+                                      <span className="text-slate-300">({(det.confidence * 100).toFixed(0)}%)</span>
+                                      {det.activityDurationSeconds !== undefined && det.activityDurationSeconds > 0 && (
+                                        <span className="text-cyan-300 font-semibold font-mono">
+                                          {det.activityDurationSeconds.toFixed(1)}s
+                                        </span>
+                                      )}
+                                    </div>
+
+                                    {blurFaces && (
+                                      <div className="absolute top-1 left-2 right-2 h-7 rounded bg-slate-900/70 backdrop-blur-md border border-cyan-300/30 flex items-center justify-center pointer-events-none">
+                                        <span className="text-[7px] text-cyan-200 font-bold tracking-tight">PRIVACY BLUR</span>
+                                      </div>
+                                    )}
+                                  </div>
+                                )
+                              })}
+
+                              {/* Synchronized 17-Keypoint Pose Skeletons Over Video */}
+                              {showKeypoints && (
+                                <svg
+                                  className="absolute inset-0 w-full h-full pointer-events-none"
+                                  viewBox="0 0 100 100"
+                                  preserveAspectRatio="none"
+                                >
+                                  {activeVideoFrame.boxes.map((b: BoundingBox) => {
+                                    if (!b.keypoints || b.keypoints.length === 0) return null
+                                    const imgW = videoResult?.width || videoNativeDims.width || 960
+                                    const imgH = videoResult?.height || videoNativeDims.height || 540
+                                    const kpMap: Record<string, { x: number; y: number; confidence: number }> = {}
+
+                                    b.keypoints.forEach((kp: Keypoint) => {
+                                      kpMap[kp.name] = {
+                                        x: (kp.x / imgW) * 100,
+                                        y: (kp.y / imgH) * 100,
+                                        confidence: kp.confidence,
+                                      }
+                                    })
+
+                                    return (
+                                      <g key={`skel-vid-${b.id}`}>
+                                        {/* Skeleton lines */}
+                                        {skeletonPairs.map(([p1, p2], idx) => {
+                                          const k1 = kpMap[p1]
+                                          const k2 = kpMap[p2]
+                                          if (!k1 || !k2 || k1.confidence < 0.20 || k2.confidence < 0.20) return null
+                                          const isArm =
+                                            p1.includes('wrist') ||
+                                            p2.includes('wrist') ||
+                                            p1.includes('elbow') ||
+                                            p2.includes('elbow')
+                                          return (
+                                            <line
+                                              key={idx}
+                                              x1={`${k1.x}%`}
+                                              y1={`${k1.y}%`}
+                                              x2={`${k2.x}%`}
+                                              y2={`${k2.y}%`}
+                                              stroke={b.handRaised && isArm ? '#34d399' : '#38bdf8'}
+                                              strokeWidth="2"
+                                              strokeLinecap="round"
+                                              opacity="0.85"
+                                            />
+                                          )
+                                        })}
+
+                                        {/* Keypoint dots */}
+                                        {b.keypoints.map((kp: Keypoint, kIdx: number) => {
+                                          if (kp.confidence < 0.20) return null
+                                          const kx = (kp.x / imgW) * 100
+                                          const ky = (kp.y / imgH) * 100
+                                          const isWrist = kp.name.includes('wrist')
+                                          return (
+                                            <circle
+                                              key={kIdx}
+                                              cx={`${kx}%`}
+                                              cy={`${ky}%`}
+                                              r={isWrist ? '2.5' : '1.8'}
+                                              fill={isWrist ? (b.handRaised ? '#10b981' : '#38bdf8') : '#818cf8'}
+                                              stroke="#0f172a"
+                                              strokeWidth="1"
+                                            />
+                                          )
+                                        })}
+                                      </g>
+                                    )
+                                  })}
+                                </svg>
+                              )}
+                            </div>
+                          )}
+
+                          {/* Teacher Zone Exclusion Polygon Preview (Subtle optional layer, no fill, no big label) */}
                           {showZoneOverlay && zoneFilteringEnabled && instructorPolygon && (
                             <svg
                               className="absolute inset-0 w-full h-full pointer-events-none rounded-lg"
@@ -1101,28 +1254,45 @@ export const MonitoringPage: React.FC = () => {
                             >
                               <polygon
                                 points={instructorPolygon.map(([x, y]) => `${x * 100},${y * 100}`).join(' ')}
-                                fill="rgba(245, 158, 11, 0.18)"
-                                stroke="#f59e0b"
-                                strokeWidth="1.2"
-                                strokeDasharray="3 2"
+                                fill="none"
+                                stroke="rgba(148, 163, 184, 0.45)"
+                                strokeWidth="0.8"
+                                strokeDasharray="3 3"
                               />
-                              {instructorPolygon[0] && (
-                                <text
-                                  x={instructorPolygon[0][0] * 100 + 2}
-                                  y={instructorPolygon[0][1] * 100 + 7}
-                                  fill="#f59e0b"
-                                  fontSize="3.8"
-                                  fontWeight="bold"
-                                  fontFamily="monospace"
-                                  className="tracking-wider uppercase select-none"
-                                >
-                                  TEACHING ZONE (EXCLUDED)
-                                </text>
-                              )}
                             </svg>
                           )}
                         </div>
-                      )
+
+                        {/* Video Playback & HUD Synchronization Strip */}
+                        {videoResult ? (
+                          <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-2.5 bg-white border border-slate-200 rounded-xl text-xs font-mono max-w-xl mx-auto shadow-2xs">
+                            <div className="flex items-center gap-2">
+                              <span className="h-2 w-2 rounded-full bg-emerald-500 animate-pulse" />
+                              <span className="text-slate-500">Timeline:</span>
+                              <strong className="text-slate-900">
+                                {currentVideoTime.toFixed(1)}s / {(videoResult.durationSeconds || 12).toFixed(1)}s
+                              </strong>
+                            </div>
+                            <div className="flex items-center gap-4">
+                              <span className="text-slate-500">
+                                Visible: <strong className="text-blue-700">{activeVideoFrame ? activeVideoFrame.personCount : 0}</strong>
+                              </span>
+                              <span className="text-slate-500">
+                                Hand-Raises: <strong className="text-emerald-700">{activeVideoFrame ? activeVideoFrame.handRaisedCount : 0}</strong>
+                              </span>
+                              {activeVideoFrame && (
+                                <span className="text-[10px] text-slate-400">
+                                  Frame #{activeVideoFrame.frameIndex}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                        ) : (
+                          <div className="text-center text-xs text-slate-500">
+                            Classroom video loaded &bull; Click <strong className="text-blue-600">Run File Inference</strong> to execute YOLOv8n-pose sequential analysis
+                          </div>
+                        )}
+                      </div>
                     ) : (
                       <>
                         <img
@@ -1353,114 +1523,114 @@ export const MonitoringPage: React.FC = () => {
             </div>
 
             {/* Viewport Control Toggles */}
-            <div className="flex flex-wrap items-center justify-between gap-4 p-4 rounded-xl border border-slate-800 bg-slate-900/60 backdrop-blur">
+            <div className="flex flex-wrap items-center justify-between gap-4 p-4 rounded-xl border border-slate-200 bg-white shadow-2xs">
               <div className="flex items-center gap-4">
-                <label className="flex items-center gap-2 text-xs font-medium text-slate-300 cursor-pointer">
+                <label className="flex items-center gap-2 text-xs font-medium text-slate-700 cursor-pointer">
                   <input
                     type="checkbox"
                     checked={blurFaces}
                     onChange={(e) => setBlurFaces(e.target.checked)}
-                    className="rounded border-slate-700 bg-slate-800 text-cyan-600 focus:ring-cyan-500"
+                    className="rounded border-slate-300 text-blue-600 focus:ring-blue-500"
                   />
-                  <Shield className="h-3.5 w-3.5 text-cyan-400" />
+                  <Shield className="h-3.5 w-3.5 text-blue-600" />
                   <span>Privacy Face-Blur</span>
                 </label>
 
-                <label className="flex items-center gap-2 text-xs font-medium text-slate-300 cursor-pointer">
+                <label className="flex items-center gap-2 text-xs font-medium text-slate-700 cursor-pointer">
                   <input
                     type="checkbox"
                     checked={showKeypoints}
                     onChange={(e) => setShowKeypoints(e.target.checked)}
-                    className="rounded border-slate-700 bg-slate-800 text-emerald-600 focus:ring-emerald-500"
+                    className="rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
                   />
-                  <Activity className="h-3.5 w-3.5 text-emerald-400" />
+                  <Activity className="h-3.5 w-3.5 text-emerald-600" />
                   <span>Show 17-Keypoint Skeletons</span>
                 </label>
               </div>
 
-              <span className="text-xs text-slate-400 font-mono">
-                Model: <strong>{detectPose ? 'yolov8n-pose.pt' : 'yolov8n.pt'}</strong> &bull; Batch: 1 &bull; 0% Real Classroom Footage
+              <span className="text-xs text-slate-500 font-mono">
+                Model: <strong className="text-slate-800">{detectPose ? 'yolov8n-pose.pt' : 'yolov8n.pt'}</strong> &bull; Batch: 1 &bull; Local Edge
               </span>
             </div>
 
             {/* Sequential Classroom Video Processing Metrics & Teacher Zone Breakdown Card */}
             {!isWebcamActive && videoResult && (
-              <div className="rounded-2xl border border-violet-500/30 bg-slate-900/80 p-5 space-y-4 shadow-xl">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-3">
+              <div className="rounded-2xl border border-slate-200 bg-white p-5 space-y-4 shadow-2xs">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
                   <div className="flex items-center gap-3">
-                    <span className="p-2.5 rounded-xl bg-violet-500/20 text-violet-400 border border-violet-500/30">
+                    <span className="p-2.5 rounded-xl bg-blue-50 text-blue-600 border border-blue-100">
                       <Video className="h-5 w-5" />
                     </span>
                     <div>
-                      <h4 className="text-sm font-bold text-white">Sequential Classroom Video Processing Complete</h4>
-                      <p className="text-xs text-slate-400">
-                        File: <strong className="text-slate-200">{videoResult.videoFilename}</strong> &bull; Duration: {videoResult.durationSeconds}s &bull; Format: <strong className="text-cyan-300 font-mono">{videoResult.width || '--'}x{videoResult.height || '--'} ({videoResult.aspectRatio || '16:9'} {videoResult.orientation || 'LANDSCAPE'})</strong>
+                      <h4 className="text-sm font-bold text-slate-900">Sequential Classroom Video Processing Complete</h4>
+                      <p className="text-xs text-slate-500">
+                        File: <strong className="text-slate-800">{videoResult.videoFilename}</strong> &bull; Duration: {videoResult.durationSeconds}s &bull; Format: <strong className="text-blue-700 font-mono">{videoResult.width || '--'}x{videoResult.height || '--'} ({videoResult.aspectRatio || '16:9'} {videoResult.orientation || 'LANDSCAPE'})</strong>
                       </p>
                     </div>
                   </div>
                 </div>
 
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 text-left">
-                  <div className="p-3 rounded-xl border border-slate-800 bg-slate-950/60">
-                    <span className="text-[10px] text-slate-400 uppercase font-semibold block">Total Frames</span>
-                    <span className="text-base font-bold text-white">{videoResult.totalFrames}</span>
-                    <span className="text-[10px] text-slate-500 block">Sampled: {videoResult.processedFrames}</span>
+                  <div className="p-3 rounded-xl border border-slate-200 bg-slate-50">
+                    <span className="text-[10px] text-slate-500 uppercase font-semibold block">Total Frames</span>
+                    <span className="text-base font-bold text-slate-900">{videoResult.totalFrames}</span>
+                    <span className="text-[10px] text-slate-400 block">Sampled: {videoResult.processedFrames}</span>
                   </div>
-                  <div className="p-3 rounded-xl border border-slate-800 bg-slate-950/60">
-                    <span className="text-[10px] text-slate-400 uppercase font-semibold block">Peak Persons</span>
-                    <span className="text-base font-bold text-cyan-400">{videoResult.maxPersonsInFrame}</span>
-                    <span className="text-[10px] text-slate-500 block">Avg: {videoResult.avgPersonsPerFrame} / frame</span>
+                  <div className="p-3 rounded-xl border border-slate-200 bg-slate-50">
+                    <span className="text-[10px] text-slate-500 uppercase font-semibold block">Peak Persons</span>
+                    <span className="text-base font-bold text-blue-700">{videoResult.maxPersonsInFrame}</span>
+                    <span className="text-[10px] text-slate-400 block">Avg: {videoResult.avgPersonsPerFrame} / frame</span>
                   </div>
-                  <div className="p-3 rounded-xl border border-slate-800 bg-slate-950/60">
-                    <span className="text-[10px] text-slate-400 uppercase font-semibold block">Hand Raises</span>
-                    <span className="text-base font-bold text-emerald-400">{videoResult.totalHandRaises ?? 0}</span>
-                    <span className="text-[10px] text-amber-400 block">Review: {videoResult.totalNeedsReview ?? 0}</span>
+                  <div className="p-3 rounded-xl border border-slate-200 bg-slate-50">
+                    <span className="text-[10px] text-slate-500 uppercase font-semibold block">Hand Raises</span>
+                    <span className="text-base font-bold text-emerald-600">{videoResult.totalHandRaises ?? 0}</span>
+                    <span className="text-[10px] text-amber-600 block">Review: {videoResult.totalNeedsReview ?? 0}</span>
                   </div>
-                  <div className="p-3 rounded-xl border border-slate-800 bg-slate-950/60">
-                    <span className="text-[10px] text-slate-400 uppercase font-semibold block">Inference Throughput</span>
-                    <span className="text-base font-bold text-violet-400">{videoResult.inferenceFps || videoResult.processingFps} FPS</span>
-                    <span className="text-[10px] text-slate-500 block">Dec FPS: {videoResult.decodingFps || '--'}</span>
+                  <div className="p-3 rounded-xl border border-slate-200 bg-slate-50">
+                    <span className="text-[10px] text-slate-500 uppercase font-semibold block">Inference Throughput</span>
+                    <span className="text-base font-bold text-teal-700">{videoResult.inferenceFps || videoResult.processingFps} FPS</span>
+                    <span className="text-[10px] text-slate-400 block">Dec FPS: {videoResult.decodingFps || '--'}</span>
                   </div>
                 </div>
 
                 {/* Secondary Metrics Bar */}
-                <div className="grid grid-cols-3 gap-2 text-left text-xs bg-slate-950/40 p-3 rounded-xl border border-slate-800/60">
+                <div className="grid grid-cols-3 gap-2 text-left text-xs bg-slate-50 p-3 rounded-xl border border-slate-200">
                   <div>
-                    <span className="text-slate-500 text-[10px] block">Temporal Tracks</span>
-                    <strong className="text-white font-mono">{videoResult.trackedPersonsCount ?? videoResult.maxPersonsInFrame} active</strong>
+                    <span className="text-slate-500 text-[10px] block font-medium">Temporal Tracks</span>
+                    <strong className="text-slate-900 font-mono">{videoResult.trackedPersonsCount ?? videoResult.maxPersonsInFrame} active</strong>
                   </div>
                   <div>
-                    <span className="text-slate-500 text-[10px] block">Hand Raise Events</span>
-                    <strong className="text-emerald-300 font-mono">{videoResult.handRaiseEventsCount ?? videoResult.totalHandRaises ?? 0} persisted</strong>
+                    <span className="text-slate-500 text-[10px] block font-medium">Hand Raise Events</span>
+                    <strong className="text-emerald-700 font-mono">{videoResult.handRaiseEventsCount ?? videoResult.totalHandRaises ?? 0} persisted</strong>
                   </div>
                   <div>
-                    <span className="text-slate-500 text-[10px] block">Corrupt Frames Skipped</span>
-                    <strong className={videoResult.corruptedFramesCount ? 'text-amber-400 font-mono' : 'text-slate-300 font-mono'}>
+                    <span className="text-slate-500 text-[10px] block font-medium">Corrupt Frames Skipped</span>
+                    <strong className={videoResult.corruptedFramesCount ? 'text-amber-700 font-mono' : 'text-slate-700 font-mono'}>
                       {videoResult.corruptedFramesCount ?? 0}
                     </strong>
                   </div>
                 </div>
 
                 {/* Teacher Zone Exclusion Analytics & Comparison Card */}
-                <div className="rounded-xl border border-amber-500/30 bg-amber-950/20 p-4 space-y-3 text-left">
-                  <div className="flex flex-wrap items-center justify-between gap-2 border-b border-amber-500/20 pb-2">
+                <div className="rounded-xl border border-amber-200 bg-amber-50/70 p-4 space-y-3 text-left">
+                  <div className="flex flex-wrap items-center justify-between gap-2 border-b border-amber-200 pb-2">
                     <div className="flex items-center gap-2">
-                      <span className="px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 font-bold text-[10px] font-mono border border-amber-500/30">
+                      <span className="px-2 py-0.5 rounded bg-amber-100 text-amber-800 font-bold text-[10px] font-mono border border-amber-300">
                         TEACHER ROI EXCLUSION
                       </span>
-                      <h5 className="text-xs font-bold text-white uppercase tracking-wider">
+                      <h5 className="text-xs font-bold text-slate-900 uppercase tracking-wider">
                         Zone Participation Breakdown
                       </h5>
                     </div>
                     {/* Comparison Toggle */}
-                    <div className="flex items-center gap-1 bg-slate-950 p-1 rounded-lg border border-slate-800 text-[10px] font-mono">
+                    <div className="flex items-center gap-1 bg-white p-1 rounded-lg border border-slate-200 text-[10px] font-mono">
                       <button
                         type="button"
                         onClick={() => setZoneCompareMode('filtered')}
                         className={`px-2 py-0.5 rounded transition ${
                           zoneCompareMode === 'filtered'
-                            ? 'bg-amber-500 text-slate-950 font-bold'
-                            : 'text-slate-400 hover:text-white'
+                            ? 'bg-amber-600 text-white font-bold'
+                            : 'text-slate-600 hover:text-slate-900'
                         }`}
                       >
                         Filtered (Students Only)
@@ -1471,7 +1641,7 @@ export const MonitoringPage: React.FC = () => {
                         className={`px-2 py-0.5 rounded transition ${
                           zoneCompareMode === 'raw'
                             ? 'bg-slate-700 text-white font-bold'
-                            : 'text-slate-400 hover:text-white'
+                            : 'text-slate-600 hover:text-slate-900'
                         }`}
                       >
                         Raw (Unfiltered)
@@ -1480,105 +1650,105 @@ export const MonitoringPage: React.FC = () => {
                   </div>
 
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
-                    <div className="p-2.5 rounded-lg bg-slate-950/70 border border-slate-800">
-                      <span className="text-[10px] text-slate-400 block font-medium">Total Detected</span>
-                      <span className="text-base font-bold text-white font-mono">
+                    <div className="p-2.5 rounded-lg bg-white border border-slate-200">
+                      <span className="text-[10px] text-slate-500 block font-medium">Total Detected</span>
+                      <span className="text-base font-bold text-slate-900 font-mono">
                         {videoResult.totalHandRaises ?? 0}
                       </span>
-                      <span className="text-[10px] text-slate-500 block">All physical gestures</span>
+                      <span className="text-[10px] text-slate-400 block">All physical gestures</span>
                     </div>
 
-                    <div className="p-2.5 rounded-lg bg-emerald-950/30 border border-emerald-500/30">
-                      <span className="text-[10px] text-emerald-300 block font-medium">Student-Zone Events</span>
-                      <span className="text-base font-bold text-emerald-400 font-mono">
+                    <div className="p-2.5 rounded-lg bg-emerald-50 border border-emerald-200">
+                      <span className="text-[10px] text-emerald-800 block font-medium">Student-Zone Events</span>
+                      <span className="text-base font-bold text-emerald-700 font-mono">
                         {zoneCompareMode === 'filtered'
                           ? (videoResult.studentZoneEventsCount ?? (videoResult.totalHandRaises ? Math.max(0, videoResult.totalHandRaises - (videoResult.instructorZoneEventsCount ?? 0)) : 0))
                           : (videoResult.totalHandRaises ?? 0)}
                       </span>
-                      <span className="text-[10px] text-emerald-300/70 block">
+                      <span className="text-[10px] text-emerald-600 block">
                         {zoneCompareMode === 'filtered' ? 'Included in student totals' : 'Unfiltered raw total'}
                       </span>
                     </div>
 
-                    <div className="p-2.5 rounded-lg bg-amber-950/30 border border-amber-500/30">
-                      <span className="text-[10px] text-amber-300 block font-medium">Instructor-Zone Events</span>
-                      <span className="text-base font-bold text-amber-400 font-mono">
+                    <div className="p-2.5 rounded-lg bg-amber-50 border border-amber-200">
+                      <span className="text-[10px] text-amber-800 block font-medium">Instructor-Zone Events</span>
+                      <span className="text-base font-bold text-amber-700 font-mono">
                         {videoResult.instructorZoneEventsCount ?? 0}
                       </span>
-                      <span className="text-[10px] text-amber-300/70 block">
+                      <span className="text-[10px] text-amber-600 block">
                         {zoneFilteringEnabled ? 'Excluded from student totals' : 'Preserved in database'}
                       </span>
                     </div>
 
-                    <div className="p-2.5 rounded-lg bg-purple-950/30 border border-purple-500/30">
-                      <span className="text-[10px] text-purple-300 block font-medium">Uncertain Events</span>
-                      <span className="text-base font-bold text-purple-400 font-mono">
+                    <div className="p-2.5 rounded-lg bg-slate-50 border border-slate-200">
+                      <span className="text-[10px] text-slate-600 block font-medium">Uncertain Events</span>
+                      <span className="text-base font-bold text-slate-800 font-mono">
                         {videoResult.uncertainZoneEventsCount ?? videoResult.totalNeedsReview ?? 0}
                       </span>
-                      <span className="text-[10px] text-purple-300/70 block">Marked NEEDS_REVIEW</span>
+                      <span className="text-[10px] text-slate-500 block">Marked NEEDS_REVIEW</span>
                     </div>
                   </div>
 
-                  <p className="text-[10px] text-slate-400 italic">
+                  <p className="text-[10px] text-slate-500 italic">
                     Spatial origin only. Polygon containment identifies events within the designated teaching perimeter and does not identify individuals or verify teacher identity.
                   </p>
                 </div>
               </div>
             )}
             {poseResult && (
-              <div className="rounded-2xl border border-violet-500/30 bg-slate-900/80 p-5 space-y-4 shadow-xl">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-3">
+              <div className="rounded-2xl border border-slate-200 bg-white p-5 space-y-4 shadow-2xs">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
                   <div>
                     <div className="flex items-center gap-2">
-                      <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-violet-500/20 text-violet-300 border border-violet-500/30 font-mono">
+                      <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-200 font-mono">
                         YOLOv8n-pose
                       </span>
-                      <span className="text-xs font-semibold text-white">Observable Human Posture Analysis</span>
+                      <span className="text-xs font-bold text-slate-900">Observable Human Posture Analysis</span>
                     </div>
-                    <p className="text-[11px] text-slate-400 mt-0.5">
+                    <p className="text-[11px] text-slate-500 mt-0.5">
                       17 COCO Keypoints &bull; Arm Elevation &bull; Elbow Angles &bull; Strictly Anonymous IDs
                     </p>
                   </div>
 
                   <div className="flex items-center gap-3 text-xs">
-                    <span className="text-slate-400">
-                      Latency: <strong className="font-mono text-cyan-400">{poseResult.processingTimeMs} ms</strong> ({poseResult.processingFps} FPS)
+                    <span className="text-slate-500">
+                      Latency: <strong className="font-mono text-blue-700">{poseResult.processingTimeMs} ms</strong> ({poseResult.processingFps} FPS)
                     </span>
-                    <span className="text-slate-400">
-                      Device: <strong className="font-mono text-emerald-400 uppercase">{poseResult.inferenceDevice}</strong>
+                    <span className="text-slate-500">
+                      Device: <strong className="font-mono text-emerald-700 uppercase">{poseResult.inferenceDevice}</strong>
                     </span>
                   </div>
                 </div>
 
                 {/* Posture Counts Grid */}
                 <div className="grid grid-cols-2 sm:grid-cols-5 gap-2.5 text-xs">
-                  <div className="p-3 rounded-xl bg-slate-950/70 border border-slate-800">
-                    <span className="text-[10px] text-slate-400 block font-medium">Both Raised</span>
-                    <span className="text-lg font-bold text-emerald-400 font-mono">
+                  <div className="p-3 rounded-xl bg-slate-50 border border-slate-200">
+                    <span className="text-[10px] text-slate-500 block font-medium">Both Raised</span>
+                    <span className="text-lg font-bold text-emerald-700 font-mono">
                       {poseResult.postureCounts['BOTH_ARMS_RAISED'] || 0}
                     </span>
                   </div>
-                  <div className="p-3 rounded-xl bg-slate-950/70 border border-slate-800">
-                    <span className="text-[10px] text-slate-400 block font-medium">Left Arm Raised</span>
-                    <span className="text-lg font-bold text-cyan-400 font-mono">
+                  <div className="p-3 rounded-xl bg-slate-50 border border-slate-200">
+                    <span className="text-[10px] text-slate-500 block font-medium">Left Arm Raised</span>
+                    <span className="text-lg font-bold text-blue-700 font-mono">
                       {poseResult.postureCounts['LEFT_ARM_RAISED'] || 0}
                     </span>
                   </div>
-                  <div className="p-3 rounded-xl bg-slate-950/70 border border-slate-800">
-                    <span className="text-[10px] text-slate-400 block font-medium">Right Arm Raised</span>
-                    <span className="text-lg font-bold text-cyan-400 font-mono">
+                  <div className="p-3 rounded-xl bg-slate-50 border border-slate-200">
+                    <span className="text-[10px] text-slate-500 block font-medium">Right Arm Raised</span>
+                    <span className="text-lg font-bold text-teal-700 font-mono">
                       {poseResult.postureCounts['RIGHT_ARM_RAISED'] || 0}
                     </span>
                   </div>
-                  <div className="p-3 rounded-xl bg-slate-950/70 border border-slate-800">
-                    <span className="text-[10px] text-slate-400 block font-medium">Not Raised</span>
-                    <span className="text-lg font-bold text-slate-300 font-mono">
+                  <div className="p-3 rounded-xl bg-slate-50 border border-slate-200">
+                    <span className="text-[10px] text-slate-500 block font-medium">Not Raised</span>
+                    <span className="text-lg font-bold text-slate-700 font-mono">
                       {poseResult.postureCounts['ARMS_NOT_RAISED'] || 0}
                     </span>
                   </div>
-                  <div className="p-3 rounded-xl bg-slate-950/70 border border-slate-800">
-                    <span className="text-[10px] text-slate-400 block font-medium">Needs Review</span>
-                    <span className="text-lg font-bold text-amber-400 font-mono">
+                  <div className="p-3 rounded-xl bg-slate-50 border border-slate-200">
+                    <span className="text-[10px] text-slate-500 block font-medium">Needs Review</span>
+                    <span className="text-lg font-bold text-amber-700 font-mono">
                       {poseResult.postureCounts['NEEDS_REVIEW'] || 0}
                     </span>
                   </div>
@@ -1586,61 +1756,61 @@ export const MonitoringPage: React.FC = () => {
 
                 {/* Person-by-Person Breakdown */}
                 <div className="space-y-2.5 pt-2">
-                  <span className="text-xs font-semibold text-slate-300 block">
+                  <span className="text-xs font-semibold text-slate-700 block">
                     Detected Persons ({poseResult.persons.length})
                   </span>
                   <div className="space-y-2 max-h-[280px] overflow-y-auto pr-1">
                     {poseResult.persons.map((person) => {
                       const postureColor =
                         person.posture === 'BOTH_ARMS_RAISED'
-                          ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30'
+                          ? 'bg-emerald-50 text-emerald-800 border-emerald-300'
                           : person.posture === 'LEFT_ARM_RAISED' || person.posture === 'RIGHT_ARM_RAISED'
-                          ? 'bg-cyan-500/20 text-cyan-300 border-cyan-500/30'
+                          ? 'bg-blue-50 text-blue-800 border-blue-300'
                           : person.posture === 'NEEDS_REVIEW'
-                          ? 'bg-amber-500/20 text-amber-300 border-amber-500/30'
-                          : 'bg-slate-800 text-slate-300 border-slate-700'
+                          ? 'bg-amber-50 text-amber-800 border-amber-300'
+                          : 'bg-slate-100 text-slate-700 border-slate-200'
 
                       return (
                         <div
                           key={person.id}
-                          className="p-3 rounded-xl bg-slate-950/80 border border-slate-800/90 text-xs space-y-2"
+                          className="p-3 rounded-xl bg-white border border-slate-200 text-xs space-y-2 shadow-2xs"
                         >
                           <div className="flex flex-wrap items-center justify-between gap-2">
                             <div className="flex items-center gap-2">
-                              <span className="font-mono text-cyan-300 font-bold">{person.id}</span>
+                              <span className="font-mono text-blue-700 font-bold">{person.id}</span>
                               <span className={`px-2 py-0.5 rounded text-[10px] font-bold border ${postureColor}`}>
                                 {person.posture.replace(/_/g, ' ')}
                               </span>
-                              <span className="text-[10px] text-slate-500">
+                              <span className="text-[10px] text-slate-400">
                                 Pose Conf: {(person.confidence * 100).toFixed(0)}%
                               </span>
                             </div>
 
-                            <div className="flex items-center gap-3 text-[11px] text-slate-400">
+                            <div className="flex items-center gap-3 text-[11px] text-slate-500">
                               <span>
                                 Left Elbow:{' '}
-                                <strong className="text-slate-200">
+                                <strong className="text-slate-800">
                                   {person.geometry.leftArm.elbowAngleDeg != null ? `${person.geometry.leftArm.elbowAngleDeg}°` : 'N/A'}
                                 </strong>
                               </span>
                               <span>
                                 Right Elbow:{' '}
-                                <strong className="text-slate-200">
+                                <strong className="text-slate-800">
                                   {person.geometry.rightArm.elbowAngleDeg != null ? `${person.geometry.rightArm.elbowAngleDeg}°` : 'N/A'}
                                 </strong>
                               </span>
                             </div>
                           </div>
 
-                          <p className="text-[11px] text-slate-300">
-                            <span className="text-slate-400 font-medium">Observation: </span>
+                          <p className="text-[11px] text-slate-600">
+                            <span className="text-slate-500 font-medium">Observation: </span>
                             {person.postureReason}
                           </p>
 
-                          <div className="flex flex-wrap items-center justify-between gap-2 text-[10px] text-slate-500 pt-1 border-t border-slate-800/60">
+                          <div className="flex flex-wrap items-center justify-between gap-2 text-[10px] text-slate-400 pt-1 border-t border-slate-100">
                             <div>
                               <span>Elevation: </span>
-                              <span className="text-slate-300">
+                              <span className="text-slate-600">
                                 Left: {person.geometry.leftArm.elevationPx != null ? `${person.geometry.leftArm.elevationPx}px` : 'N/A'} |{' '}
                                 Right: {person.geometry.rightArm.elevationPx != null ? `${person.geometry.rightArm.elevationPx}px` : 'N/A'}
                               </span>
@@ -1662,19 +1832,19 @@ export const MonitoringPage: React.FC = () => {
             )}
 
             {/* Phase 2.2: Temporal Hand-Raising Tracking & Event Timeline Card */}
-            <div className="rounded-2xl border border-emerald-500/30 bg-slate-900/80 p-5 space-y-4 shadow-xl">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-800 pb-3">
+            <div className="rounded-2xl border border-slate-200 bg-white p-5 space-y-4 shadow-2xs">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 pb-3">
                 <div>
                   <div className="flex items-center gap-2">
-                    <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 font-mono">
-                      PHASE 2.2
+                    <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-200 font-mono">
+                      TEMPORAL TRACKER
                     </span>
-                    <span className="text-xs font-semibold text-white flex items-center gap-1.5">
-                      <Timer className="h-4 w-4 text-emerald-400" />
+                    <span className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
+                      <Timer className="h-4 w-4 text-emerald-600" />
                       Temporal Hand-Raising Detection &amp; Anonymous Tracking
                     </span>
                   </div>
-                  <p className="text-[11px] text-slate-400 mt-0.5">
+                  <p className="text-[11px] text-slate-500 mt-0.5">
                     IoU Trajectory Continuity &bull; Gap Tolerance &bull; Cooldown Protection &bull; SQLite Persistence
                   </p>
                 </div>
@@ -1682,15 +1852,15 @@ export const MonitoringPage: React.FC = () => {
                 <div className="flex items-center gap-2">
                   <button
                     onClick={refreshTrackingData}
-                    className="p-1.5 rounded-lg border border-slate-700 bg-slate-800/80 hover:bg-slate-700 text-slate-300 text-xs flex items-center gap-1 transition"
+                    className="p-1.5 rounded-lg border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 text-xs flex items-center gap-1 transition shadow-2xs"
                     title="Refresh Tracking Events"
                   >
-                    <RefreshCw className="h-3 w-3" />
-                    <span className="text-[10px]">Sync</span>
+                    <RefreshCw className="h-3 w-3 text-blue-600" />
+                    <span className="text-[10px] font-semibold">Sync</span>
                   </button>
                   <button
                     onClick={handleResetTracking}
-                    className="px-2.5 py-1 rounded-lg border border-slate-700 bg-slate-800/80 hover:bg-rose-900/40 hover:border-rose-700 text-slate-300 hover:text-rose-200 text-[10px] transition"
+                    className="px-2.5 py-1 rounded-lg border border-slate-300 bg-white hover:bg-rose-50 hover:border-rose-300 text-slate-700 hover:text-rose-700 text-[10px] font-semibold transition shadow-2xs"
                   >
                     Reset Tracks
                   </button>
@@ -1699,39 +1869,39 @@ export const MonitoringPage: React.FC = () => {
 
               {/* Event Statistics Metrics Grid */}
               <div className="grid grid-cols-2 sm:grid-cols-6 gap-2.5 text-xs">
-                <div className="p-3 rounded-xl bg-slate-950/70 border border-slate-800">
-                  <span className="text-[10px] text-slate-400 block font-medium">Total Events</span>
-                  <span className="text-lg font-bold text-emerald-400 font-mono">
+                <div className="p-3 rounded-xl bg-slate-50 border border-slate-200">
+                  <span className="text-[10px] text-slate-500 block font-medium">Total Events</span>
+                  <span className="text-lg font-bold text-emerald-700 font-mono">
                     {trackingStats?.totalEvents ?? recentEvents.length}
                   </span>
                 </div>
-                <div className="p-3 rounded-xl bg-slate-950/70 border border-slate-800">
-                  <span className="text-[10px] text-slate-400 block font-medium">Active Raises</span>
-                  <span className="text-lg font-bold text-cyan-400 font-mono">
+                <div className="p-3 rounded-xl bg-slate-50 border border-slate-200">
+                  <span className="text-[10px] text-slate-500 block font-medium">Active Raises</span>
+                  <span className="text-lg font-bold text-blue-700 font-mono">
                     {activeEvents.length}
                   </span>
                 </div>
-                <div className="p-3 rounded-xl bg-slate-950/70 border border-slate-800">
-                  <span className="text-[10px] text-slate-400 block font-medium">Completed</span>
-                  <span className="text-lg font-bold text-slate-300 font-mono">
+                <div className="p-3 rounded-xl bg-slate-50 border border-slate-200">
+                  <span className="text-[10px] text-slate-500 block font-medium">Completed</span>
+                  <span className="text-lg font-bold text-slate-700 font-mono">
                     {trackingStats?.completedEvents ?? recentEvents.filter((e) => e.state === 'COMPLETED').length}
                   </span>
                 </div>
-                <div className="p-3 rounded-xl bg-slate-950/70 border border-slate-800">
-                  <span className="text-[10px] text-slate-400 block font-medium">Avg Duration</span>
-                  <span className="text-lg font-bold text-amber-400 font-mono">
+                <div className="p-3 rounded-xl bg-slate-50 border border-slate-200">
+                  <span className="text-[10px] text-slate-500 block font-medium">Avg Duration</span>
+                  <span className="text-lg font-bold text-amber-700 font-mono">
                     {trackingStats?.avgDurationSeconds ? `${trackingStats.avgDurationSeconds}s` : '0.0s'}
                   </span>
                 </div>
-                <div className="p-3 rounded-xl bg-slate-950/70 border border-slate-800">
-                  <span className="text-[10px] text-slate-400 block font-medium">Left / Right / Both</span>
-                  <span className="text-xs font-bold text-slate-300 font-mono block mt-1">
+                <div className="p-3 rounded-xl bg-slate-50 border border-slate-200">
+                  <span className="text-[10px] text-slate-500 block font-medium">Left / Right / Both</span>
+                  <span className="text-xs font-bold text-slate-800 font-mono block mt-1">
                     {trackingStats ? `${trackingStats.leftHandCount} / ${trackingStats.rightHandCount} / ${trackingStats.bothHandsCount}` : '0 / 0 / 0'}
                   </span>
                 </div>
-                <div className="p-3 rounded-xl bg-slate-950/70 border border-slate-800">
-                  <span className="text-[10px] text-slate-400 block font-medium">Needs Review</span>
-                  <span className="text-lg font-bold text-amber-400 font-mono">
+                <div className="p-3 rounded-xl bg-slate-50 border border-slate-200">
+                  <span className="text-[10px] text-slate-500 block font-medium">Needs Review</span>
+                  <span className="text-lg font-bold text-amber-700 font-mono">
                     {trackingStats?.needsReviewCount ?? 0}
                   </span>
                 </div>
@@ -1741,12 +1911,12 @@ export const MonitoringPage: React.FC = () => {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
                 {/* Active Tracks Panel */}
                 <div className="space-y-2">
-                  <h4 className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
-                    <UserCheck className="h-3.5 w-3.5 text-cyan-400" />
+                  <h4 className="text-xs font-semibold text-slate-700 flex items-center gap-1.5 uppercase tracking-wider">
+                    <UserCheck className="h-3.5 w-3.5 text-blue-600" />
                     <span>Active Tracked Persons ({trackedPersons.length})</span>
                   </h4>
                   {trackedPersons.length === 0 ? (
-                    <div className="p-3.5 rounded-xl border border-dashed border-slate-800 text-center text-xs text-slate-500">
+                    <div className="p-3.5 rounded-xl border border-dashed border-slate-300 text-center text-xs text-slate-500 bg-slate-50">
                       No active tracks. Start webcam or process a video sequence.
                     </div>
                   ) : (
@@ -1758,32 +1928,32 @@ export const MonitoringPage: React.FC = () => {
                         const isReview = tp.state === 'NEEDS_REVIEW'
 
                         const badgeColor = isRaised
-                          ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
+                          ? 'bg-emerald-50 text-emerald-800 border-emerald-300'
                           : isRaising
-                          ? 'bg-blue-500/20 text-blue-300 border-blue-500/40'
+                          ? 'bg-blue-50 text-blue-800 border-blue-300'
                           : isLowering
-                          ? 'bg-purple-500/20 text-purple-300 border-purple-500/40'
+                          ? 'bg-teal-50 text-teal-800 border-teal-300'
                           : isReview
-                          ? 'bg-amber-500/20 text-amber-300 border-amber-500/40'
-                          : 'bg-slate-800 text-slate-400 border-slate-700'
+                          ? 'bg-amber-50 text-amber-800 border-amber-300'
+                          : 'bg-slate-100 text-slate-700 border-slate-200'
 
                         return (
                           <div
                             key={tp.trackId}
-                            className="p-2.5 rounded-xl border border-slate-800 bg-slate-950/50 flex items-center justify-between gap-3 text-xs"
+                            className="p-2.5 rounded-xl border border-slate-200 bg-white shadow-2xs flex items-center justify-between gap-3 text-xs"
                           >
                             <div className="flex items-center gap-2">
-                              <span className="font-mono font-bold text-cyan-400">{tp.trackId}</span>
+                              <span className="font-mono font-bold text-blue-700">{tp.trackId}</span>
                               <span className={`px-2 py-0.5 rounded text-[10px] font-semibold border ${badgeColor}`}>
                                 {tp.state}
                               </span>
                               {tp.handSide !== 'NONE' && (
-                                <span className="text-[10px] font-mono text-slate-400 uppercase">
+                                <span className="text-[10px] font-mono text-slate-500 uppercase">
                                   [{tp.handSide.replace('_HAND', '')}]
                                 </span>
                               )}
                             </div>
-                            <div className="text-[11px] text-slate-400 font-mono">
+                            <div className="text-[11px] text-slate-500 font-mono">
                               Frames: {tp.totalFramesTracked} &bull; Conf: {(tp.confidence * 100).toFixed(0)}%
                             </div>
                           </div>
@@ -1795,12 +1965,12 @@ export const MonitoringPage: React.FC = () => {
 
                 {/* Hand-Raising Events Log */}
                 <div className="space-y-2">
-                  <h4 className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
-                    <Hand className="h-3.5 w-3.5 text-emerald-400" />
+                  <h4 className="text-xs font-semibold text-slate-700 flex items-center gap-1.5 uppercase tracking-wider">
+                    <Hand className="h-3.5 w-3.5 text-emerald-600" />
                     <span>Recent Continuous Events ({recentEvents.length})</span>
                   </h4>
                   {recentEvents.length === 0 ? (
-                    <div className="p-3.5 rounded-xl border border-dashed border-slate-800 text-center text-xs text-slate-500">
+                    <div className="p-3.5 rounded-xl border border-dashed border-slate-300 text-center text-xs text-slate-500 bg-slate-50">
                       No hand-raising events recorded yet.
                     </div>
                   ) : (
@@ -1808,26 +1978,26 @@ export const MonitoringPage: React.FC = () => {
                       {recentEvents.slice(0, 5).map((evt) => (
                         <div
                           key={evt.eventId}
-                          className="p-2.5 rounded-xl border border-slate-800 bg-slate-950/50 flex items-center justify-between gap-2 text-xs"
+                          className="p-2.5 rounded-xl border border-slate-200 bg-white shadow-2xs flex items-center justify-between gap-2 text-xs"
                         >
                           <div>
                             <div className="flex items-center gap-1.5">
-                              <span className="font-mono font-bold text-white text-[11px]">{evt.eventId}</span>
-                              <span className="text-[10px] font-mono text-cyan-300">({evt.trackId})</span>
-                              <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                              <span className="font-mono font-bold text-slate-900 text-[11px]">{evt.eventId}</span>
+                              <span className="text-[10px] font-mono text-blue-700">({evt.trackId})</span>
+                              <span className="px-1.5 py-0.5 rounded text-[9px] font-bold bg-emerald-50 text-emerald-800 border border-emerald-300">
                                 {evt.handSide.replace('_HAND', '')}
                               </span>
                             </div>
-                            <span className="text-[10px] text-slate-400">
-                              Duration: <strong className="text-emerald-400 font-mono">{evt.durationSeconds}s</strong> ({evt.frameCount} frames)
+                            <span className="text-[10px] text-slate-500">
+                              Duration: <strong className="text-emerald-700 font-mono">{evt.durationSeconds}s</strong> ({evt.frameCount} frames)
                             </span>
                           </div>
 
                           <div className="text-right">
-                            <span className="text-[10px] text-slate-500 block">
-                              Peak Conf: {(evt.maxConfidence * 100).toFixed(0)}%
+                            <span className="text-[10px] text-slate-400 block">
+                              Peak: {(evt.maxConfidence * 100).toFixed(0)}%
                             </span>
-                            <span className="text-[9px] text-slate-500 font-mono">
+                            <span className="text-[9px] text-slate-500 font-mono font-semibold">
                               {evt.state}
                             </span>
                           </div>
@@ -1840,109 +2010,103 @@ export const MonitoringPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Right Column: Controls & Hardware Specs (1 Col) */}
-          <div className="space-y-6">
-            <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-5 space-y-4 backdrop-blur shadow-xl">
-              <div className="flex items-center justify-between border-b border-slate-800 pb-3">
-                <h3 className="text-sm font-bold text-white flex items-center gap-2">
-                  <Sliders className="h-4 w-4 text-cyan-400" />
-                  <span>Live Controls</span>
+          {/* Right Column: Controls & Information (~30% Col) */}
+          <div className="space-y-4">
+            {/* Live Information Panel */}
+            <div className="rounded-xl border border-slate-200 bg-white p-4 space-y-3 shadow-xs">
+              <div className="flex items-center justify-between border-b border-slate-100 pb-2.5">
+                <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2">
+                  <Activity className="h-4 w-4 text-blue-600" />
+                  <span>Telemetry</span>
                 </h3>
-                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-cyan-950 border border-cyan-800 text-cyan-300">
-                  PHASE 2.5
-                </span>
+                <div className="flex items-center gap-1.5">
+                  <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-100 text-slate-700 font-medium">
+                    {isWebcamActive ? 'WEBCAM' : selectedFile ? 'VIDEO FILE' : 'IDLE'}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={handleResetWebSocketSession}
+                    className="p-1 text-slate-400 hover:text-slate-700 rounded hover:bg-slate-100"
+                    title="Reset session state"
+                  >
+                    <RefreshCw className="h-3 w-3" />
+                  </button>
+                </div>
               </div>
 
-              {/* Webcam Controls */}
-              <div className="space-y-2">
-                <label className="text-xs font-semibold text-slate-300 block">Webcam Live Stream</label>
+              <div className="space-y-2 text-xs">
+                <div className="flex items-center justify-between py-1 border-b border-slate-50">
+                  <span className="text-slate-500 font-medium">Processing State</span>
+                  <span className="font-semibold text-slate-800">
+                    {isWebcamActive && detectionResult ? 'Inference Running (Live)' : isProcessing ? 'Inference Running...' : videoResult ? 'Inference Completed' : 'Inference not running'}
+                  </span>
+                </div>
+
+                <div className="flex items-center justify-between py-1 border-b border-slate-50">
+                  <span className="text-slate-500 font-medium">People Detected</span>
+                  <span className="font-bold text-blue-600 font-mono text-sm">
+                    {isWebcamActive && detectionResult ? detectionResult.totalPersons : videoResult ? (activeVideoFrame ? activeVideoFrame.personCount : videoResult.maxPersonsInFrame) : '—'}
+                  </span>
+                </div>
+
+                <div className="flex items-center justify-between py-1 border-b border-slate-50">
+                  <span className="text-slate-500 font-medium">Hand-Raise Events</span>
+                  <span className="font-bold text-emerald-600 font-mono text-sm">
+                    {isWebcamActive && detectionResult ? (detectionResult.activeHandRaises ?? 0) : videoResult ? (activeVideoFrame ? activeVideoFrame.handRaisedCount : (videoResult.totalHandRaises ?? 0)) : '—'}
+                  </span>
+                </div>
+
+                <div className="flex items-center justify-between py-1 border-b border-slate-50">
+                  <span className="text-slate-500 font-medium">Inference Speed</span>
+                  <span className="font-mono text-slate-700">
+                    {isWebcamActive && detectionResult ? `${detectionResult.processingFps?.toFixed(1) || '--'} FPS` : videoResult ? `${videoResult.inferenceFps || videoResult.processingFps || '--'} FPS` : '—'}
+                  </span>
+                </div>
+
+                <div className="flex items-center justify-between py-1">
+                  <span className="text-slate-500 font-medium">Anonymous IDs</span>
+                  <span className="font-mono text-[11px] text-slate-600 truncate max-w-[150px]">
+                    {isWebcamActive && detectionResult?.boxes?.length ? `${detectionResult.boxes.length} active` : videoResult ? `${videoResult.trackedPersonsCount || 0} tracked` : '—'}
+                  </span>
+                </div>
+
+                <div className="flex items-center justify-between py-1 border-t border-slate-50">
+                  <span className="text-slate-500 font-medium">SQLite Persistence</span>
+                  <span className="font-mono text-[11px] text-slate-700">
+                    {dbPersistenceStatus} ({persistedEventsCount} events)
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Source Group */}
+            <div className="rounded-xl border border-slate-200 bg-white p-4 space-y-3 shadow-xs">
+              <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2 border-b border-slate-100 pb-2">
+                <Video className="h-3.5 w-3.5 text-blue-600" />
+                <span>Source</span>
+              </h3>
+
+              <div>
                 {!isWebcamActive ? (
                   <button
                     onClick={startWebcam}
-                    className="w-full flex items-center justify-center gap-2 rounded-xl border border-emerald-500/40 bg-emerald-500/10 hover:bg-emerald-500/20 py-2.5 text-xs font-bold text-emerald-300 transition-colors shadow-lg shadow-emerald-500/10"
+                    className="w-full flex items-center justify-center gap-2 rounded-lg bg-blue-600 hover:bg-blue-700 py-2.5 text-xs font-semibold text-white transition-colors shadow-xs"
                   >
                     <Camera className="h-4 w-4" />
-                    <span>Start Laptop Webcam</span>
+                    <span>Start Webcam</span>
                   </button>
                 ) : (
                   <button
                     onClick={stopWebcam}
-                    className="w-full flex items-center justify-center gap-2 rounded-xl border border-rose-500/40 bg-rose-500/10 hover:bg-rose-500/20 py-2.5 text-xs font-bold text-rose-300 transition-colors shadow-lg shadow-rose-500/10"
+                    className="w-full flex items-center justify-center gap-2 rounded-lg border border-rose-200 bg-rose-50 hover:bg-rose-100 py-2.5 text-xs font-semibold text-rose-700 transition-colors"
                   >
                     <CameraOff className="h-4 w-4" />
-                    <span>Stop Webcam Stream</span>
+                    <span>Stop Webcam</span>
                   </button>
                 )}
               </div>
 
-              {/* WebSocket Reconnect / Disconnect */}
-              <div className="flex items-center justify-between text-xs p-2 rounded-xl bg-slate-950/60 border border-slate-800">
-                <div className="flex items-center gap-2">
-                  {wsStatus === 'connected' ? (
-                    <Wifi className="h-3.5 w-3.5 text-emerald-400" />
-                  ) : (
-                    <WifiOff className="h-3.5 w-3.5 text-slate-500" />
-                  )}
-                  <span className="text-slate-300">
-                    WebSocket: <strong className="font-mono text-white">{wsStatus}</strong>
-                  </span>
-                </div>
-
-                {wsStatus === 'connected' ? (
-                  <button
-                    onClick={disconnectWebSocket}
-                    className="text-[10px] text-slate-400 hover:text-white px-2 py-0.5 rounded bg-slate-800"
-                  >
-                    Disconnect
-                  </button>
-                ) : (
-                  <button
-                    onClick={reconnectWebSocket}
-                    className="text-[10px] text-cyan-400 hover:text-cyan-200 px-2 py-0.5 rounded bg-cyan-950 border border-cyan-800"
-                  >
-                    Reconnect
-                  </button>
-                )}
-              </div>
-
-              {/* Computer Vision Model Mode Toggle */}
               <div className="space-y-1.5">
-                <label className="text-xs font-semibold text-slate-300 block">Computer Vision Mode</label>
-                <div className="grid grid-cols-2 gap-1 p-1 bg-slate-950 rounded-xl border border-slate-800">
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setInferenceMode('person_detection')
-                      setDetectPose(false)
-                    }}
-                    className={`py-2 px-2 rounded-lg text-xs font-semibold transition text-center ${
-                      inferenceMode === 'person_detection'
-                        ? 'bg-cyan-600 text-white shadow-md'
-                        : 'text-slate-400 hover:text-white'
-                    }`}
-                  >
-                    Person (YOLOv8n)
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setInferenceMode('pose_estimation')
-                      setDetectPose(true)
-                    }}
-                    className={`py-2 px-2 rounded-lg text-xs font-semibold transition text-center ${
-                      inferenceMode === 'pose_estimation'
-                        ? 'bg-violet-600 text-white shadow-md'
-                        : 'text-slate-400 hover:text-white'
-                    }`}
-                  >
-                    Pose (YOLOv8n-pose)
-                  </button>
-                </div>
-              </div>
-
-              {/* File Upload Selector */}
-              <div className="space-y-2">
-                <label className="text-xs font-semibold text-slate-300 block">Select Input Media File</label>
                 <input
                   type="file"
                   ref={fileInputRef}
@@ -1950,93 +2114,189 @@ export const MonitoringPage: React.FC = () => {
                   accept="image/jpeg,image/png,image/webp,video/mp4,video/avi,video/quicktime"
                   className="hidden"
                 />
-
                 <div
                   onClick={() => fileInputRef.current?.click()}
-                  className="border-2 border-dashed border-slate-700 hover:border-cyan-500/60 rounded-xl p-4 text-center cursor-pointer transition-colors bg-slate-950/40"
+                  className="border border-dashed border-slate-300 hover:border-blue-500 rounded-lg p-3 text-center cursor-pointer transition-colors bg-slate-50/60"
                 >
-                  <Upload className="h-5 w-5 text-slate-400 mx-auto mb-1.5" />
-                  <span className="text-xs text-slate-200 font-medium block truncate">
-                    {selectedFile ? selectedFile.name : 'Click to Upload Image or Video'}
+                  <Upload className="h-4 w-4 text-slate-400 mx-auto mb-1" />
+                  <span className="text-xs text-slate-800 font-medium block truncate">
+                    {selectedFile ? selectedFile.name : 'Upload Classroom Video'}
                   </span>
-                  <span className="text-[10px] text-slate-500">JPG, PNG, WEBP, MP4 (Max 100MB)</span>
+                  <span className="text-[10px] text-slate-400">MP4, WEBP, AVI (Max 100MB)</span>
                 </div>
               </div>
 
-              {/* Detection Confidence Threshold Slider */}
-              <div className="space-y-1.5">
+              {selectedFile && (
+                <button
+                  onClick={handleRunInference}
+                  disabled={isProcessing}
+                  className={`w-full flex items-center justify-center gap-2 rounded-lg py-2 text-xs font-semibold transition-all ${
+                    isProcessing
+                      ? 'bg-slate-100 text-slate-400 border border-slate-200 cursor-not-allowed'
+                      : 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-xs'
+                  }`}
+                >
+                  <Play className="h-3.5 w-3.5" />
+                  <span>{isProcessing ? 'Processing Video...' : 'Run File Inference'}</span>
+                </button>
+              )}
+
+              <button
+                type="button"
+                onClick={handleRunSyntheticSample}
+                disabled={isProcessing}
+                className="w-full flex items-center justify-center gap-2 rounded-lg border border-slate-200 bg-slate-50 hover:bg-slate-100 py-1.5 text-xs font-medium text-slate-700 transition-colors"
+              >
+                <Cpu className="h-3.5 w-3.5 text-slate-500" />
+                <span>Test Sample Frame</span>
+              </button>
+            </div>
+
+            {/* Detection Group */}
+            <div className="rounded-xl border border-slate-200 bg-white p-4 space-y-3 shadow-xs">
+              <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2 border-b border-slate-100 pb-2">
+                <Sliders className="h-3.5 w-3.5 text-blue-600" />
+                <span>Detection</span>
+              </h3>
+
+              <div className="space-y-1">
+                <label className="text-[11px] font-medium text-slate-600 block">Model Pipeline</label>
+                <div className="grid grid-cols-2 gap-1.5 p-1 bg-slate-100 rounded-lg">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setInferenceMode('person_detection')
+                      setDetectPose(false)
+                    }}
+                    className={`py-1.5 px-2 rounded-md text-xs font-semibold transition text-center ${
+                      inferenceMode === 'person_detection'
+                        ? 'bg-white text-blue-700 shadow-xs'
+                        : 'text-slate-600 hover:text-slate-900'
+                    }`}
+                  >
+                    Person (YOLOv8)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setInferenceMode('pose_estimation')
+                      setDetectPose(true)
+                    }}
+                    className={`py-1.5 px-2 rounded-md text-xs font-semibold transition text-center ${
+                      inferenceMode === 'pose_estimation'
+                        ? 'bg-white text-blue-700 shadow-xs'
+                        : 'text-slate-600 hover:text-slate-900'
+                    }`}
+                  >
+                    Pose (17-COCO)
+                  </button>
+                </div>
+              </div>
+
+              <div className="space-y-1">
                 <div className="flex justify-between text-xs">
-                  <span className="text-slate-300">
-                    {selectedFile?.type.startsWith('video/')
-                      ? 'Classroom Video Confidence:'
-                      : 'Detection Confidence:'}
-                  </span>
-                  <strong className="text-cyan-400 font-mono">{(confidenceThreshold * 100).toFixed(0)}%</strong>
+                  <span className="text-slate-600 font-medium">Confidence:</span>
+                  <strong className="text-blue-600 font-mono font-bold">{(confidenceThreshold * 100).toFixed(0)}%</strong>
                 </div>
                 <input
                   type="range"
-                  min={selectedFile?.type.startsWith('video/') ? 0.15 : 0.10}
-                  max={selectedFile?.type.startsWith('video/') ? 0.50 : 0.90}
-                  step={selectedFile?.type.startsWith('video/') ? 0.01 : 0.05}
+                  min={0.10}
+                  max={0.50}
+                  step={0.01}
                   value={confidenceThreshold}
                   onChange={(e) => setConfidenceThreshold(parseFloat(e.target.value))}
-                  className="w-full accent-cyan-500 bg-slate-800 h-1.5 rounded-lg cursor-pointer"
+                  className="w-full accent-blue-600 bg-slate-200 h-1.5 rounded-lg cursor-pointer"
                 />
-                {selectedFile?.type.startsWith('video/') && (
-                  <div className="flex justify-between text-[10px] text-slate-500 font-mono">
-                    <span>Min: 15%</span>
-                    <span className="text-cyan-400 font-bold">Default: 20%</span>
-                    <span>Max: 50%</span>
-                  </div>
-                )}
+                <div className="flex justify-between text-[10px] text-slate-400 font-mono">
+                  <span>10%</span>
+                  <span className="text-blue-600 font-medium">Default: 20%</span>
+                  <span>50%</span>
+                </div>
               </div>
+            </div>
 
-              {/* Keypoint and Elevation Sliders for Pose Estimation */}
-              {inferenceMode === 'pose_estimation' && (
-                <>
-                  <div className="space-y-1.5">
-                    <div className="flex justify-between text-xs">
-                      <span className="text-slate-300">Keypoint Visibility Threshold:</span>
-                      <strong className="text-violet-400 font-mono">{(keypointThreshold * 100).toFixed(0)}%</strong>
-                    </div>
-                    <input
-                      type="range"
-                      min="0.10"
-                      max="0.90"
-                      step="0.05"
-                      value={keypointThreshold}
-                      onChange={(e) => setKeypointThreshold(parseFloat(e.target.value))}
-                      className="w-full accent-violet-500 bg-slate-800 h-1.5 rounded-lg cursor-pointer"
-                    />
-                  </div>
+            {/* Display Group */}
+            <div className="rounded-xl border border-slate-200 bg-white p-4 space-y-3 shadow-xs">
+              <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2 border-b border-slate-100 pb-2">
+                <Eye className="h-3.5 w-3.5 text-blue-600" />
+                <span>Display</span>
+              </h3>
 
-                  <div className="space-y-1.5">
-                    <div className="flex justify-between text-xs">
-                      <span className="text-slate-300">Elevation Margin:</span>
-                      <strong className="text-emerald-400 font-mono">{elevationMarginPx} px</strong>
-                    </div>
-                    <input
-                      type="range"
-                      min="5"
-                      max="50"
-                      step="5"
-                      value={elevationMarginPx}
-                      onChange={(e) => setElevationMarginPx(parseFloat(e.target.value))}
-                      className="w-full accent-emerald-500 bg-slate-800 h-1.5 rounded-lg cursor-pointer"
-                    />
-                    <span className="text-[10px] text-slate-500 block">
-                      Vertical distance wrist must be above shoulder for elevation classification.
-                    </span>
-                  </div>
-                </>
-              )}
+              <div className="space-y-2 text-xs">
+                <label className="flex items-center justify-between cursor-pointer py-0.5">
+                  <span className="text-slate-700 font-medium">Bounding Boxes</span>
+                  <input
+                    type="checkbox"
+                    checked={showBoxes}
+                    onChange={(e) => setShowBoxes(e.target.checked)}
+                    className="rounded border-slate-300 text-blue-600 focus:ring-blue-500 h-4 w-4"
+                  />
+                </label>
 
-              {/* Frame Skip Slider (if video selected) */}
-              {selectedFile && selectedFile.type.startsWith('video/') && (
-                <div className="space-y-1.5 p-2.5 rounded-xl border border-violet-500/30 bg-violet-950/15">
+                <label className="flex items-center justify-between cursor-pointer py-0.5">
+                  <span className="text-slate-700 font-medium">17-Keypoint Skeletons</span>
+                  <input
+                    type="checkbox"
+                    checked={showKeypoints}
+                    onChange={(e) => setShowKeypoints(e.target.checked)}
+                    className="rounded border-slate-300 text-blue-600 focus:ring-blue-500 h-4 w-4"
+                  />
+                </label>
+
+                <label className="flex items-center justify-between cursor-pointer py-0.5">
+                  <span className="text-slate-700 font-medium">
+                    Client Face Blur {clientSideBlurDetected ? '(Active)' : ''}
+                  </span>
+                  <input
+                    type="checkbox"
+                    checked={clientSideBlurActive}
+                    onChange={(e) => setClientSideBlurActive(e.target.checked)}
+                    className="rounded border-slate-300 text-blue-600 focus:ring-blue-500 h-4 w-4"
+                  />
+                </label>
+
+                <label className="flex items-center justify-between cursor-pointer py-0.5">
+                  <span className="text-slate-700 font-medium">
+                    Server In-Memory Blur {serverSideBlurApplied ? '(Active)' : ''}
+                  </span>
+                  <input
+                    type="checkbox"
+                    checked={serverSideBlurActive}
+                    onChange={(e) => setServerSideBlurActive(e.target.checked)}
+                    className="rounded border-slate-300 text-blue-600 focus:ring-blue-500 h-4 w-4"
+                  />
+                </label>
+
+                <label className="flex items-center justify-between cursor-pointer py-0.5">
+                  <span className="text-slate-700 font-medium">Teacher Zone Outline</span>
+                  <input
+                    type="checkbox"
+                    checked={zoneFilteringEnabled}
+                    onChange={(e) => {
+                      setZoneFilteringEnabled(e.target.checked)
+                      setShowZoneOverlay(e.target.checked)
+                    }}
+                    className="rounded border-slate-300 text-blue-600 focus:ring-blue-500 h-4 w-4"
+                  />
+                </label>
+              </div>
+            </div>
+
+            {/* Collapsed Advanced Parameters Section */}
+            <details className="rounded-xl border border-slate-200 bg-white overflow-hidden shadow-xs group">
+              <summary className="p-3.5 text-xs font-bold text-slate-800 uppercase tracking-wider cursor-pointer bg-slate-50 flex items-center justify-between select-none">
+                <div className="flex items-center gap-2">
+                  <Settings className="h-3.5 w-3.5 text-slate-500" />
+                  <span>Advanced Parameters</span>
+                </div>
+                <ChevronDown className="h-4 w-4 text-slate-400 group-open:rotate-180 transition-transform" />
+              </summary>
+
+              <div className="p-4 space-y-3.5 border-t border-slate-100">
+                <div className="space-y-1">
                   <div className="flex justify-between text-xs">
-                    <span className="text-violet-300">Frame Skipping:</span>
-                    <strong className="text-violet-400 font-mono">Every {frameSkip} frames</strong>
+                    <span className="text-slate-600 font-medium">Frame Skipping:</span>
+                    <strong className="text-blue-600 font-mono font-bold">Every {frameSkip} frames</strong>
                   </div>
                   <input
                     type="range"
@@ -2045,275 +2305,76 @@ export const MonitoringPage: React.FC = () => {
                     step="1"
                     value={frameSkip}
                     onChange={(e) => setFrameSkip(parseInt(e.target.value, 10))}
-                    className="w-full accent-violet-500 bg-slate-800 h-1.5 rounded-lg cursor-pointer"
+                    className="w-full accent-blue-600 bg-slate-200 h-1.5 rounded-lg cursor-pointer"
                   />
-                  <span className="text-[10px] text-slate-400 block">
-                    Optimizes processing for HP Victus 4GB VRAM.
-                  </span>
-                </div>
-              )}
-
-              {/* Teacher Zone Exclusion (Instructor ROI) Controls */}
-              <div className="space-y-3 p-3 rounded-xl border border-amber-500/30 bg-amber-950/15">
-                <div className="flex items-center justify-between">
-                  <label className="flex items-center gap-2 text-xs font-bold text-amber-300 cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={zoneFilteringEnabled}
-                      onChange={(e) => setZoneFilteringEnabled(e.target.checked)}
-                      className="rounded border-slate-700 bg-slate-800 text-amber-500 focus:ring-amber-400"
-                    />
-                    <span>Teacher Zone Exclusion</span>
-                  </label>
-                  <span className="text-[9px] font-mono px-1.5 py-0.5 rounded bg-amber-950 border border-amber-800 text-amber-300">
-                    OPTIONAL ROI
-                  </span>
                 </div>
 
-                {zoneFilteringEnabled && (
-                  <>
-                    <div className="flex items-center justify-between text-[11px] text-slate-300">
-                      <span>Preview Overlay on Video:</span>
-                      <label className="flex items-center gap-1.5 cursor-pointer">
-                        <input
-                          type="checkbox"
-                          checked={showZoneOverlay}
-                          onChange={(e) => setShowZoneOverlay(e.target.checked)}
-                          className="rounded border-slate-700 bg-slate-800 text-amber-500 focus:ring-amber-400"
-                        />
-                        <span className="text-slate-400 text-[10px]">Show</span>
-                      </label>
-                    </div>
+                <div className="space-y-1">
+                  <div className="flex justify-between text-xs">
+                    <span className="text-slate-600 font-medium">Keypoint Threshold:</span>
+                    <strong className="text-blue-600 font-mono font-bold">{(keypointThreshold * 100).toFixed(0)}%</strong>
+                  </div>
+                  <input
+                    type="range"
+                    min="0.10"
+                    max="0.90"
+                    step="0.05"
+                    value={keypointThreshold}
+                    onChange={(e) => setKeypointThreshold(parseFloat(e.target.value))}
+                    className="w-full accent-blue-600 bg-slate-200 h-1.5 rounded-lg cursor-pointer"
+                  />
+                </div>
 
-                    <div className="space-y-1">
-                      <span className="text-[10px] text-slate-400 uppercase font-semibold block">Zone Presets</span>
-                      <div className="grid grid-cols-2 gap-1 text-[11px]">
-                        <button
-                          type="button"
-                          onClick={() => setZonePreset('left')}
-                          className={`p-1.5 rounded text-left border transition ${
-                            activeZonePreset === 'left'
-                              ? 'border-amber-500/60 bg-amber-500/20 text-amber-300 font-bold'
-                              : 'border-slate-800 bg-slate-950/60 text-slate-400 hover:text-white'
-                          }`}
-                        >
-                          Left Blackboard
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setZonePreset('right')}
-                          className={`p-1.5 rounded text-left border transition ${
-                            activeZonePreset === 'right'
-                              ? 'border-amber-500/60 bg-amber-500/20 text-amber-300 font-bold'
-                              : 'border-slate-800 bg-slate-950/60 text-slate-400 hover:text-white'
-                          }`}
-                        >
-                          Right Whiteboard
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setZonePreset('center')}
-                          className={`p-1.5 rounded text-left border transition ${
-                            activeZonePreset === 'center'
-                              ? 'border-amber-500/60 bg-amber-500/20 text-amber-300 font-bold'
-                              : 'border-slate-800 bg-slate-950/60 text-slate-400 hover:text-white'
-                          }`}
-                        >
-                          Front Center
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setZonePreset('full')}
-                          className={`p-1.5 rounded text-left border transition ${
-                            activeZonePreset === 'full'
-                              ? 'border-amber-500/60 bg-amber-500/20 text-amber-300 font-bold'
-                              : 'border-slate-800 bg-slate-950/60 text-slate-400 hover:text-white'
-                          }`}
-                        >
-                          Full Front Width
-                        </button>
-                      </div>
-                    </div>
+                <div className="space-y-1">
+                  <div className="flex justify-between text-xs">
+                    <span className="text-slate-600 font-medium">Elevation Margin:</span>
+                    <strong className="text-emerald-600 font-mono font-bold">{elevationMarginPx} px</strong>
+                  </div>
+                  <input
+                    type="range"
+                    min="5"
+                    max="50"
+                    step="5"
+                    value={elevationMarginPx}
+                    onChange={(e) => setElevationMarginPx(parseFloat(e.target.value))}
+                    className="w-full accent-emerald-600 bg-slate-200 h-1.5 rounded-lg cursor-pointer"
+                  />
+                </div>
 
-                    <div className="flex items-center justify-between pt-1">
-                      <span className="text-[10px] text-slate-500 font-mono">
-                        {instructorPolygon ? `${instructorPolygon.length} normalized vertices` : 'Polygon disabled'}
-                      </span>
+                <div className="space-y-1.5 pt-2 border-t border-slate-100">
+                  <span className="text-[11px] font-semibold text-slate-700 block">Teacher Zone Preset</span>
+                  <div className="grid grid-cols-2 gap-1 text-xs">
+                    {(['left', 'right', 'center', 'full'] as const).map((preset) => (
                       <button
+                        key={preset}
                         type="button"
-                        onClick={() => setZonePreset('disabled')}
-                        className="text-[10px] text-rose-400 hover:text-rose-300 underline font-mono"
+                        onClick={() => setZonePreset(preset)}
+                        className={`p-1.5 rounded-md border text-left capitalize transition text-[11px] ${
+                          activeZonePreset === preset
+                            ? 'border-blue-500 bg-blue-50 text-blue-700 font-semibold'
+                            : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
+                        }`}
                       >
-                        Reset / Disable
+                        {preset}
                       </button>
-                    </div>
-                  </>
-                )}
-              </div>
-
-              {/* Action Buttons */}
-              <div className="space-y-2 pt-2">
-                <button
-                  onClick={handleRunInference}
-                  disabled={isProcessing || !selectedFile}
-                  className={`w-full flex items-center justify-center gap-2 rounded-xl py-2.5 text-xs font-bold transition-all shadow-lg ${
-                    isProcessing || !selectedFile
-                      ? 'border border-slate-800 bg-slate-800/40 text-slate-500 cursor-not-allowed'
-                      : 'bg-cyan-500 hover:bg-cyan-400 text-slate-950 shadow-cyan-500/20'
-                  }`}
-                >
-                  <Play className="h-3.5 w-3.5 fill-current" />
-                  <span>{isProcessing ? 'Processing Model...' : 'Run File Inference'}</span>
-                </button>
-
-                <button
-                  onClick={handleRunSyntheticSample}
-                  disabled={isProcessing}
-                  className="w-full flex items-center justify-center gap-2 rounded-xl border border-slate-700 bg-slate-800/60 hover:bg-slate-800 py-2 text-xs font-semibold text-slate-300 transition-colors"
-                >
-                  <Sparkles className="h-3.5 w-3.5 text-cyan-400" />
-                  <span>Test with Synthetic Frame</span>
-                </button>
-              </div>
-
-              <div className="rounded-lg border border-slate-800/80 bg-slate-950/40 p-3 text-[11px] text-slate-400 flex items-start gap-2">
-                <Info className="h-4 w-4 text-cyan-400 flex-shrink-0 mt-0.5" />
-                <span>
-                  <strong>Privacy First:</strong> Person detection uses anonymous IDs (`anon_001`...). Face recognition, student identity profiling, and emotional inference are disabled.
-                </span>
-              </div>
-            </div>
-
-            {/* Phase 2.8: Privacy-Chained Live Pipeline & SQLite Persistence Safeguards Card */}
-            <div className="rounded-2xl border border-emerald-500/30 bg-emerald-950/15 p-5 space-y-4 backdrop-blur shadow-xl">
-              <div className="flex items-center justify-between border-b border-emerald-500/20 pb-3">
-                <h3 className="text-sm font-bold text-white flex items-center gap-2">
-                  <Shield className="h-4 w-4 text-emerald-400" />
-                  <span>Privacy &amp; Persistence Safeguards</span>
-                </h3>
-                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-950 border border-emerald-800 text-emerald-300 font-bold">
-                  PHASE 2.8
-                </span>
-              </div>
-
-              {/* Client-Side Face Blur Toggle */}
-              <div className="space-y-1.5 p-3 rounded-xl bg-slate-950/70 border border-slate-800">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <EyeOff className="h-4 w-4 text-emerald-400" />
-                    <span className="text-xs font-semibold text-white">Client-Side Face Blur</span>
+                    ))}
                   </div>
-                  <button
-                    type="button"
-                    onClick={() => setClientSideBlurActive(!clientSideBlurActive)}
-                    className={`px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all ${
-                      clientSideBlurActive
-                        ? 'bg-emerald-500/20 border border-emerald-500/40 text-emerald-300'
-                        : 'bg-slate-800 border border-slate-700 text-slate-400'
-                    }`}
-                  >
-                    {clientSideBlurActive ? (clientSideBlurDetected ? 'ACTIVE (PRE-TX)' : 'ARMED') : 'OFF'}
-                  </button>
-                </div>
-                <p className="text-[10px] text-slate-400 leading-relaxed">
-                  HTML5 canvas Gaussian filter before Base64 encoding. Face pixels never leave browser unblurred.
-                </p>
-              </div>
-
-              {/* Server-Side Face Blur Toggle */}
-              <div className="space-y-1.5 p-3 rounded-xl bg-slate-950/70 border border-slate-800">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Lock className="h-4 w-4 text-cyan-400" />
-                    <span className="text-xs font-semibold text-white">Server-Side In-Memory Blur</span>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => setServerSideBlurActive(!serverSideBlurActive)}
-                    className={`px-2.5 py-1 rounded-lg text-[10px] font-bold transition-all ${
-                      serverSideBlurActive
-                        ? 'bg-cyan-500/20 border border-cyan-500/40 text-cyan-300'
-                        : 'bg-slate-800 border border-slate-700 text-slate-400'
-                    }`}
-                  >
-                    {serverSideBlurActive ? (serverSideBlurApplied ? 'ACTIVE (IN-RAM)' : 'ARMED') : 'OFF'}
-                  </button>
-                </div>
-                <p className="text-[10px] text-slate-400 leading-relaxed">
-                  OpenCV Gaussian blur on face ROI in volatile memory. 0 bytes saved to disk or database.
-                </p>
-              </div>
-
-              {/* SQLite Event Persistence Status & Live Counter */}
-              <div className="space-y-2 p-3 rounded-xl bg-slate-950/70 border border-slate-800">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Database className="h-4 w-4 text-violet-400" />
-                    <span className="text-xs font-semibold text-white">SQLite Persistence</span>
-                  </div>
-                  <span
-                    className={`px-2 py-0.5 rounded text-[10px] font-mono font-bold border ${
-                      dbPersistenceStatus === 'SAVED' || dbPersistenceStatus === 'CONNECTED'
-                        ? 'bg-emerald-950/80 border-emerald-500/40 text-emerald-300'
-                        : dbPersistenceStatus === 'ERROR'
-                        ? 'bg-rose-950/80 border-rose-500/40 text-rose-300'
-                        : 'bg-slate-900 border-slate-700 text-slate-400'
-                    }`}
-                  >
-                    {dbPersistenceStatus}
-                  </span>
-                </div>
-                <div className="flex items-center justify-between text-xs">
-                  <span className="text-slate-400">Persisted Events:</span>
-                  <strong className="text-white font-mono bg-violet-950/60 border border-violet-800/40 px-2 py-0.5 rounded">
-                    {persistedEventsCount} in SQLite
-                  </strong>
                 </div>
               </div>
+            </details>
 
-              {/* Volatile RAM Guarantee */}
-              <div className="flex items-center justify-between text-[11px] p-2.5 rounded-xl bg-emerald-950/40 border border-emerald-500/20 text-emerald-300 font-medium">
-                <div className="flex items-center gap-1.5">
-                  <CheckCircle2 className="h-3.5 w-3.5 text-emerald-400 flex-shrink-0" />
-                  <span>Volatile RAM Guarantee</span>
-                </div>
-                <span className="font-mono text-[10px] text-emerald-400">0 Disk Writes</span>
+            {/* Privacy & Zero-Biometrics Summary */}
+            <div className="rounded-xl border border-slate-200 bg-slate-50/70 p-3.5 space-y-1.5 text-xs text-slate-600">
+              <div className="flex items-center gap-1.5 font-semibold text-slate-800">
+                <Shield className="h-3.5 w-3.5 text-blue-600" />
+                <span>Zero-Biometrics Safeguard</span>
               </div>
-
-              {/* Reset Active Session Button */}
-              <button
-                type="button"
-                onClick={handleResetWebSocketSession}
-                className="w-full flex items-center justify-center gap-2 rounded-xl border border-slate-700 bg-slate-800/80 hover:bg-slate-700 py-2 text-xs font-semibold text-slate-200 transition-colors"
-              >
-                <RefreshCw className="h-3.5 w-3.5 text-cyan-400" />
-                <span>Reset Live Tracker (Preserve History)</span>
-              </button>
-            </div>
-
-            {/* Hardware & Policy Safeguards Card */}
-            <div className="rounded-2xl border border-cyan-500/20 bg-cyan-950/15 p-5 space-y-3 backdrop-blur shadow-xl">
-              <h3 className="text-sm font-bold text-cyan-300 flex items-center gap-2">
-                <Shield className="h-4 w-4" />
-                <span>Hardware &amp; Ethics Compliance</span>
-              </h3>
-
-              <ul className="space-y-2 text-xs text-slate-300 leading-relaxed">
-                <li className="flex items-start gap-2">
-                  <span className="text-cyan-400 font-bold">&bull;</span>
-                  <span><strong>Hardware</strong>: HP Victus ({hardwareStatus?.inference_device?.toUpperCase() || 'CPU'} fallback).</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-cyan-400 font-bold">&bull;</span>
-                  <span><strong>Models</strong>: Pretrained YOLOv8n &amp; YOLOv8n-pose.</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <span className="text-cyan-400 font-bold">&bull;</span>
-                  <span><strong>Dataset Policy</strong>: 0% real classroom footage.</span>
-                </li>
-              </ul>
+              <p className="text-[11px] text-slate-500 leading-relaxed">
+                Anonymous YOLOv8 bounding boxes and pose skeletons only. Facial recognition, emotion tracking, and student profiling are strictly absent.
+              </p>
             </div>
           </div>
+
         </div>
       ) : (
         /* SIMULATED VIEWPORT CANVAS (LEGACY DEMO FALLBACK) */
@@ -2382,27 +2443,27 @@ export const MonitoringPage: React.FC = () => {
               </div>
             </div>
 
-            <div className="flex flex-wrap items-center justify-between gap-4 p-4 rounded-xl border border-slate-800 bg-slate-900/60 backdrop-blur">
-              <label className="flex items-center gap-2 text-xs font-medium text-slate-300 cursor-pointer">
+            <div className="flex flex-wrap items-center justify-between gap-4 p-4 rounded-xl border border-slate-200 bg-white shadow-2xs">
+              <label className="flex items-center gap-2 text-xs font-medium text-slate-700 cursor-pointer">
                 <input
                   type="checkbox"
                   checked={showBoxes}
                   onChange={(e) => setShowBoxes(e.target.checked)}
-                  className="rounded border-slate-700 bg-slate-800 text-violet-600 focus:ring-violet-500"
+                  className="rounded border-slate-300 text-blue-600 focus:ring-blue-500"
                 />
                 <span>Show Bounding Boxes</span>
               </label>
 
               <div className="flex items-center gap-2 text-xs">
-                <span className="text-slate-400">Filter:</span>
+                <span className="text-slate-500">Filter:</span>
                 {(['all', 'raised', 'ambiguous'] as const).map((mode) => (
                   <button
                     key={mode}
                     onClick={() => setFilterClass(mode)}
-                    className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-colors ${
+                    className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-colors ${
                       filterClass === mode
-                        ? 'bg-violet-600 text-white'
-                        : 'bg-slate-800 text-slate-300 hover:bg-slate-700'
+                        ? 'bg-blue-600 text-white'
+                        : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
                     }`}
                   >
                     {mode.charAt(0).toUpperCase() + mode.slice(1)}
@@ -2413,13 +2474,13 @@ export const MonitoringPage: React.FC = () => {
           </div>
 
           <div className="space-y-6">
-            <div className="rounded-2xl border border-slate-800 bg-slate-900/60 p-5 space-y-4 backdrop-blur">
-              <h3 className="text-sm font-bold text-white flex items-center gap-2">
-                <Sliders className="h-4 w-4 text-violet-400" />
+            <div className="rounded-2xl border border-slate-200 bg-white p-5 space-y-4 shadow-2xs">
+              <h3 className="text-sm font-bold text-slate-900 flex items-center gap-2">
+                <Sliders className="h-4 w-4 text-blue-600" />
                 <span>Simulation Controls</span>
               </h3>
-              <p className="text-xs text-slate-400 leading-relaxed">
-                Offline demonstration stream for Phase 0.9 evaluation without hardware cameras.
+              <p className="text-xs text-slate-500 leading-relaxed">
+                Offline demonstration stream for evaluation without hardware cameras.
               </p>
             </div>
           </div>

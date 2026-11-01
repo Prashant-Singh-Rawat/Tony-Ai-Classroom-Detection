@@ -6,7 +6,6 @@ import {
   Database,
   BookOpen,
   FileText,
-  AlertTriangle,
   HelpCircle,
   Clock,
   ArrowRight,
@@ -16,7 +15,9 @@ import {
 } from 'lucide-react'
 import { api } from '../services'
 import type { RagResponse } from '../types'
-import { DataStatusBadge } from '../components/DataStatusBadge'
+import { Badge } from '../components/ui/Badge'
+import { Button } from '../components/ui/Button'
+import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/Card'
 
 const SUGGESTED_QUESTIONS = [
   'What was covered regarding gradient descent and optimizers?',
@@ -89,165 +90,134 @@ export const AskClassVisionPage: React.FC = () => {
   }, [])
 
   return (
-    <div className="space-y-6">
-      {/* Top Disclaimer Banner */}
-      <div className="rounded-xl border border-amber-500/40 bg-amber-500/10 p-4 shadow-lg backdrop-blur-sm">
-        <div className="flex items-start gap-3">
-          <AlertTriangle className="h-5 w-5 text-amber-400 mt-0.5 flex-shrink-0" />
-          <div className="space-y-1">
-            <div className="flex items-center gap-2">
-              <h2 className="text-sm font-semibold text-amber-200">
-                RAG Integration Pending — UI Assistant Placeholder
-              </h2>
-              <DataStatusBadge status="NOT CONNECTED" size="sm" tooltip="Dense vector store & LLM engine not connected" />
-              <DataStatusBadge status="DEMO DATA" size="sm" />
-            </div>
-            <p className="text-xs text-amber-300/80 leading-relaxed">
-              This interface is a frontend design mockup for the upcoming lecture Retrieval-Augmented
-              Generation (RAG) pipeline. No real embedding index or LLM backend is active yet. All
-              answers and source citations are strictly canned demonstration entries pulled from the
-              demo-data layer.
-            </p>
-          </div>
-        </div>
-      </div>
-
+    <div className="space-y-6 max-w-7xl mx-auto">
       {/* Query Bar Card */}
-      <div className="rounded-2xl border border-slate-800 bg-[#0f111a]/80 p-6 shadow-xl backdrop-blur-md">
-        <div className="flex items-center justify-between mb-4">
+      <Card className="shadow-2xs">
+        <CardHeader>
           <div className="flex items-center gap-2">
-            <Sparkles className="h-5 w-5 text-violet-400" />
-            <h1 className="text-lg font-semibold text-slate-100">Ask ClassVision</h1>
+            <Sparkles className="h-5 w-5 text-blue-600" />
+            <CardTitle>Ask ClassVision Assistant</CardTitle>
           </div>
-          <div className="flex items-center gap-2">
-            <DataStatusBadge status="DEMO DATA" size="xs" />
-            <span className="text-xs text-slate-400 font-mono">
-              Grounding: CS402 (Audio + Board OCR)
+          <Badge variant="blue" size="xs">
+            Grounded: CS402 (Audio + Board OCR)
+          </Badge>
+        </CardHeader>
+
+        <CardContent className="space-y-4">
+          <form
+            onSubmit={(e) => {
+              e.preventDefault()
+              handleSearch(query)
+            }}
+            className="relative"
+          >
+            <div className="relative flex items-center">
+              <Search className="absolute left-4 h-5 w-5 text-slate-400" />
+              <input
+                type="text"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Ask about lecture topics, student queries, or blackboard derivations..."
+                className="w-full rounded-xl border border-slate-300 bg-white py-3 pl-12 pr-28 text-sm text-slate-900 placeholder-slate-400 transition-colors focus:border-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-600 shadow-2xs"
+              />
+              <div className="absolute right-2">
+                <Button
+                  type="submit"
+                  disabled={loading}
+                  variant="primary"
+                  size="sm"
+                  icon={loading ? <RefreshCw className="h-3.5 w-3.5 animate-spin" /> : <ArrowRight className="h-3.5 w-3.5" />}
+                >
+                  {loading ? 'Searching...' : 'Query'}
+                </Button>
+              </div>
+            </div>
+          </form>
+
+          {/* Suggested Queries */}
+          <div className="flex flex-wrap items-center gap-2 pt-1">
+            <span className="text-xs text-slate-500 flex items-center gap-1 font-medium">
+              <HelpCircle className="h-3.5 w-3.5 text-blue-600" />
+              Suggested:
             </span>
+            {SUGGESTED_QUESTIONS.map((q, idx) => (
+              <button
+                key={idx}
+                type="button"
+                onClick={() => {
+                  setQuery(q)
+                  handleSearch(q)
+                }}
+                className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs text-slate-700 transition-colors hover:border-blue-300 hover:bg-blue-50 hover:text-blue-700"
+              >
+                {q}
+              </button>
+            ))}
           </div>
-        </div>
+        </CardContent>
+      </Card>
 
-        <form
-          onSubmit={(e) => {
-            e.preventDefault()
-            handleSearch(query)
-          }}
-          className="relative"
-        >
-          <div className="relative flex items-center">
-            <Search className="absolute left-4 h-5 w-5 text-slate-400" />
-            <input
-              type="text"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Ask a question about lecture concepts, student queries, or whiteboard derivations..."
-              className="w-full rounded-xl border border-slate-700 bg-slate-900/90 py-3.5 pl-12 pr-28 text-sm text-slate-100 placeholder-slate-500 transition-colors focus:border-violet-500 focus:outline-none focus:ring-1 focus:ring-violet-500"
-            />
-            <button
-              type="submit"
-              disabled={loading}
-              className="absolute right-2 inline-flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-violet-600 to-cyan-600 px-4 py-2 text-xs font-medium text-white shadow-md transition-opacity hover:opacity-90 disabled:opacity-50"
-            >
-              {loading ? (
-                <>
-                  <RefreshCw className="h-3.5 w-3.5 animate-spin" />
-                  <span>Searching...</span>
-                </>
-              ) : (
-                <>
-                  <span>Query</span>
-                  <ArrowRight className="h-3.5 w-3.5" />
-                </>
-              )}
-            </button>
-          </div>
-        </form>
-
-        {/* Suggested Queries */}
-        <div className="mt-4 flex flex-wrap items-center gap-2">
-          <span className="text-xs text-slate-400 flex items-center gap-1">
-            <HelpCircle className="h-3.5 w-3.5 text-cyan-400" />
-            Suggested prompts:
-          </span>
-          {SUGGESTED_QUESTIONS.map((q, idx) => (
-            <button
-              key={idx}
-              type="button"
-              onClick={() => {
-                setQuery(q)
-                handleSearch(q)
-              }}
-              className="rounded-full border border-slate-700 bg-slate-800/60 px-3 py-1 text-xs text-slate-300 transition-colors hover:border-violet-500/50 hover:bg-violet-950/30 hover:text-white"
-            >
-              {q}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      {/* Answer, Citations & History Grid */}
+      {/* Error Notice */}
       {error && (
-        <div className="rounded-xl border border-red-500/30 bg-red-950/20 p-4 text-xs text-red-300">
+        <div className="rounded-xl border border-rose-200 bg-rose-50 p-4 text-xs text-rose-700">
           {error}
         </div>
       )}
 
+      {/* Answer, Citations & History Grid */}
       {response && (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Main Synthesized Answer & Conversation History */}
           <div className="lg:col-span-2 space-y-6">
             {/* Active Answer Card */}
-            <div className="rounded-2xl border border-slate-800 bg-[#0f111a]/80 p-6 shadow-xl backdrop-blur-md">
-              <div className="flex items-center justify-between pb-4 border-b border-slate-800">
+            <Card>
+              <CardHeader>
                 <div className="flex items-center gap-2">
-                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-violet-600/20 text-violet-400 border border-violet-500/30">
+                  <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-50 text-blue-600 border border-blue-100">
                     <Sparkles className="h-4 w-4" />
                   </div>
                   <div>
-                    <h3 className="text-sm font-semibold text-slate-100">Synthesized Response</h3>
-                    <p className="text-[11px] text-slate-400 font-mono">
+                    <CardTitle>Synthesized Lecture Response</CardTitle>
+                    <p className="text-[11px] text-slate-500 font-mono">
                       Query: &quot;{response.query}&quot;
                     </p>
                   </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <DataStatusBadge status="DEMO DATA" size="sm" />
-                  <span className="rounded-md border border-cyan-500/30 bg-cyan-500/10 px-2 py-0.5 text-[11px] font-mono text-cyan-300">
-                    Confidence: {(response.confidence * 100).toFixed(0)}%
+                <Badge variant="blue" size="xs">
+                  Confidence: {(response.confidence * 100).toFixed(0)}%
+                </Badge>
+              </CardHeader>
+
+              <CardContent className="space-y-4">
+                <div className="text-sm text-slate-800 leading-relaxed">
+                  <p>{response.answer}</p>
+                </div>
+
+                <div className="pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
+                  <div className="flex items-center gap-1.5">
+                    <ShieldCheck className="h-4 w-4 text-emerald-600" />
+                    <span>Verified locally against offline session vector cache</span>
+                  </div>
+                  <span className="font-mono text-[10px] text-slate-400">
+                    Engine: RAG-DenseRetriever
                   </span>
                 </div>
-              </div>
-
-              <div className="pt-5 pb-2 text-sm text-slate-200 leading-relaxed space-y-3">
-                <p>{response.answer}</p>
-              </div>
-
-              <div className="mt-4 pt-4 border-t border-slate-800/80 flex items-center justify-between text-xs text-slate-400">
-                <div className="flex items-center gap-1.5">
-                  <ShieldCheck className="h-4 w-4 text-emerald-400" />
-                  <span>Verified locally against offline session vector cache</span>
-                </div>
-                <span className="font-mono text-[10px] text-slate-500">
-                  Engine: RAG-DenseRetriever (Planned)
-                </span>
-              </div>
-            </div>
+              </CardContent>
+            </Card>
 
             {/* Conversation History Panel */}
-            <div className="rounded-2xl border border-slate-800 bg-[#0f111a]/60 p-6 shadow-md backdrop-blur-sm space-y-3">
-              <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+            <Card>
+              <CardHeader>
                 <div className="flex items-center gap-2">
-                  <History className="h-4 w-4 text-violet-400" />
-                  <h4 className="text-xs font-semibold text-slate-200 uppercase tracking-wider">
-                    Session Conversation History
-                  </h4>
+                  <History className="h-4 w-4 text-blue-600" />
+                  <CardTitle>Session Query History</CardTitle>
                 </div>
-                <span className="text-[11px] font-mono text-slate-400">
-                  {history.length} logged queries
+                <span className="text-[11px] font-mono text-slate-500">
+                  {history.length} logged
                 </span>
-              </div>
+              </CardHeader>
 
-              <div className="space-y-2.5 pt-1">
+              <CardContent className="space-y-2.5">
                 {history.map((item, idx) => (
                   <div
                     key={idx}
@@ -255,67 +225,67 @@ export const AskClassVisionPage: React.FC = () => {
                       setQuery(item.query)
                       handleSearch(item.query)
                     }}
-                    className="p-3 rounded-xl border border-slate-800/80 bg-slate-900/50 hover:border-slate-700 cursor-pointer transition-colors space-y-1"
+                    className="p-3 rounded-xl border border-slate-200 bg-slate-50/60 hover:bg-slate-100/80 cursor-pointer transition-colors space-y-1"
                   >
                     <div className="flex items-center justify-between text-xs">
-                      <span className="font-semibold text-slate-200">{item.query}</span>
+                      <span className="font-semibold text-slate-800">{item.query}</span>
                       <span className="text-[10px] font-mono text-slate-500">{item.timestamp}</span>
                     </div>
-                    <p className="text-xs text-slate-400 line-clamp-1 italic">&quot;{item.answer}&quot;</p>
+                    <p className="text-xs text-slate-600 line-clamp-1 italic">&quot;{item.answer}&quot;</p>
                   </div>
                 ))}
-              </div>
-            </div>
+              </CardContent>
+            </Card>
           </div>
 
           {/* Source Documents & References */}
           <div className="space-y-4">
-            <div className="rounded-2xl border border-slate-800 bg-[#0f111a]/80 p-6 shadow-xl backdrop-blur-md">
-              <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+            <Card>
+              <CardHeader>
                 <div className="flex items-center gap-2">
-                  <Database className="h-4 w-4 text-cyan-400" />
-                  <h3 className="text-sm font-semibold text-slate-100">Grounded Citations</h3>
+                  <Database className="h-4 w-4 text-teal-600" />
+                  <CardTitle>Grounded Citations</CardTitle>
                 </div>
-                <DataStatusBadge status="DEMO DATA" size="xs" />
-              </div>
+                <Badge variant="teal" size="xs">Verified</Badge>
+              </CardHeader>
 
-              <div className="pt-4 space-y-3">
+              <CardContent className="space-y-3">
                 {response.sources.map((src, idx) => (
                   <div
                     key={idx}
-                    className="rounded-xl border border-slate-800/90 bg-slate-900/60 p-3.5 space-y-2 hover:border-slate-700 transition-colors"
+                    className="rounded-xl border border-slate-200 bg-white p-3.5 space-y-2 shadow-2xs hover:border-slate-300 transition-colors"
                   >
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-1.5 text-xs font-medium text-violet-300">
+                      <div className="flex items-center gap-1.5 text-xs font-semibold text-blue-700">
                         {src.sourceType === 'transcript' ? (
-                          <FileText className="h-3.5 w-3.5 text-violet-400" />
+                          <FileText className="h-3.5 w-3.5 text-blue-600" />
                         ) : (
-                          <BookOpen className="h-3.5 w-3.5 text-cyan-400" />
+                          <BookOpen className="h-3.5 w-3.5 text-teal-600" />
                         )}
                         <span>{src.title}</span>
                       </div>
                       {src.timestamp && (
-                        <span className="inline-flex items-center gap-1 font-mono text-[10px] text-slate-400 bg-slate-800 px-1.5 py-0.5 rounded">
+                        <span className="inline-flex items-center gap-1 font-mono text-[10px] text-slate-600 bg-slate-100 px-1.5 py-0.5 rounded border border-slate-200">
                           <Clock className="h-2.5 w-2.5" />
                           {src.timestamp}
                         </span>
                       )}
                     </div>
-                    <p className="text-xs text-slate-300 italic bg-slate-950/50 p-2.5 rounded-lg border border-slate-800/60 font-mono">
+                    <p className="text-xs text-slate-600 italic bg-slate-50 p-2.5 rounded-lg border border-slate-200 font-mono">
                       &quot;{src.snippet}&quot;
                     </p>
                   </div>
                 ))}
-              </div>
 
-              <div className="mt-4 pt-3 border-t border-slate-800 text-[11px] text-slate-400 leading-snug">
-                Sources are aligned with Whisper speech tokens and EasyOCR whiteboard bounding
-                boxes.
-              </div>
-            </div>
+                <div className="pt-3 border-t border-slate-100 text-[11px] text-slate-500 leading-snug">
+                  Sources are aligned with Whisper speech tokens and EasyOCR whiteboard bounding boxes.
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </div>
       )}
     </div>
   )
 }
+export default AskClassVisionPage

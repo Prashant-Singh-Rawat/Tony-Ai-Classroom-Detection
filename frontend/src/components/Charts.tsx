@@ -33,9 +33,9 @@ export const TrendLineChart: React.FC<TrendLineChartProps> = ({ data, height = 2
     <div className="w-full overflow-hidden">
       <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-auto overflow-visible">
         <defs>
-          <linearGradient id="violetGradient" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#8b5cf6" stopOpacity="0.45" />
-            <stop offset="100%" stopColor="#8b5cf6" stopOpacity="0.0" />
+          <linearGradient id="blueGradient" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#2563eb" stopOpacity="0.20" />
+            <stop offset="100%" stopColor="#2563eb" stopOpacity="0.0" />
           </linearGradient>
         </defs>
 
@@ -44,7 +44,7 @@ export const TrendLineChart: React.FC<TrendLineChartProps> = ({ data, height = 2
           const y = getY(tick)
           return (
             <g key={tick}>
-              <line x1={paddingX} y1={y} x2={width - paddingX} y2={y} stroke="#1f2438" strokeDasharray="3 3" />
+              <line x1={paddingX} y1={y} x2={width - paddingX} y2={y} stroke="#e2e8f0" strokeDasharray="3 3" />
               <text x={paddingX - 8} y={y + 4} fill="#64748b" fontSize="10" textAnchor="end">
                 {tick}
               </text>
@@ -53,10 +53,10 @@ export const TrendLineChart: React.FC<TrendLineChartProps> = ({ data, height = 2
         })}
 
         {/* Area fill */}
-        <polygon points={areaString} fill="url(#violetGradient)" />
+        <polygon points={areaString} fill="url(#blueGradient)" />
 
         {/* Smooth line */}
-        <polyline points={pointsString} fill="none" stroke="#a78bfa" strokeWidth="2.5" strokeLinecap="round" />
+        <polyline points={pointsString} fill="none" stroke="#2563eb" strokeWidth="2.5" strokeLinecap="round" />
 
         {/* Data points & X-axis labels */}
         {data.map((d, i) => {
@@ -64,7 +64,7 @@ export const TrendLineChart: React.FC<TrendLineChartProps> = ({ data, height = 2
           const cy = getY(d.handRaises)
           return (
             <g key={i}>
-              <circle cx={cx} cy={cy} r="4" fill="#8b5cf6" stroke="#0f111a" strokeWidth="2" className="transition-all hover:r-6" />
+              <circle cx={cx} cy={cy} r="4" fill="#2563eb" stroke="#ffffff" strokeWidth="2" className="transition-all hover:r-6" />
               <text x={cx} y={height - 6} fill="#64748b" fontSize="10" textAnchor="middle">
                 {d.time}
               </text>
@@ -93,16 +93,16 @@ export const ActivityBarChart: React.FC<ActivityBarChartProps> = ({ data }) => {
       {data.map((item) => (
         <div key={item.name} className="space-y-1.5">
           <div className="flex justify-between items-center text-xs">
-            <span className="font-medium text-slate-300">{item.name}</span>
+            <span className="font-semibold text-slate-700">{item.name}</span>
             <div className="flex items-center gap-2">
-              <span className="font-bold text-white">{item.count} students</span>
+              <span className="font-bold text-slate-900">{item.count} students</span>
               <span className="text-[11px] text-slate-500">({item.percentage}%)</span>
             </div>
           </div>
-          <div className="w-full bg-slate-800 rounded-full h-2 overflow-hidden border border-slate-700/50">
+          <div className="h-2 w-full overflow-hidden rounded-full bg-slate-100 border border-slate-200">
             <div
-              className="h-full rounded-full transition-all duration-500"
-              style={{ width: `${item.percentage}%`, backgroundColor: item.color }}
+              className={`h-full rounded-full transition-all duration-500 ${item.color}`}
+              style={{ width: `${item.percentage}%` }}
             />
           </div>
         </div>
