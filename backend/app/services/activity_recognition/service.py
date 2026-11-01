@@ -33,31 +33,58 @@ from backend.app.schemas.activities import (
 from backend.app.schemas.detections import BoundingBox, Keypoint, PersonDetection
 
 
-# Color mapping matching prompt specification
+from backend.app.core.activity_config import (
+    TAG_FACING_BOARD,
+    TAG_HAND_RAISED,
+    TAG_HAND_RAISED_LEFT,
+    TAG_HAND_RAISED_RIGHT,
+    TAG_HAND_RAISED_BOTH,
+    TAG_PHONE_VISIBLE,
+    TAG_HEAD_DOWN,
+    TAG_TURNED_SIDEWAYS,
+    TAG_NEEDS_REVIEW,
+    COLOR_GREEN,
+    COLOR_BLUE,
+    COLOR_RED,
+    COLOR_ORANGE,
+    COLOR_YELLOW,
+    HEAD_DOWN_DURATION_THRESHOLD_SEC,
+    PHONE_CONSECUTIVE_FRAMES,
+    SIDEWAYS_SUSTAINED_FRAMES,
+    WHITEBOARD_DEFAULT_CALIBRATION,
+)
+
+# Observable Tag Color Mapping strictly adhering to product requirements:
+# Green: Facing board
+# Blue: Hand raised (Left / Right / Both)
+# Red: Phone visible
+# Orange: Head down (N s)
+# Orange: Turned sideways (possible interaction)
+# Yellow: Needs review
 ACTIVITY_COLORS: Dict[ActivityLabel, str] = {
-    ActivityLabel.NO_FLAG_OBSERVED: "GREEN",
-    ActivityLabel.HEAD_DOWN_POSTURE: "RED",
-    ActivityLabel.PHONE_VISIBLE: "RED",
-    ActivityLabel.POSSIBLE_PEER_INTERACTION: "ORANGE",
-    ActivityLabel.POSSIBLE_SPEAKING: "ORANGE",
-    ActivityLabel.HAND_RAISED: "BLUE",
-    ActivityLabel.LEFT_HAND_RAISED: "BLUE",
-    ActivityLabel.RIGHT_HAND_RAISED: "BLUE",
-    ActivityLabel.BOTH_HANDS_RAISED: "BLUE",
-    ActivityLabel.NEEDS_REVIEW: "YELLOW",
+    ActivityLabel.NO_FLAG_OBSERVED: COLOR_GREEN,
+    ActivityLabel.HEAD_DOWN_POSTURE: COLOR_ORANGE,
+    ActivityLabel.PHONE_VISIBLE: COLOR_RED,
+    ActivityLabel.POSSIBLE_PEER_INTERACTION: COLOR_ORANGE,
+    ActivityLabel.POSSIBLE_SPEAKING: COLOR_ORANGE,
+    ActivityLabel.HAND_RAISED: COLOR_BLUE,
+    ActivityLabel.LEFT_HAND_RAISED: COLOR_BLUE,
+    ActivityLabel.RIGHT_HAND_RAISED: COLOR_BLUE,
+    ActivityLabel.BOTH_HANDS_RAISED: COLOR_BLUE,
+    ActivityLabel.NEEDS_REVIEW: COLOR_YELLOW,
 }
 
 DISPLAY_LABELS: Dict[ActivityLabel, str] = {
-    ActivityLabel.NO_FLAG_OBSERVED: "NO FLAG OBSERVED",
-    ActivityLabel.HEAD_DOWN_POSTURE: "HEAD-DOWN POSTURE",
-    ActivityLabel.PHONE_VISIBLE: "PHONE VISIBLE",
-    ActivityLabel.POSSIBLE_PEER_INTERACTION: "POSSIBLE PEER INTERACTION",
-    ActivityLabel.POSSIBLE_SPEAKING: "POSSIBLE SPEAKING",
-    ActivityLabel.HAND_RAISED: "HAND RAISED",
-    ActivityLabel.LEFT_HAND_RAISED: "LEFT HAND RAISED",
-    ActivityLabel.RIGHT_HAND_RAISED: "RIGHT HAND RAISED",
-    ActivityLabel.BOTH_HANDS_RAISED: "BOTH HANDS RAISED",
-    ActivityLabel.NEEDS_REVIEW: "NEEDS REVIEW",
+    ActivityLabel.NO_FLAG_OBSERVED: TAG_FACING_BOARD,
+    ActivityLabel.HEAD_DOWN_POSTURE: TAG_HEAD_DOWN,
+    ActivityLabel.PHONE_VISIBLE: TAG_PHONE_VISIBLE,
+    ActivityLabel.POSSIBLE_PEER_INTERACTION: TAG_TURNED_SIDEWAYS,
+    ActivityLabel.POSSIBLE_SPEAKING: TAG_TURNED_SIDEWAYS,
+    ActivityLabel.HAND_RAISED: TAG_HAND_RAISED,
+    ActivityLabel.LEFT_HAND_RAISED: TAG_HAND_RAISED_LEFT,
+    ActivityLabel.RIGHT_HAND_RAISED: TAG_HAND_RAISED_RIGHT,
+    ActivityLabel.BOTH_HANDS_RAISED: TAG_HAND_RAISED_BOTH,
+    ActivityLabel.NEEDS_REVIEW: TAG_NEEDS_REVIEW,
 }
 
 
@@ -175,11 +202,16 @@ class ActivityRecognitionService:
                 if db_session:
                     self._persist_activity_event(completed_event, db_session)
 
-            # Enrich bounding box
-            color = ACTIVITY_COLORS.get(final_label, "GREEN")
-            disp_label = DISPLAY_LABELS.get(final_label, "NO FLAG OBSERVED")
+            # Enrich bounding box with single-source-of-truth tags and duration
+            color = ACTIVITY_COLORS.get(final_label, COLOR_GREEN)
+            base_label = DISPLAY_LABELS.get(final_label, TAG_FACING_BOARD)
 
-            box.activityLabel = final_label.value
+            if final_label == ActivityLabel.HEAD_DOWN_POSTURE and buffer.current_duration_seconds > 0:
+                disp_label = f"{base_label} ({int(buffer.current_duration_seconds)}s)"
+            else:
+                disp_label = base_label
+
+            box.activityLabel = disp_label
             box.activityConfidence = round(final_conf, 2)
             box.activityDurationSeconds = round(buffer.current_duration_seconds, 1)
             box.activityEvidence = final_evidence.rationale
