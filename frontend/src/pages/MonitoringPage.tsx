@@ -22,6 +22,8 @@ import {
   Eye,
   ChevronDown,
   Settings,
+  Filter,
+  Tag,
 } from 'lucide-react'
 import { api } from '../services'
 import type {
@@ -232,6 +234,46 @@ export const MonitoringPage: React.FC = () => {
   const [dbPersistenceStatus, setDbPersistenceStatus] = useState<'CONNECTED' | 'SAVED' | 'IDLE' | 'ERROR'>('CONNECTED')
   const [dbErrorMessage, setDbErrorMessage] = useState<string | null>(null)
   const [serverSideBlurApplied, setServerSideBlurApplied] = useState(true)
+  const [activeCategoryFilter, setActiveCategoryFilter] = useState<ActivityCategory | null>(null)
+
+  const activeDetections: BoundingBox[] = useMemo(() => {
+    if (isWebcamActive) {
+      return detectionResult?.boxes || []
+    }
+    if (selectedFile?.type.startsWith('video/')) {
+      if (activeVideoFrame?.boxes) return activeVideoFrame.boxes
+      if (videoResult?.timeline && videoResult.timeline.length > 0) {
+        return videoResult.timeline[0].boxes || []
+      }
+      return []
+    }
+    if (detectionResult?.boxes) {
+      return detectionResult.boxes
+    }
+    return []
+  }, [isWebcamActive, selectedFile, activeVideoFrame, videoResult, detectionResult])
+
+  const categoryCounts = useMemo(() => {
+    const counts: Record<ActivityCategory, number> = {
+      facing_board: 0,
+      hand_raised: 0,
+      phone_visible: 0,
+      head_down: 0,
+      turned_sideways: 0,
+      needs_review: 0,
+    }
+    activeDetections.forEach((det) => {
+      const cfg = getActivityBoxConfig(det)
+      counts[cfg.category] = (counts[cfg.category] || 0) + 1
+    })
+    return counts
+  }, [activeDetections])
+
+  const lowConfidenceCount = useMemo(() => {
+    return activeDetections.filter(
+      (det) => det.confidence >= 0.15 && det.confidence <= 0.30
+    ).length
+  }, [activeDetections])
   const [clientSideBlurDetected, setClientSideBlurDetected] = useState(false)
   const detectionResultRef = useRef<ImageDetectionResult | null>(null)
 
@@ -825,63 +867,142 @@ export const MonitoringPage: React.FC = () => {
     ['right_knee', 'right_ankle'],
   ]
 
-  const getActivityBoxConfig = (det: BoundingBox) => {
-    const rawLabel = det.activityLabel || (det.handRaised ? 'HAND_RAISED' : (det.status === 'NEEDS_REVIEW' ? 'NEEDS_REVIEW' : 'NO_FLAG_OBSERVED'))
+  type ActivityCategory =
+    | 'facing_board'
+    | 'hand_raised'
+    | 'phone_visible'
+    | 'head_down'
+    | 'turned_sideways'
+    | 'needs_review'
 
-    // RED: PHONE VISIBLE, HEAD-DOWN POSTURE
-    if (rawLabel === 'PHONE_VISIBLE' || rawLabel === 'HEAD_DOWN_POSTURE') {
+  interface ActivityBoxConfig {
+    category: ActivityCategory
+    colorName: 'GREEN' | 'BLUE' | 'RED' | 'ORANGE' | 'YELLOW'
+    border: string
+    text: string
+    badgeBg: string
+    label: string
+    isHand: boolean
+  }
+
+  const getActivityBoxConfig = (det: BoundingBox): ActivityBoxConfig => {
+    const rawLabel = (det.activityLabel || '').trim()
+
+    // 1. RED: Phone visible (COCO class 67 detected overlapping person)
+    if (
+      rawLabel === 'Phone visible' ||
+      rawLabel === 'PHONE_VISIBLE' ||
+      (det.classId as number) === 67 ||
+      det.detectedObjects?.includes('cell phone') ||
+      rawLabel.toLowerCase().includes('phone')
+    ) {
       return {
+        category: 'phone_visible',
+        colorName: 'RED',
         border: 'border-rose-500 bg-rose-500/15 shadow-rose-500/30',
         text: 'text-rose-400 font-extrabold',
-        badgeBg: 'border-rose-500/60 bg-rose-950/90',
-        label: rawLabel === 'PHONE_VISIBLE' ? 'PHONE VISIBLE' : 'HEAD-DOWN POSTURE',
+        badgeBg: 'border-rose-500/70 bg-slate-900/90 text-rose-300',
+        label: 'Phone visible',
         isHand: false,
       }
     }
 
-    // ORANGE: POSSIBLE PEER INTERACTION, POSSIBLE SPEAKING
-    if (rawLabel === 'POSSIBLE_PEER_INTERACTION' || rawLabel === 'POSSIBLE_SPEAKING') {
-      return {
-        border: 'border-amber-500 bg-amber-500/15 shadow-amber-500/30',
-        text: 'text-amber-400 font-bold',
-        badgeBg: 'border-amber-500/60 bg-amber-950/90',
-        label: rawLabel === 'POSSIBLE_PEER_INTERACTION' ? 'POSSIBLE PEER INTERACTION' : 'POSSIBLE SPEAKING',
-        isHand: false,
+    // 2. BLUE: Hand raised (Left / Right / Both)
+    if (
+      rawLabel.startsWith('Hand raised') ||
+      rawLabel.includes('HAND_RAISED') ||
+      det.handRaised
+    ) {
+      let display = 'Hand raised'
+      if (rawLabel === 'Hand raised (Left)' || rawLabel === 'LEFT_HAND_RAISED') {
+        display = 'Hand raised (Left)'
+      } else if (rawLabel === 'Hand raised (Right)' || rawLabel === 'RIGHT_HAND_RAISED') {
+        display = 'Hand raised (Right)'
+      } else if (rawLabel === 'Hand raised (Both)' || rawLabel === 'BOTH_HANDS_RAISED') {
+        display = 'Hand raised (Both)'
+      } else if (rawLabel.startsWith('Hand raised (')) {
+        display = rawLabel
       }
-    }
 
-    // BLUE: HAND RAISED (and LEFT, RIGHT, BOTH)
-    if (rawLabel.includes('HAND') || det.handRaised) {
-      let display = 'HAND RAISED'
-      if (rawLabel === 'LEFT_HAND_RAISED') display = 'LEFT HAND RAISED'
-      else if (rawLabel === 'RIGHT_HAND_RAISED') display = 'RIGHT HAND RAISED'
-      else if (rawLabel === 'BOTH_HANDS_RAISED') display = 'BOTH HANDS RAISED'
       return {
+        category: 'hand_raised',
+        colorName: 'BLUE',
         border: 'border-blue-500 bg-blue-500/15 shadow-blue-500/30',
         text: 'text-blue-400 font-extrabold',
-        badgeBg: 'border-blue-500/60 bg-blue-950/90',
+        badgeBg: 'border-blue-500/70 bg-slate-900/90 text-blue-300',
         label: display,
         isHand: true,
       }
     }
 
-    // YELLOW: NEEDS REVIEW
-    if (rawLabel === 'NEEDS_REVIEW' || det.status === 'NEEDS_REVIEW' || det.classId === 2) {
+    // 3. ORANGE: Head down (N s)
+    if (
+      rawLabel.startsWith('Head down') ||
+      rawLabel === 'HEAD_DOWN_POSTURE' ||
+      rawLabel.toLowerCase().includes('head down')
+    ) {
+      let display = 'Head down'
+      if (rawLabel.includes('(') && rawLabel.includes(')')) {
+        display = rawLabel
+      } else if (det.activityDurationSeconds !== undefined && det.activityDurationSeconds > 0) {
+        display = `Head down (${Math.round(det.activityDurationSeconds)}s)`
+      }
       return {
-        border: 'border-yellow-400 bg-yellow-400/15 shadow-yellow-400/30',
-        text: 'text-yellow-300 font-bold',
-        badgeBg: 'border-yellow-500/60 bg-yellow-950/90',
-        label: 'NEEDS REVIEW',
+        category: 'head_down',
+        colorName: 'ORANGE',
+        border: 'border-amber-500 bg-amber-500/15 shadow-amber-500/30',
+        text: 'text-amber-400 font-bold',
+        badgeBg: 'border-amber-500/70 bg-slate-900/90 text-amber-300',
+        label: display,
         isHand: false,
       }
     }
 
-    // GREEN: NO FLAG OBSERVED (Default)
+    // 4. ORANGE: Turned sideways (possible interaction)
+    if (
+      rawLabel === 'Turned sideways (possible interaction)' ||
+      rawLabel === 'TURNED_SIDEWAYS' ||
+      rawLabel === 'POSSIBLE_PEER_INTERACTION' ||
+      rawLabel === 'POSSIBLE_SPEAKING' ||
+      rawLabel.toLowerCase().includes('turned sideways')
+    ) {
+      return {
+        category: 'turned_sideways',
+        colorName: 'ORANGE',
+        border: 'border-amber-500 bg-amber-500/15 shadow-amber-500/30',
+        text: 'text-amber-400 font-bold',
+        badgeBg: 'border-amber-500/70 bg-slate-900/90 text-amber-300',
+        label: 'Turned sideways (possible interaction)',
+        isHand: false,
+      }
+    }
+
+    // 5. YELLOW: Needs review
+    if (
+      rawLabel === 'Needs review' ||
+      rawLabel === 'NEEDS_REVIEW' ||
+      det.status === 'NEEDS_REVIEW' ||
+      det.classId === 2
+    ) {
+      return {
+        category: 'needs_review',
+        colorName: 'YELLOW',
+        border: 'border-yellow-400 bg-yellow-400/15 shadow-yellow-400/30',
+        text: 'text-yellow-300 font-bold',
+        badgeBg: 'border-yellow-400/70 bg-slate-900/90 text-yellow-300',
+        label: 'Needs review',
+        isHand: false,
+      }
+    }
+
+    // 6. GREEN: Facing board (Default upright posture)
     return {
-      border: 'border-emerald-500 bg-emerald-500/10 shadow-emerald-500/20',
+      category: 'facing_board',
+      colorName: 'GREEN',
+      border: 'border-emerald-500 bg-emerald-500/15 shadow-emerald-500/20',
       text: 'text-emerald-400 font-semibold',
-      badgeBg: 'border-emerald-500/50 bg-slate-950/90',
-      label: 'NO FLAG OBSERVED',
+      badgeBg: 'border-emerald-500/70 bg-slate-900/90 text-emerald-300',
+      label: 'Facing board',
       isHand: false,
     }
   }
@@ -1011,6 +1132,11 @@ export const MonitoringPage: React.FC = () => {
                     <div className="absolute inset-0 pointer-events-none">
                         {detectionResult.boxes.map((det) => {
                           const cfg = getActivityBoxConfig(det)
+                          if (activeCategoryFilter !== null && cfg.category !== activeCategoryFilter) {
+                            return null
+                          }
+                          const isNearTop = det.y < 8
+                          const chipPosClass = isNearTop ? 'top-1 left-1 rounded' : '-top-6 left-0 rounded-t'
 
                           return (
                             <div
@@ -1023,7 +1149,7 @@ export const MonitoringPage: React.FC = () => {
                                 height: `${det.h}%`,
                               }}
                             >
-                              <div className={`absolute -top-6 left-0 flex items-center gap-1.5 px-2 py-0.5 text-[9px] font-mono uppercase font-bold tracking-wider rounded-t ${cfg.badgeBg} border text-white shadow whitespace-nowrap z-20`}>
+                              <div className={`absolute ${chipPosClass} flex items-center gap-1.5 px-2 py-0.5 text-[9px] font-mono uppercase font-bold tracking-wider ${cfg.badgeBg} border text-white shadow whitespace-nowrap z-20`}>
                                 {cfg.isHand && <Hand className="h-3 w-3 text-blue-400 fill-current animate-bounce" />}
                                 <span>{det.id}:</span>
                                 <span className={cfg.text}>
@@ -1049,6 +1175,9 @@ export const MonitoringPage: React.FC = () => {
                           <svg className="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 100 100" preserveAspectRatio="none">
                             {detectionResult.boxes.map((b) => {
                               if (!b.keypoints || b.keypoints.length === 0) return null
+                              if (activeCategoryFilter !== null && getActivityBoxConfig(b).category !== activeCategoryFilter) {
+                                return null
+                              }
                               const imgW = detectionResult.imageWidth || 640
                               const imgH = detectionResult.imageHeight || 480
                               const kpMap: Record<string, { x: number; y: number; confidence: number }> = {}
@@ -1133,7 +1262,12 @@ export const MonitoringPage: React.FC = () => {
                             <div className="absolute inset-0 pointer-events-none">
                               {activeVideoFrame.boxes.map((det: BoundingBox) => {
                                 const cfg = getActivityBoxConfig(det)
+                                if (activeCategoryFilter !== null && cfg.category !== activeCategoryFilter) {
+                                  return null
+                                }
                                 const isTeacherZone = det.zoneClassification === 'INSTRUCTOR_ZONE'
+                                const isNearTop = det.y < 8
+                                const chipPosClass = isNearTop ? 'top-1 left-1 rounded' : '-top-6 left-0 rounded-t'
 
                                 return (
                                   <div
@@ -1149,7 +1283,7 @@ export const MonitoringPage: React.FC = () => {
                                     }}
                                   >
                                     <div
-                                      className={`absolute -top-6 left-0 flex items-center gap-1.5 px-2 py-0.5 text-[9px] font-mono uppercase font-bold tracking-wider rounded-t ${
+                                      className={`absolute ${chipPosClass} flex items-center gap-1.5 px-2 py-0.5 text-[9px] font-mono uppercase font-bold tracking-wider ${
                                         isTeacherZone ? 'bg-amber-600/90 border-amber-400' : cfg.badgeBg
                                       } border text-white shadow whitespace-nowrap z-20`}
                                     >
@@ -1184,6 +1318,9 @@ export const MonitoringPage: React.FC = () => {
                                 >
                                   {activeVideoFrame.boxes.map((b: BoundingBox) => {
                                     if (!b.keypoints || b.keypoints.length === 0) return null
+                                    if (activeCategoryFilter !== null && getActivityBoxConfig(b).category !== activeCategoryFilter) {
+                                      return null
+                                    }
                                     const imgW = videoResult?.width || videoNativeDims.width || 960
                                     const imgH = videoResult?.height || videoNativeDims.height || 540
                                     const kpMap: Record<string, { x: number; y: number; confidence: number }> = {}
@@ -1310,6 +1447,11 @@ export const MonitoringPage: React.FC = () => {
                           detectionResult.boxes &&
                           detectionResult.boxes.map((det) => {
                             const cfg = getActivityBoxConfig(det)
+                            if (activeCategoryFilter !== null && cfg.category !== activeCategoryFilter) {
+                              return null
+                            }
+                            const isNearTop = det.y < 8
+                            const chipPosClass = isNearTop ? 'top-1 left-1 rounded' : '-top-6 left-0 rounded-t'
 
                             return (
                               <div
@@ -1322,7 +1464,7 @@ export const MonitoringPage: React.FC = () => {
                                   height: `${det.h}%`,
                                 }}
                               >
-                                <div className={`absolute -top-6 left-0 flex items-center gap-1.5 px-2 py-0.5 text-[9px] font-mono uppercase font-bold tracking-wider rounded-t ${cfg.badgeBg} border text-white shadow whitespace-nowrap z-20`}>
+                                <div className={`absolute ${chipPosClass} flex items-center gap-1.5 px-2 py-0.5 text-[9px] font-mono uppercase font-bold tracking-wider ${cfg.badgeBg} border text-white shadow whitespace-nowrap z-20`}>
                                   {cfg.isHand && <Hand className="h-3 w-3 text-blue-400 fill-current animate-bounce" />}
                                   <span>{det.id}:</span>
                                   <span className={cfg.text}>
@@ -1348,6 +1490,9 @@ export const MonitoringPage: React.FC = () => {
                           <svg className="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 100 100" preserveAspectRatio="none">
                             {detectionResult.boxes.map((b) => {
                               if (!b.keypoints || b.keypoints.length === 0) return null
+                              if (activeCategoryFilter !== null && getActivityBoxConfig(b).category !== activeCategoryFilter) {
+                                return null
+                              }
                               const imgW = detectionResult.imageWidth || 640
                               const imgH = detectionResult.imageHeight || 480
                               const kpMap: Record<string, { x: number; y: number; confidence: number }> = {}
@@ -1523,6 +1668,99 @@ export const MonitoringPage: React.FC = () => {
                     {detectPose ? 'YOLOv8n-pose' : 'YOLOv8n'}
                   </span>
                 </div>
+              </div>
+            </div>
+
+            {/* Category Visibility Toggle Filter Bar */}
+            <div className="flex flex-wrap items-center justify-between gap-3 p-3.5 bg-white rounded-xl border border-slate-200 shadow-2xs">
+              <div className="flex flex-wrap items-center gap-1.5">
+                <span className="text-xs font-bold text-slate-700 flex items-center gap-1.5 mr-1">
+                  <Filter className="h-3.5 w-3.5 text-blue-600" />
+                  <span>Activity Filter:</span>
+                </span>
+                <button
+                  type="button"
+                  onClick={() => setActiveCategoryFilter(null)}
+                  className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-all border ${
+                    activeCategoryFilter === null
+                      ? 'bg-slate-900 text-white border-slate-900 shadow-xs'
+                      : 'bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100'
+                  }`}
+                >
+                  All ({activeDetections.length})
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveCategoryFilter((prev) => (prev === 'facing_board' ? null : 'facing_board'))}
+                  className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold transition-all border ${
+                    activeCategoryFilter === 'facing_board'
+                      ? 'bg-emerald-600 text-white border-emerald-600 shadow-xs ring-2 ring-emerald-500/20'
+                      : 'bg-emerald-50/70 text-emerald-800 border-emerald-200 hover:bg-emerald-100/80'
+                  }`}
+                >
+                  <span className="h-2 w-2 rounded-full bg-emerald-500" />
+                  <span>Facing board ({categoryCounts.facing_board})</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveCategoryFilter((prev) => (prev === 'hand_raised' ? null : 'hand_raised'))}
+                  className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold transition-all border ${
+                    activeCategoryFilter === 'hand_raised'
+                      ? 'bg-blue-600 text-white border-blue-600 shadow-xs ring-2 ring-blue-500/20'
+                      : 'bg-blue-50/70 text-blue-800 border-blue-200 hover:bg-blue-100/80'
+                  }`}
+                >
+                  <span className="h-2 w-2 rounded-full bg-blue-500" />
+                  <span>Hand raised ({categoryCounts.hand_raised})</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveCategoryFilter((prev) => (prev === 'phone_visible' ? null : 'phone_visible'))}
+                  className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold transition-all border ${
+                    activeCategoryFilter === 'phone_visible'
+                      ? 'bg-rose-600 text-white border-rose-600 shadow-xs ring-2 ring-rose-500/20'
+                      : 'bg-rose-50/70 text-rose-800 border-rose-200 hover:bg-rose-100/80'
+                  }`}
+                >
+                  <span className="h-2 w-2 rounded-full bg-rose-500" />
+                  <span>Phone visible ({categoryCounts.phone_visible})</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveCategoryFilter((prev) => (prev === 'head_down' ? null : 'head_down'))}
+                  className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold transition-all border ${
+                    activeCategoryFilter === 'head_down'
+                      ? 'bg-amber-600 text-white border-amber-600 shadow-xs ring-2 ring-amber-500/20'
+                      : 'bg-amber-50/70 text-amber-800 border-amber-200 hover:bg-amber-100/80'
+                  }`}
+                >
+                  <span className="h-2 w-2 rounded-full bg-amber-500" />
+                  <span>Head down ({categoryCounts.head_down})</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveCategoryFilter((prev) => (prev === 'turned_sideways' ? null : 'turned_sideways'))}
+                  className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold transition-all border ${
+                    activeCategoryFilter === 'turned_sideways'
+                      ? 'bg-amber-600 text-white border-amber-600 shadow-xs ring-2 ring-amber-500/20'
+                      : 'bg-amber-50/70 text-amber-800 border-amber-200 hover:bg-amber-100/80'
+                  }`}
+                >
+                  <span className="h-2 w-2 rounded-full bg-amber-500" />
+                  <span>Turned sideways ({categoryCounts.turned_sideways})</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveCategoryFilter((prev) => (prev === 'needs_review' ? null : 'needs_review'))}
+                  className={`flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold transition-all border ${
+                    activeCategoryFilter === 'needs_review'
+                      ? 'bg-yellow-500 text-slate-900 border-yellow-500 shadow-xs ring-2 ring-yellow-400/20 font-bold'
+                      : 'bg-yellow-50/70 text-yellow-800 border-yellow-300 hover:bg-yellow-100/80'
+                  }`}
+                >
+                  <span className="h-2 w-2 rounded-full bg-yellow-400 border border-yellow-500" />
+                  <span>Needs review ({categoryCounts.needs_review})</span>
+                </button>
               </div>
             </div>
 
@@ -2038,6 +2276,42 @@ export const MonitoringPage: React.FC = () => {
                 </div>
               </div>
 
+              {/* Observable Status Banner */}
+              <div className="rounded-lg p-2.5 bg-slate-50 border border-slate-200 text-xs">
+                {!isWebcamActive && !selectedFile && !detectionResult && !videoResult ? (
+                  <span className="text-slate-500 block">
+                    Inference not running — upload video/image or start webcam.
+                  </span>
+                ) : isProcessing ? (
+                  <div className="flex items-center gap-2 text-blue-600 font-medium">
+                    <RefreshCw className="h-3.5 w-3.5 animate-spin" />
+                    <span>Inference running...</span>
+                  </div>
+                ) : activeDetections.length === 0 ? (
+                  <div className="flex items-center gap-2 text-amber-700 font-medium">
+                    <span className="h-2 w-2 rounded-full bg-amber-500 animate-pulse" />
+                    <span>Waiting for detections...</span>
+                  </div>
+                ) : (
+                  <div className="space-y-1">
+                    <div className="text-slate-800 font-medium leading-snug">
+                      People detected: <strong>{activeDetections.length}</strong>
+                      {categoryCounts.facing_board > 0 && ` | Facing board: ${categoryCounts.facing_board}`}
+                      {categoryCounts.hand_raised > 0 && ` | Hand raised: ${categoryCounts.hand_raised}`}
+                      {categoryCounts.phone_visible > 0 && ` | Phone visible: ${categoryCounts.phone_visible}`}
+                      {categoryCounts.head_down > 0 && ` | Head down: ${categoryCounts.head_down}`}
+                      {categoryCounts.turned_sideways > 0 && ` | Turned sideways: ${categoryCounts.turned_sideways}`}
+                      {categoryCounts.needs_review > 0 && ` | Needs review: ${categoryCounts.needs_review}`}
+                    </div>
+                    {lowConfidenceCount > 0 && (
+                      <p className="text-[10px] text-slate-500 italic">
+                        {lowConfidenceCount} low-confidence detection(s) included (rear-camera mode)
+                      </p>
+                    )}
+                  </div>
+                )}
+              </div>
+
               <div className="space-y-2 text-xs">
                 <div className="flex items-center justify-between py-1 border-b border-slate-50">
                   <span className="text-slate-500 font-medium">Processing State</span>
@@ -2079,6 +2353,61 @@ export const MonitoringPage: React.FC = () => {
                   <span className="font-mono text-[11px] text-slate-700">
                     {dbPersistenceStatus} ({persistedEventsCount} events)
                   </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Observable Activity Labels Legend Card */}
+            <div className="rounded-xl border border-slate-200 bg-white p-4 space-y-3 shadow-xs">
+              <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider flex items-center justify-between border-b border-slate-100 pb-2">
+                <div className="flex items-center gap-2">
+                  <Tag className="h-3.5 w-3.5 text-blue-600" />
+                  <span>Activity Labels Legend</span>
+                </div>
+                <span className="text-[10px] font-normal text-slate-500">Rear Camera</span>
+              </h3>
+              <div className="space-y-2 text-xs">
+                <div className="flex items-start gap-2 p-2 rounded-lg bg-emerald-50/60 border border-emerald-100">
+                  <span className="h-2.5 w-2.5 rounded-full bg-emerald-500 mt-0.5 shrink-0" />
+                  <div>
+                    <span className="font-semibold text-emerald-900 block text-[11px]">Facing board (Green)</span>
+                    <span className="text-[10px] text-emerald-700">Upright posture, body oriented to board</span>
+                  </div>
+                </div>
+                <div className="flex items-start gap-2 p-2 rounded-lg bg-blue-50/60 border border-blue-100">
+                  <span className="h-2.5 w-2.5 rounded-full bg-blue-500 mt-0.5 shrink-0" />
+                  <div>
+                    <span className="font-semibold text-blue-900 block text-[11px]">Hand raised (Blue)</span>
+                    <span className="text-[10px] text-blue-700">Left / Right / Both elevated above shoulder</span>
+                  </div>
+                </div>
+                <div className="flex items-start gap-2 p-2 rounded-lg bg-rose-50/60 border border-rose-100">
+                  <span className="h-2.5 w-2.5 rounded-full bg-rose-500 mt-0.5 shrink-0" />
+                  <div>
+                    <span className="font-semibold text-rose-900 block text-[11px]">Phone visible (Red)</span>
+                    <span className="text-[10px] text-rose-700">Device overlapping hand/lap/desk region</span>
+                  </div>
+                </div>
+                <div className="flex items-start gap-2 p-2 rounded-lg bg-amber-50/60 border border-amber-100">
+                  <span className="h-2.5 w-2.5 rounded-full bg-amber-500 mt-0.5 shrink-0" />
+                  <div>
+                    <span className="font-semibold text-amber-900 block text-[11px]">Head down (Orange)</span>
+                    <span className="text-[10px] text-amber-700">Head compression &gt; 20s (note-taking normal)</span>
+                  </div>
+                </div>
+                <div className="flex items-start gap-2 p-2 rounded-lg bg-amber-50/60 border border-amber-100">
+                  <span className="h-2.5 w-2.5 rounded-full bg-amber-500 mt-0.5 shrink-0" />
+                  <div>
+                    <span className="font-semibold text-amber-900 block text-[11px]">Turned sideways (Orange)</span>
+                    <span className="text-[10px] text-amber-700">Sustained yaw toward neighbor/peer</span>
+                  </div>
+                </div>
+                <div className="flex items-start gap-2 p-2 rounded-lg bg-yellow-50/70 border border-yellow-200">
+                  <span className="h-2.5 w-2.5 rounded-full bg-yellow-400 border border-yellow-500 mt-0.5 shrink-0" />
+                  <div>
+                    <span className="font-semibold text-yellow-900 block text-[11px]">Needs review (Yellow)</span>
+                    <span className="text-[10px] text-yellow-800">Low confidence or occlusion boundary</span>
+                  </div>
                 </div>
               </div>
             </div>
