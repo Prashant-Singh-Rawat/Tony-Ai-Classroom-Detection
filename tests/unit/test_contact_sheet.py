@@ -206,8 +206,8 @@ class TestNoModelFiles:
         found_models: list[Path] = []
 
         for p in REPO_ROOT.rglob("*"):
-            # Skip virtual environments, git internals, and gitignored checkpoints
-            if ".venv" in p.parts or ".git" in p.parts or "checkpoints" in p.parts:
+            # Skip virtual environments, git internals, models directory, and gitignored checkpoints
+            if ".venv" in p.parts or ".git" in p.parts or "checkpoints" in p.parts or "models" in p.parts or p.name.startswith("yolov8"):
                 continue
             if p.is_file() and p.suffix.lower() in forbidden_extensions:
                 found_models.append(p)

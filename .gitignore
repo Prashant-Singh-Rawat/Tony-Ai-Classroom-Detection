@@ -96,10 +96,6 @@ datasets/**/*.webp
 !**/.gitkeep
 !**/README.md
 !**/dataset_info.md
-!**/*.md
-!**/*.json
-!**/*.yaml
-!**/*.yml
 !datasets/manifests/**
 !datasets/**/metadata/**
 !docs/**
@@ -121,7 +117,7 @@ audit_output/frames/
 audit_output/benchmark/
 data/classroom_test/*.jpg
 data/classroom_test/*.png
-screenshots/
+/screenshots/
 classvision-ai/
 
 # ── Logs, caches, temp ────────────────────────────────────────────────────────

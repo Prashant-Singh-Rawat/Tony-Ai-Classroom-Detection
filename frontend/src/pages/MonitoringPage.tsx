@@ -113,6 +113,160 @@ interface VideoProcessResult {
   uncertainZoneEventsCount?: number
 }
 
+function isVideoFile(f: File | null): boolean {
+  if (!f) return false
+  if (f.type && f.type.startsWith('video/')) return true
+  const name = f.name.toLowerCase()
+  return name.endsWith('.mp4') || name.endsWith('.avi') || name.endsWith('.webm') || name.endsWith('.mov') || name.endsWith('.mkv')
+}
+
+function isImageFile(f: File | null): boolean {
+  if (!f) return false
+  if (f.type && f.type.startsWith('image/')) return true
+  const name = f.name.toLowerCase()
+  return name.endsWith('.jpg') || name.endsWith('.jpeg') || name.endsWith('.png') || name.endsWith('.webp') || name.endsWith('.bmp')
+}
+
+type ActivityCategory =
+  | 'facing_board'
+  | 'hand_raised'
+  | 'phone_visible'
+  | 'head_down'
+  | 'turned_sideways'
+  | 'needs_review'
+
+interface ActivityBoxConfig {
+  category: ActivityCategory
+  colorName: 'GREEN' | 'BLUE' | 'RED' | 'ORANGE' | 'YELLOW'
+  border: string
+  text: string
+  badgeBg: string
+  label: string
+  isHand: boolean
+}
+
+function getActivityBoxConfig(det: BoundingBox): ActivityBoxConfig {
+  const rawLabel = (det.activityLabel || '').trim()
+
+  // 1. RED: Phone visible (COCO class 67 detected overlapping person)
+  if (
+    rawLabel === 'Phone visible' ||
+    rawLabel === 'PHONE_VISIBLE' ||
+    (det.classId as number) === 67 ||
+    det.detectedObjects?.includes('cell phone') ||
+    rawLabel.toLowerCase().includes('phone')
+  ) {
+    return {
+      category: 'phone_visible',
+      colorName: 'RED',
+      border: 'border-rose-500 bg-rose-500/15 shadow-rose-500/30',
+      text: 'text-rose-400 font-extrabold',
+      badgeBg: 'border-rose-500/70 bg-slate-900/90 text-rose-300',
+      label: 'Phone visible',
+      isHand: false,
+    }
+  }
+
+  // 2. BLUE: Hand raised (Left / Right / Both)
+  if (
+    rawLabel.startsWith('Hand raised') ||
+    rawLabel.includes('HAND_RAISED') ||
+    det.handRaised
+  ) {
+    let display = 'Hand raised'
+    if (rawLabel === 'Hand raised (Left)' || rawLabel === 'LEFT_HAND_RAISED') {
+      display = 'Hand raised (Left)'
+    } else if (rawLabel === 'Hand raised (Right)' || rawLabel === 'RIGHT_HAND_RAISED') {
+      display = 'Hand raised (Right)'
+    } else if (rawLabel === 'Hand raised (Both)' || rawLabel === 'BOTH_HANDS_RAISED') {
+      display = 'Hand raised (Both)'
+    } else if (rawLabel.startsWith('Hand raised (')) {
+      display = rawLabel
+    }
+
+    return {
+      category: 'hand_raised',
+      colorName: 'BLUE',
+      border: 'border-blue-500 bg-blue-500/15 shadow-blue-500/30',
+      text: 'text-blue-400 font-extrabold',
+      badgeBg: 'border-blue-500/70 bg-slate-900/90 text-blue-300',
+      label: display,
+      isHand: true,
+    }
+  }
+
+  // 3. ORANGE: Head down (N s)
+  if (
+    rawLabel.startsWith('Head down') ||
+    rawLabel === 'HEAD_DOWN_POSTURE' ||
+    rawLabel.toLowerCase().includes('head down')
+  ) {
+    let display = 'Head down'
+    if (rawLabel.includes('(') && rawLabel.includes(')')) {
+      display = rawLabel
+    } else if (det.activityDurationSeconds !== undefined && det.activityDurationSeconds > 0) {
+      display = `Head down (${Math.round(det.activityDurationSeconds)}s)`
+    }
+    return {
+      category: 'head_down',
+      colorName: 'ORANGE',
+      border: 'border-amber-500 bg-amber-500/15 shadow-amber-500/30',
+      text: 'text-amber-400 font-bold',
+      badgeBg: 'border-amber-500/70 bg-slate-900/90 text-amber-300',
+      label: display,
+      isHand: false,
+    }
+  }
+
+  // 4. ORANGE: Turned sideways (possible interaction)
+  if (
+    rawLabel === 'Turned sideways (possible interaction)' ||
+    rawLabel === 'TURNED_SIDEWAYS' ||
+    rawLabel === 'POSSIBLE_PEER_INTERACTION' ||
+    rawLabel === 'POSSIBLE_SPEAKING' ||
+    rawLabel.toLowerCase().includes('turned sideways')
+  ) {
+    return {
+      category: 'turned_sideways',
+      colorName: 'ORANGE',
+      border: 'border-amber-500 bg-amber-500/15 shadow-amber-500/30',
+      text: 'text-amber-400 font-bold',
+      badgeBg: 'border-amber-500/70 bg-slate-900/90 text-amber-300',
+      label: 'Turned sideways (possible interaction)',
+      isHand: false,
+    }
+  }
+
+  // 5. YELLOW: Needs review
+  if (
+    rawLabel === 'Needs review' ||
+    rawLabel === 'NEEDS_REVIEW' ||
+    det.status === 'NEEDS_REVIEW' ||
+    det.classId === 2
+  ) {
+    return {
+      category: 'needs_review',
+      colorName: 'YELLOW',
+      border: 'border-yellow-400 bg-yellow-400/15 shadow-yellow-400/30',
+      text: 'text-yellow-300 font-bold',
+      badgeBg: 'border-yellow-400/70 bg-slate-900/90 text-yellow-300',
+      label: 'Needs review',
+      isHand: false,
+    }
+  }
+
+  // 6. GREEN: Facing board (Default upright posture)
+  return {
+    category: 'facing_board',
+    colorName: 'GREEN',
+    border: 'border-emerald-500 bg-emerald-500/15 shadow-emerald-500/20',
+    text: 'text-emerald-400 font-semibold',
+    badgeBg: 'border-emerald-500/70 bg-slate-900/90 text-emerald-300',
+    label: 'Facing board',
+    isHand: false,
+  }
+}
+
 export const MonitoringPage: React.FC = () => {
   const showDevTools = import.meta.env.VITE_SHOW_DEV_TOOLS === 'true'
 
@@ -240,7 +394,7 @@ export const MonitoringPage: React.FC = () => {
     if (isWebcamActive) {
       return detectionResult?.boxes || []
     }
-    if (selectedFile?.type.startsWith('video/')) {
+    if (isVideoFile(selectedFile)) {
       if (activeVideoFrame?.boxes) return activeVideoFrame.boxes
       if (videoResult?.timeline && videoResult.timeline.length > 0) {
         return videoResult.timeline[0].boxes || []
@@ -727,10 +881,10 @@ export const MonitoringPage: React.FC = () => {
       setDetectionResult(null)
       setVideoResult(null)
 
-      if (file.type.startsWith('image/') || file.type.startsWith('video/')) {
+      if (isImageFile(file) || isVideoFile(file)) {
         const url = URL.createObjectURL(file)
         setPreviewUrl(url)
-        if (file.type.startsWith('video/')) {
+        if (isVideoFile(file)) {
           setConfidenceThreshold(0.20)
           setDetectPose(true)
         }
@@ -756,7 +910,7 @@ export const MonitoringPage: React.FC = () => {
     setErrorMessage(null)
 
     try {
-      if (selectedFile.type.startsWith('video/')) {
+      if (isVideoFile(selectedFile)) {
         const res = await api.processVideo(
           selectedFile,
           frameSkip,
@@ -866,146 +1020,6 @@ export const MonitoringPage: React.FC = () => {
     ['right_hip', 'right_knee'],
     ['right_knee', 'right_ankle'],
   ]
-
-  type ActivityCategory =
-    | 'facing_board'
-    | 'hand_raised'
-    | 'phone_visible'
-    | 'head_down'
-    | 'turned_sideways'
-    | 'needs_review'
-
-  interface ActivityBoxConfig {
-    category: ActivityCategory
-    colorName: 'GREEN' | 'BLUE' | 'RED' | 'ORANGE' | 'YELLOW'
-    border: string
-    text: string
-    badgeBg: string
-    label: string
-    isHand: boolean
-  }
-
-  const getActivityBoxConfig = (det: BoundingBox): ActivityBoxConfig => {
-    const rawLabel = (det.activityLabel || '').trim()
-
-    // 1. RED: Phone visible (COCO class 67 detected overlapping person)
-    if (
-      rawLabel === 'Phone visible' ||
-      rawLabel === 'PHONE_VISIBLE' ||
-      (det.classId as number) === 67 ||
-      det.detectedObjects?.includes('cell phone') ||
-      rawLabel.toLowerCase().includes('phone')
-    ) {
-      return {
-        category: 'phone_visible',
-        colorName: 'RED',
-        border: 'border-rose-500 bg-rose-500/15 shadow-rose-500/30',
-        text: 'text-rose-400 font-extrabold',
-        badgeBg: 'border-rose-500/70 bg-slate-900/90 text-rose-300',
-        label: 'Phone visible',
-        isHand: false,
-      }
-    }
-
-    // 2. BLUE: Hand raised (Left / Right / Both)
-    if (
-      rawLabel.startsWith('Hand raised') ||
-      rawLabel.includes('HAND_RAISED') ||
-      det.handRaised
-    ) {
-      let display = 'Hand raised'
-      if (rawLabel === 'Hand raised (Left)' || rawLabel === 'LEFT_HAND_RAISED') {
-        display = 'Hand raised (Left)'
-      } else if (rawLabel === 'Hand raised (Right)' || rawLabel === 'RIGHT_HAND_RAISED') {
-        display = 'Hand raised (Right)'
-      } else if (rawLabel === 'Hand raised (Both)' || rawLabel === 'BOTH_HANDS_RAISED') {
-        display = 'Hand raised (Both)'
-      } else if (rawLabel.startsWith('Hand raised (')) {
-        display = rawLabel
-      }
-
-      return {
-        category: 'hand_raised',
-        colorName: 'BLUE',
-        border: 'border-blue-500 bg-blue-500/15 shadow-blue-500/30',
-        text: 'text-blue-400 font-extrabold',
-        badgeBg: 'border-blue-500/70 bg-slate-900/90 text-blue-300',
-        label: display,
-        isHand: true,
-      }
-    }
-
-    // 3. ORANGE: Head down (N s)
-    if (
-      rawLabel.startsWith('Head down') ||
-      rawLabel === 'HEAD_DOWN_POSTURE' ||
-      rawLabel.toLowerCase().includes('head down')
-    ) {
-      let display = 'Head down'
-      if (rawLabel.includes('(') && rawLabel.includes(')')) {
-        display = rawLabel
-      } else if (det.activityDurationSeconds !== undefined && det.activityDurationSeconds > 0) {
-        display = `Head down (${Math.round(det.activityDurationSeconds)}s)`
-      }
-      return {
-        category: 'head_down',
-        colorName: 'ORANGE',
-        border: 'border-amber-500 bg-amber-500/15 shadow-amber-500/30',
-        text: 'text-amber-400 font-bold',
-        badgeBg: 'border-amber-500/70 bg-slate-900/90 text-amber-300',
-        label: display,
-        isHand: false,
-      }
-    }
-
-    // 4. ORANGE: Turned sideways (possible interaction)
-    if (
-      rawLabel === 'Turned sideways (possible interaction)' ||
-      rawLabel === 'TURNED_SIDEWAYS' ||
-      rawLabel === 'POSSIBLE_PEER_INTERACTION' ||
-      rawLabel === 'POSSIBLE_SPEAKING' ||
-      rawLabel.toLowerCase().includes('turned sideways')
-    ) {
-      return {
-        category: 'turned_sideways',
-        colorName: 'ORANGE',
-        border: 'border-amber-500 bg-amber-500/15 shadow-amber-500/30',
-        text: 'text-amber-400 font-bold',
-        badgeBg: 'border-amber-500/70 bg-slate-900/90 text-amber-300',
-        label: 'Turned sideways (possible interaction)',
-        isHand: false,
-      }
-    }
-
-    // 5. YELLOW: Needs review
-    if (
-      rawLabel === 'Needs review' ||
-      rawLabel === 'NEEDS_REVIEW' ||
-      det.status === 'NEEDS_REVIEW' ||
-      det.classId === 2
-    ) {
-      return {
-        category: 'needs_review',
-        colorName: 'YELLOW',
-        border: 'border-yellow-400 bg-yellow-400/15 shadow-yellow-400/30',
-        text: 'text-yellow-300 font-bold',
-        badgeBg: 'border-yellow-400/70 bg-slate-900/90 text-yellow-300',
-        label: 'Needs review',
-        isHand: false,
-      }
-    }
-
-    // 6. GREEN: Facing board (Default upright posture)
-    return {
-      category: 'facing_board',
-      colorName: 'GREEN',
-      border: 'border-emerald-500 bg-emerald-500/15 shadow-emerald-500/20',
-      text: 'text-emerald-400 font-semibold',
-      badgeBg: 'border-emerald-500/70 bg-slate-900/90 text-emerald-300',
-      label: 'Facing board',
-      isHand: false,
-    }
-  }
 
   return (
     <div className="space-y-6">
@@ -1243,7 +1257,7 @@ export const MonitoringPage: React.FC = () => {
                 {/* 2. Uploaded Image / Video Display */}
                 {!isWebcamActive && previewUrl && (
                   <div className="relative inline-block max-h-full max-w-full">
-                    {selectedFile?.type.startsWith('video/') ? (
+                    {isVideoFile(selectedFile) ? (
                       <div className="space-y-3 p-3">
                         <div className="relative inline-block mx-auto max-w-full">
                           <video

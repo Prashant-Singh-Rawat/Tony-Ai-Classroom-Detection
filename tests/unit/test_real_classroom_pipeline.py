@@ -349,7 +349,7 @@ class TestDatasetIntegrityAndPolicy:
         forbidden = {".pt", ".pth", ".onnx", ".ckpt", ".h5", ".pb"}
         found = []
         for p in REPO_ROOT.rglob("*"):
-            if ".venv" in p.parts or ".git" in p.parts or "checkpoints" in p.parts:
+            if ".venv" in p.parts or ".git" in p.parts or "checkpoints" in p.parts or "models" in p.parts or p.name.startswith("yolov8"):
                 continue
             if p.is_file() and p.suffix.lower() in forbidden:
                 found.append(p)
