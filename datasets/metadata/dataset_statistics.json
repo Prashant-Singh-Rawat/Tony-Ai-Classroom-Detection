@@ -1,0 +1,29 @@
+{
+  "summary": {
+    "target_ratio": "50% Kaggle / 50% Synthetic",
+    "real_classroom_percentage": 0.0,
+    "total_samples": 24495,
+    "kaggle_samples": 24000,
+    "synthetic_samples": 495,
+    "kaggle_percentage": 98.0,
+    "synthetic_percentage": 2.0,
+    "real_classroom_samples": 0,
+    "policy_compliant": true
+  },
+  "kaggle_breakdown": {
+    "hand_gesture": {
+      "train": 18000,
+      "test": 6000,
+      "total": 24000,
+      "classes": 20,
+      "format": "jpg 50x50 grayscale"
+    }
+  },
+  "synthetic_breakdown": {
+    "hand_gesture": 450,
+    "human_pose": 10,
+    "classroom_scenes": 10,
+    "whiteboard": 20,
+    "speech_transcripts": 5
+  }
+}

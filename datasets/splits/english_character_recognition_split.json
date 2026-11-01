@@ -1,0 +1,26 @@
+{
+  "dataset_name": "English Character Recognition",
+  "category": "handwriting_ocr",
+  "provenance": "KAGGLE DATA",
+  "source_url": "UNKNOWN",
+  "license": "UNKNOWN",
+  "total_classes": 62,
+  "total_samples": 210227,
+  "split_strategy": "Stratified 70/15/15 per-class sampling",
+  "random_seed": 42,
+  "splits": {
+    "train_ratio": 0.7,
+    "val_ratio": 0.15,
+    "test_ratio": 0.15,
+    "subsampled_benchmark_samples": 9300,
+    "train_samples": 6572,
+    "val_samples": 1364,
+    "test_samples": 1364
+  },
+  "summary": {
+    "train": 6572,
+    "val": 1364,
+    "test": 1364,
+    "total": 9300
+  }
+}

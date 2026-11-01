@@ -1,0 +1,24 @@
+{
+  "dataset_name": "Kaggle Hand Gesture Recognition Dataset (User-Provided)",
+  "total_scanned_files": 24001,
+  "total_dataset_images": 24000,
+  "training_images_verified": 18000,
+  "test_images_verified": 6000,
+  "valid_readable_images": 24000,
+  "corrupted_images_count": 0,
+  "corrupted_images": [],
+  "unreadable_images_count": 0,
+  "unreadable_images": [],
+  "zero_byte_images_count": 0,
+  "zero_byte_files": [
+    ".gitkeep"
+  ],
+  "unsupported_formats_count": 0,
+  "unsupported_formats": [],
+  "extremely_small_images_count": 0,
+  "extremely_small_images": [],
+  "duplicate_content_hash_count_in_train": 0,
+  "duplicate_overlap_between_train_and_test": 0,
+  "data_integrity_status": "CLEAN",
+  "actions_taken": "None (non-destructive inspection only; no files modified, deleted, or augmented; test set cryptographic integrity preserved)"
+}

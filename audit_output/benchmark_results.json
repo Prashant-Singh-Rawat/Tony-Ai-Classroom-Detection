@@ -1,0 +1,200 @@
+[
+  {
+    "model": "yolov8n",
+    "imgsz": 640,
+    "confidence": 0.35,
+    "total_persons_detected": 0,
+    "avg_persons_per_frame": 0.0,
+    "avg_latency_ms": 48.5,
+    "fps": 20.6,
+    "ram_mb": 425.1,
+    "cpu_percent": 82.2
+  },
+  {
+    "model": "yolov8n",
+    "imgsz": 640,
+    "confidence": 0.25,
+    "total_persons_detected": 1,
+    "avg_persons_per_frame": 0.1,
+    "avg_latency_ms": 47.2,
+    "fps": 21.2,
+    "ram_mb": 425.2,
+    "cpu_percent": 74.7
+  },
+  {
+    "model": "yolov8n",
+    "imgsz": 640,
+    "confidence": 0.15,
+    "total_persons_detected": 15,
+    "avg_persons_per_frame": 1.5,
+    "avg_latency_ms": 55.7,
+    "fps": 18.0,
+    "ram_mb": 425.2,
+    "cpu_percent": 83.0
+  },
+  {
+    "model": "yolov8n",
+    "imgsz": 960,
+    "confidence": 0.35,
+    "total_persons_detected": 5,
+    "avg_persons_per_frame": 0.5,
+    "avg_latency_ms": 105.8,
+    "fps": 9.4,
+    "ram_mb": 432.8,
+    "cpu_percent": 77.5
+  },
+  {
+    "model": "yolov8n",
+    "imgsz": 960,
+    "confidence": 0.25,
+    "total_persons_detected": 5,
+    "avg_persons_per_frame": 0.5,
+    "avg_latency_ms": 91.9,
+    "fps": 10.9,
+    "ram_mb": 442.2,
+    "cpu_percent": 80.4
+  },
+  {
+    "model": "yolov8n",
+    "imgsz": 960,
+    "confidence": 0.15,
+    "total_persons_detected": 5,
+    "avg_persons_per_frame": 0.5,
+    "avg_latency_ms": 113.3,
+    "fps": 8.8,
+    "ram_mb": 442.1,
+    "cpu_percent": 78.3
+  },
+  {
+    "model": "yolov8n",
+    "imgsz": 1280,
+    "confidence": 0.35,
+    "total_persons_detected": 0,
+    "avg_persons_per_frame": 0.0,
+    "avg_latency_ms": 325.2,
+    "fps": 3.1,
+    "ram_mb": 464.0,
+    "cpu_percent": 74.5
+  },
+  {
+    "model": "yolov8n",
+    "imgsz": 1280,
+    "confidence": 0.25,
+    "total_persons_detected": 0,
+    "avg_persons_per_frame": 0.0,
+    "avg_latency_ms": 257.8,
+    "fps": 3.9,
+    "ram_mb": 448.8,
+    "cpu_percent": 83.0
+  },
+  {
+    "model": "yolov8n",
+    "imgsz": 1280,
+    "confidence": 0.15,
+    "total_persons_detected": 0,
+    "avg_persons_per_frame": 0.0,
+    "avg_latency_ms": 248.3,
+    "fps": 4.0,
+    "ram_mb": 428.4,
+    "cpu_percent": 88.0
+  },
+  {
+    "model": "yolov8n-pose",
+    "imgsz": 640,
+    "confidence": 0.35,
+    "total_persons_detected": 6,
+    "avg_persons_per_frame": 0.6,
+    "avg_latency_ms": 52.1,
+    "fps": 19.2,
+    "ram_mb": 414.1,
+    "cpu_percent": 77.8
+  },
+  {
+    "model": "yolov8n-pose",
+    "imgsz": 640,
+    "confidence": 0.25,
+    "total_persons_detected": 15,
+    "avg_persons_per_frame": 1.5,
+    "avg_latency_ms": 57.9,
+    "fps": 17.3,
+    "ram_mb": 403.6,
+    "cpu_percent": 78.5
+  },
+  {
+    "model": "yolov8n-pose",
+    "imgsz": 640,
+    "confidence": 0.15,
+    "total_persons_detected": 45,
+    "avg_persons_per_frame": 4.5,
+    "avg_latency_ms": 52.3,
+    "fps": 19.1,
+    "ram_mb": 403.6,
+    "cpu_percent": 71.0
+  },
+  {
+    "model": "yolov8n-pose",
+    "imgsz": 960,
+    "confidence": 0.35,
+    "total_persons_detected": 0,
+    "avg_persons_per_frame": 0.0,
+    "avg_latency_ms": 96.3,
+    "fps": 10.4,
+    "ram_mb": 423.0,
+    "cpu_percent": 71.8
+  },
+  {
+    "model": "yolov8n-pose",
+    "imgsz": 960,
+    "confidence": 0.25,
+    "total_persons_detected": 10,
+    "avg_persons_per_frame": 1.0,
+    "avg_latency_ms": 118.5,
+    "fps": 8.4,
+    "ram_mb": 423.3,
+    "cpu_percent": 83.6
+  },
+  {
+    "model": "yolov8n-pose",
+    "imgsz": 960,
+    "confidence": 0.15,
+    "total_persons_detected": 25,
+    "avg_persons_per_frame": 2.5,
+    "avg_latency_ms": 165.7,
+    "fps": 6.0,
+    "ram_mb": 366.6,
+    "cpu_percent": 76.4
+  },
+  {
+    "model": "yolov8n-pose",
+    "imgsz": 1280,
+    "confidence": 0.35,
+    "total_persons_detected": 15,
+    "avg_persons_per_frame": 1.5,
+    "avg_latency_ms": 207.4,
+    "fps": 4.8,
+    "ram_mb": 366.8,
+    "cpu_percent": 67.0
+  },
+  {
+    "model": "yolov8n-pose",
+    "imgsz": 1280,
+    "confidence": 0.25,
+    "total_persons_detected": 25,
+    "avg_persons_per_frame": 2.5,
+    "avg_latency_ms": 209.0,
+    "fps": 4.8,
+    "ram_mb": 366.9,
+    "cpu_percent": 79.0
+  },
+  {
+    "model": "yolov8n-pose",
+    "imgsz": 1280,
+    "confidence": 0.15,
+    "total_persons_detected": 25,
+    "avg_persons_per_frame": 2.5,
+    "avg_latency_ms": 275.6,
+    "fps": 3.6,
+    "ram_mb": 366.4,
+    "cpu_percent": 87.2
+  }
+]

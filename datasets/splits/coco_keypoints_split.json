@@ -1,0 +1,21 @@
+{
+  "dataset": "COCO 2017 Keypoints (Human Pose)",
+  "official_split_preserved": true,
+  "random_seed": 42,
+  "strategy": "Official COCO 2017 Benchmark Partition (Train2017 / Val2017)",
+  "counts": {
+    "train_images": 56599,
+    "val_images": 2346,
+    "train_annotations": 262465,
+    "val_annotations": 11004,
+    "total_images_on_disk": 58945
+  },
+  "split_manifest": {
+    "train": "datasets/kaggle/human_pose/coco_keypoints/train2017",
+    "val": "datasets/kaggle/human_pose/coco_keypoints/val2017",
+    "train_annotations": "datasets/kaggle/human_pose/coco_keypoints/annotations/person_keypoints_train2017.json",
+    "val_annotations": "datasets/kaggle/human_pose/coco_keypoints/annotations/person_keypoints_val2017.json"
+  },
+  "license": "CC BY 4.0",
+  "updated_at": "2026-10-31T16:18:34.390047"
+}

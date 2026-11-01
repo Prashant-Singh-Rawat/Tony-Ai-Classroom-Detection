@@ -1,0 +1,32 @@
+{
+  "dataset_name": "Mozilla Common Voice (English)",
+  "expected_archive": "C:\\Users\\prash\\Downloads\\cv folder.zip",
+  "archive_found": true,
+  "destination": "datasets\\kaggle\\speech\\common_voice",
+  "status": "VERIFIED_AND_INTEGRATED",
+  "source_url": "https://commonvoice.mozilla.org/",
+  "license": "CC0-1.0 (Public Domain Dedication)",
+  "total_archive_audio_files": 380368,
+  "physical_files_count": 13171,
+  "usable_samples": 13171,
+  "csv_metadata_rows": {
+    "cv-valid-train.csv": 195776,
+    "cv-valid-dev.csv": 4076,
+    "cv-valid-test.csv": 3995,
+    "cv-invalid.csv": 25403,
+    "cv-other-train.csv": 145135,
+    "cv-other-dev.csv": 3022,
+    "cv-other-test.csv": 2961,
+    "total_csv_rows": 380368
+  },
+  "physical_audio_partitions_on_disk": {
+    "cv-valid-test": 3995,
+    "cv-valid-dev": 4076,
+    "cv-valid-train": 5000,
+    "cv-invalid": 100
+  },
+  "corrupted_files": 0,
+  "missing_files": 0,
+  "duplicate_files": 0,
+  "note": "Extracted 100% of official test (3,995 MP3s) and dev (4,076 MP3s), plus 5,000 train MP3s and all 7 official CSVs. Full archive has 380,368 clips."
+}

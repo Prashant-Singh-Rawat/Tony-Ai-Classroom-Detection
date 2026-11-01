@@ -1,0 +1,25 @@
+{
+  "dataset_name": "CommonLit Student Summaries",
+  "category": "educational_nlp_regression",
+  "provenance": "KAGGLE DATA",
+  "source_url": "https://www.kaggle.com/competitions/commonlit-evaluate-student-summaries",
+  "license": "Competition Data License",
+  "total_samples": 7165,
+  "target_variables": [
+    "content",
+    "wording"
+  ],
+  "target_description": "Continuous rubric scores for summary content coverage and wording quality",
+  "split_strategy": "Stratified 70/15/15 split balanced across prompts and content score quantiles",
+  "random_seed": 42,
+  "summary": {
+    "train": 5015,
+    "val": 1075,
+    "test": 1075,
+    "total": 7165,
+    "train_percentage": 69.99,
+    "val_percentage": 15.0,
+    "test_percentage": 15.0
+  },
+  "boundary_isolation": "Scores reflect educational writing rubric only; NEVER student intelligence or cognitive ability"
+}

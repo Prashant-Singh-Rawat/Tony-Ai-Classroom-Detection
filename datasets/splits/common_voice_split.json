@@ -1,0 +1,19 @@
+{
+  "dataset_name": "Mozilla Common Voice (English)",
+  "category": "speech_recognition",
+  "provenance": "KAGGLE / MOZILLA",
+  "source_url": "https://commonvoice.mozilla.org/",
+  "license": "CC-0 (Public Domain)",
+  "split_strategy": "Official Mozilla Common Voice verified splits (train, dev, test)",
+  "total_manifested_samples": 203847,
+  "summary": {
+    "train": 195776,
+    "val": 4076,
+    "test": 3995,
+    "total": 203847,
+    "train_percentage": 96.04,
+    "val_percentage": 2.0,
+    "test_percentage": 1.96
+  },
+  "boundary_isolation": "Speech ASR transcription only; speaker identity and profiling strictly excluded"
+}

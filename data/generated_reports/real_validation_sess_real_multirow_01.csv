@@ -1,0 +1,32 @@
+# CLASSVISION AI — CLASSROOM ACTIVITY ANALYTICS EXPORT
+# Session ID,sess_real_multirow_01
+# Course Code,CV101
+# Session Title,Video Analysis: classroom_rear_corner_multi_row.mp4
+# Date,2026-10-31
+# Duration (Minutes),45.0
+# Data Source,REAL_PROCESSING
+# Export Timestamp,2026-10-31 21:05:21
+
+=== AGGREGATE OBSERVABLE METRICS ===
+Metric,Value,Notes
+Unique Anonymous Tracks,1,Unique tracks within session; not student count
+Total Hand-Raising Events,1,Continuous gestures aggregated into single events
+Left-Hand Events,1,100.0% of total
+Right-Hand Events,0,0.0% of total
+Both-Hands Events,0,0.0% of total
+Average Duration (Seconds),2.8,Mean physical gesture duration
+Maximum Duration (Seconds),2.8,Peak continuous raise duration
+Peak Activity Interval,00:00 - 01:00,Time window with highest observable hand raises
+
+=== TIMELINE PARTICIPATION INTERVALS (INTERVAL = 60s) ===
+Interval Index,Time Window,Event Count,Left Hand,Right Hand,Both Hands,Active Tracks
+0,00:00 - 01:00,1,1,0,0,1
+
+=== ANONYMOUS TRACK BREAKDOWN ===
+Anonymous Track ID,Event Count,Total Duration (s),Avg Duration (s),Left Hand,Right Hand,Both Hands
+track_002,1,2.8,2.8,1,0,0
+
+=== DATA PROVENANCE & ETHICS ===
+[POLICY],50% Kaggle Datasets | 50% Synthetic Datasets | 0% Real Classroom Recordings
+[PRIVACY],Strictly observable physical movements. Zero facial recognition or biometric profiling.
+[INTERPRETATION],"Observable physical activity only. No attention, concentration, emotion, intelligence, or cognitive engagement is inferred."

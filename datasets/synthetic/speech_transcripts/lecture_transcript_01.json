@@ -1,0 +1,33 @@
+{
+  "transcript_id": "synth_tx_01",
+  "course_code": "CS402",
+  "topic": "Convolutional Neural Networks & Receptive Fields",
+  "data_source": "SYNTHETIC DATA",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 12.5,
+      "speaker": "Instructor",
+      "text": "Good morning everyone. Today we are diving into Convolutional Neural Networks and specifically receptive fields."
+    },
+    {
+      "start": 13.0,
+      "end": 35.0,
+      "speaker": "Instructor",
+      "text": "Notice how each convolutional layer aggregates local spatial features. As we stack layers, the effective receptive field grows linearly with kernel size."
+    },
+    {
+      "start": 36.0,
+      "end": 50.0,
+      "speaker": "Student 1",
+      "text": "Professor, does dilated convolution increase receptive field without adding parameters?"
+    },
+    {
+      "start": 51.0,
+      "end": 75.0,
+      "speaker": "Instructor",
+      "text": "Exactly right. Dilated convolutions introduce spaces between kernel elements, expanding coverage exponentially without increasing weight count."
+    }
+  ],
+  "full_text": "Good morning everyone. Today we are diving into Convolutional Neural Networks and specifically receptive fields. Notice how each convolutional layer aggregates local spatial features. As we stack layers, the effective receptive field grows linearly with kernel size. Professor, does dilated convolution increase receptive field without adding parameters? Exactly right. Dilated convolutions introduce spaces between kernel elements, expanding coverage exponentially without increasing weight count."
+}

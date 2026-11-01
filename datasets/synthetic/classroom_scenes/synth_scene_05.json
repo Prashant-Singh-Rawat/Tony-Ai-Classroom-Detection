@@ -1,0 +1,54 @@
+{
+  "scene_id": "synth_scene_05",
+  "image_path": "C:\\Users\\prash\\OneDrive\\Documents\\Desktop\\Tony-Ai-Classroom-Detection\\datasets\\synthetic\\classroom_scenes\\synth_scene_05.jpg",
+  "width": 640,
+  "height": 480,
+  "data_source": "SYNTHETIC DATA",
+  "persons_count": 4,
+  "annotations": [
+    {
+      "id": "synth_person_01",
+      "class_name": "person",
+      "bbox": [
+        97,
+        225,
+        167,
+        320
+      ],
+      "confidence": 1.0
+    },
+    {
+      "id": "synth_person_02",
+      "class_name": "person",
+      "bbox": [
+        217,
+        265,
+        287,
+        360
+      ],
+      "confidence": 1.0
+    },
+    {
+      "id": "synth_person_03",
+      "class_name": "person",
+      "bbox": [
+        358,
+        225,
+        428,
+        320
+      ],
+      "confidence": 1.0
+    },
+    {
+      "id": "synth_person_04",
+      "class_name": "person",
+      "bbox": [
+        478,
+        265,
+        548,
+        360
+      ],
+      "confidence": 1.0
+    }
+  ]
+}

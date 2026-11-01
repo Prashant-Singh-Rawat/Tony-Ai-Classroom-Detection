@@ -1,0 +1,11 @@
+frame_index,timestamp_sec,human_verified_count,yolov8n_conf35_count,yolov8n_conf25_count,yolov8n_conf15_count,pose_conf35_count,pose_conf25_count,pose_conf15_count,missing_persons_notes
+10,0.5,7,0,0,2,1,2,5,"At conf=0.35, yolov8n detects 0 and pose detects 1. Low-confidence detections (0.15-0.34) correspond to seated students seen from behind."
+35,1.75,7,0,1,2,1,2,5,"At conf=0.35, yolov8n detects 0 and pose detects 1. Low-confidence detections (0.15-0.34) correspond to seated students seen from behind."
+60,3.0,7,0,0,1,1,1,4,"At conf=0.35, yolov8n detects 0 and pose detects 1. Low-confidence detections (0.15-0.34) correspond to seated students seen from behind."
+85,4.25,7,0,0,1,0,1,4,"At conf=0.35, yolov8n detects 0 and pose detects 0. Low-confidence detections (0.15-0.34) correspond to seated students seen from behind."
+110,5.5,7,0,0,1,0,1,4,"At conf=0.35, yolov8n detects 0 and pose detects 0. Low-confidence detections (0.15-0.34) correspond to seated students seen from behind."
+135,6.75,7,0,0,1,0,1,4,"At conf=0.35, yolov8n detects 0 and pose detects 0. Low-confidence detections (0.15-0.34) correspond to seated students seen from behind."
+160,8.0,7,0,0,1,0,1,4,"At conf=0.35, yolov8n detects 0 and pose detects 0. Low-confidence detections (0.15-0.34) correspond to seated students seen from behind."
+185,9.25,7,0,0,2,1,2,5,"At conf=0.35, yolov8n detects 0 and pose detects 1. Low-confidence detections (0.15-0.34) correspond to seated students seen from behind."
+210,10.5,7,0,0,2,1,2,5,"At conf=0.35, yolov8n detects 0 and pose detects 1. Low-confidence detections (0.15-0.34) correspond to seated students seen from behind."
+235,11.75,7,0,0,2,1,2,5,"At conf=0.35, yolov8n detects 0 and pose detects 1. Low-confidence detections (0.15-0.34) correspond to seated students seen from behind."

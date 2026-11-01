@@ -1,0 +1,33 @@
+{
+  "transcript_id": "synth_tx_05",
+  "course_code": "CS403",
+  "topic": "Recurrent Neural Networks & Sequence Modeling",
+  "data_source": "SYNTHETIC DATA",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 14.0,
+      "speaker": "Instructor",
+      "text": "Today we turn to sequential data and Recurrent Neural Networks."
+    },
+    {
+      "start": 15.0,
+      "end": 38.0,
+      "speaker": "Instructor",
+      "text": "Standard RNNs maintain a hidden state vector h_t updated at each timestep, but suffer from exploding and vanishing gradients across long horizons."
+    },
+    {
+      "start": 39.0,
+      "end": 55.0,
+      "speaker": "Student 1",
+      "text": "Is that why LSTM architectures introduce constant error carousels?"
+    },
+    {
+      "start": 56.0,
+      "end": 82.0,
+      "speaker": "Instructor",
+      "text": "Yes, gating mechanisms in LSTMs and GRUs regulate information flow, preserving long-term dependencies effectively."
+    }
+  ],
+  "full_text": "Today we turn to sequential data and Recurrent Neural Networks. Standard RNNs maintain a hidden state vector h_t updated at each timestep, but suffer from exploding and vanishing gradients across long horizons. Is that why LSTM architectures introduce constant error carousels? Yes, gating mechanisms in LSTMs and GRUs regulate information flow, preserving long-term dependencies effectively."
+}

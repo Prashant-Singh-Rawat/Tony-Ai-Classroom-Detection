@@ -1,0 +1,19 @@
+{
+  "dataset_name": "Sign Language MNIST",
+  "expected_archive": "C:\\Users\\prash\\Downloads\\sign folder.zip",
+  "archive_found": true,
+  "destination": "datasets\\kaggle\\sign_language_mnist",
+  "status": "VERIFIED_AND_INTEGRATED",
+  "source_url": "https://www.kaggle.com/datasets/datamunge/sign-language-mnist",
+  "license": "CC0-1.0 (Public Domain)",
+  "physical_files_count": 5,
+  "usable_samples": 34627,
+  "classes_count": 24,
+  "train_samples": 27455,
+  "val_samples": 0,
+  "test_samples": 7172,
+  "corrupted_files": 0,
+  "missing_files": 0,
+  "duplicate_files": 0,
+  "note": "Preserved official train (27,455) and test (7,172) partitions. Strictly separated from classroom hand-raising."
+}

@@ -1,0 +1,85 @@
+{
+  "sessionId": "sess_live_demo_1793468210",
+  "video": {
+    "status": "SUCCESS",
+    "filename": "ClassVision_Sample_Classroom_Test_Compatible.mp4",
+    "size_bytes": 54740,
+    "processing_time_s": 6.01,
+    "frames_processed": 48,
+    "total_frames": 240,
+    "max_persons_in_frame": 1,
+    "avg_persons_per_frame": 0.5,
+    "hand_raise_events_count": 0,
+    "student_zone_events": 0,
+    "instructor_zone_events": 0,
+    "uncertain_zone_events": 0
+  },
+  "speech": {
+    "status": "SUCCESS",
+    "filename": "sample-000001.mp3",
+    "size_bytes": 60513,
+    "duration_s": 7.56,
+    "processing_time_s": 2.03,
+    "language": "en",
+    "full_text": "everything in the universe evolved he said",
+    "segments_count": 1
+  },
+  "ocr": {
+    "status": "SUCCESS",
+    "filename": "synth_board_00.jpg",
+    "size_bytes": 15839,
+    "processing_time_s": 5.58,
+    "extracted_text": "[LEC TURE NOTE] Convolution Theorem\nFormula: Flf * g} = FII} . Flg}\nNotes Demonstrated in Session C5402\n[PROVENANCE SYNTHETIC DATA FORCCR BENCHMARKINGI",
+    "confidence": 0.582,
+    "blocks_count": 4
+  },
+  "multimodal": {
+    "status": "SUCCESS",
+    "topic": "Convolutional Neural Networks & Computer Vision",
+    "key_concepts": [
+      "Everything",
+      "Universe",
+      "Evolved",
+      "Said",
+      "Lec",
+      "Ture"
+    ],
+    "executive_summary": [
+      "everything in the universe evolved he said\n[LEC TURE NOTE] Convolution Theorem\nFormula: Flf * g} = FII}",
+      "Flg}\nNotes Demonstrated in Session C5402\n[PROVENANCE SYNTHETIC DATA FORCCR BENCHMARKINGI"
+    ],
+    "transcript_items_count": 1,
+    "board_notes_count": 1,
+    "question_moments_count": 0,
+    "is_demo_data": false
+  },
+  "persistence": {
+    "status": "VERIFIED",
+    "session_row": [
+      "sess_live_demo_1793468210",
+      "Video Analysis: ClassVision_Sample_Classroom_Test_Compatible.mp4",
+      "completed"
+    ],
+    "transcripts_in_db": 1,
+    "ocr_records_in_db": 1,
+    "hand_raise_breakdown": []
+  },
+  "exports": {
+    "status": "VERIFIED",
+    "pdf": {
+      "filename": "report_sess_live_demo_1793468210_20261031_230704.pdf",
+      "size_bytes": 3224
+    },
+    "xlsx": {
+      "filename": "session_sess_live_demo_1793468210_20261031_230704.xlsx",
+      "size_bytes": 8654
+    }
+  },
+  "privacy": {
+    "status": "COMPLIANT",
+    "privacy_blur_active": true,
+    "persistent_raw_frames_count": 0,
+    "zero_facial_recognition": true,
+    "session_scoped_anonymous_ids": true
+  }
+}

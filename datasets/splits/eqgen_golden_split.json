@@ -1,0 +1,21 @@
+{
+  "dataset_name": "E-QGen Golden Question-Paragraph Pairs",
+  "category": "educational_nlp_qa",
+  "provenance": "GITHUB REPOSITORY (E-QGen)",
+  "source_url": "https://github.com/lead-ai/E-QGen",
+  "license": "MIT / Academic Research",
+  "total_samples": 356,
+  "total_unique_videos": 182,
+  "split_strategy": "Grouped by video_id (70% train / 15% val / 15% test) to prevent cross-lecture leakage",
+  "random_seed": 42,
+  "summary": {
+    "train": 264,
+    "val": 47,
+    "test": 45,
+    "total": 356,
+    "train_videos": 127,
+    "val_videos": 27,
+    "test_videos": 28
+  },
+  "boundary_isolation": "Kept separate from Kaggle count; educational question formulation benchmark only"
+}

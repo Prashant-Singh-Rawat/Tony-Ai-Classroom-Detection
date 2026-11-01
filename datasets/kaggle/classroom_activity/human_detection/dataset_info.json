@@ -1,0 +1,19 @@
+{
+  "dataset_name": "Human Detection Dataset",
+  "expected_archive": "C:\\Users\\prash\\Downloads\\archive (1).zip",
+  "archive_found": false,
+  "destination": "datasets\\kaggle\\classroom_activity\\human_detection",
+  "status": "MISSING",
+  "source_url": "UNKNOWN",
+  "license": "UNKNOWN",
+  "physical_files_count": 0,
+  "usable_samples": 0,
+  "classes_count": 0,
+  "train_samples": 0,
+  "val_samples": 0,
+  "test_samples": 0,
+  "corrupted_files": 0,
+  "missing_files": 0,
+  "duplicate_files": 0,
+  "note": "Archive not located in Downloads or local system. COCO person detection baseline is used by ClassVision AI."
+}

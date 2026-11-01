@@ -1,0 +1,34 @@
+{
+  "hand_gesture": {
+    "status": "UNMAPPED_CLASS_SEMANTICS_NOT_YET_VERIFIED",
+    "documentation": "Classes are labeled numerically 0 through 19 in the source dataset without bundled semantic label definitions. No mapping to classroom actions (such as hand_raise) is assumed or invented until official label definitions are verified.",
+    "dataset_name": "Kaggle Hand Gesture Recognition Dataset",
+    "train_present": true,
+    "train_total_images": 18000,
+    "test_total_images": 6000,
+    "classes": {
+      "0": { "semantic_name": null, "train_count": 900, "test_count": 300 },
+      "1": { "semantic_name": null, "train_count": 900, "test_count": 300 },
+      "2": { "semantic_name": null, "train_count": 900, "test_count": 300 },
+      "3": { "semantic_name": null, "train_count": 900, "test_count": 300 },
+      "4": { "semantic_name": null, "train_count": 900, "test_count": 300 },
+      "5": { "semantic_name": null, "train_count": 900, "test_count": 300 },
+      "6": { "semantic_name": null, "train_count": 900, "test_count": 300 },
+      "7": { "semantic_name": null, "train_count": 900, "test_count": 300 },
+      "8": { "semantic_name": null, "train_count": 900, "test_count": 300 },
+      "9": { "semantic_name": null, "train_count": 900, "test_count": 300 },
+      "10": { "semantic_name": null, "train_count": 900, "test_count": 300 },
+      "11": { "semantic_name": null, "train_count": 900, "test_count": 300 },
+      "12": { "semantic_name": null, "train_count": 900, "test_count": 300 },
+      "13": { "semantic_name": null, "train_count": 900, "test_count": 300 },
+      "14": { "semantic_name": null, "train_count": 900, "test_count": 300 },
+      "15": { "semantic_name": null, "train_count": 900, "test_count": 300 },
+      "16": { "semantic_name": null, "train_count": 900, "test_count": 300 },
+      "17": { "semantic_name": null, "train_count": 900, "test_count": 300 },
+      "18": { "semantic_name": null, "train_count": 900, "test_count": 300 },
+      "19": { "semantic_name": null, "train_count": 900, "test_count": 300 }
+    }
+  },
+  "classroom_activity": {},
+  "education_nlp": {}
+}

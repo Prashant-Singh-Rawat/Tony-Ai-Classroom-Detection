@@ -1,0 +1,86 @@
+{
+  "timestamp": "2026-10-31 18:50:27",
+  "hardware": {
+    "device": "cpu",
+    "cuda_available": false,
+    "gpu_name": "N/A (CPU)",
+    "peak_ram_mb": 379.62
+  },
+  "phases": {
+    "video_metadata": {
+      "path": "C:\\Users\\prash\\AppData\\Local\\Temp\\classvision_e2e_9_tclbpf\\classroom_rear_corner_session.mp4",
+      "width": 1280,
+      "height": 720,
+      "frames": 30,
+      "fps": 10.0,
+      "duration_seconds": 3.0,
+      "size_kb": 206.1
+    },
+    "pipeline_summary": {
+      "total_frames": 30,
+      "processed_frames": 15,
+      "max_persons": 6,
+      "avg_persons": 5.3,
+      "decoding_fps": 178.8,
+      "inference_fps": 12.0,
+      "total_processing_time_s": 1.43,
+      "peak_ram_mb": 473.2,
+      "corrupted_frames_count": 0
+    },
+    "temporal_tracking": {
+      "active_tracks_count": 7,
+      "anonymous_guarantee": true,
+      "tracks_sample": [
+        {
+          "id": "track_001",
+          "frames": 15,
+          "state": "NOT_RAISED"
+        },
+        {
+          "id": "track_002",
+          "frames": 15,
+          "state": "RAISED"
+        },
+        {
+          "id": "track_003",
+          "frames": 15,
+          "state": "NOT_RAISED"
+        },
+        {
+          "id": "track_004",
+          "frames": 15,
+          "state": "NOT_RAISED"
+        },
+        {
+          "id": "track_005",
+          "frames": 8,
+          "state": "NEEDS_REVIEW"
+        },
+        {
+          "id": "track_006",
+          "frames": 5,
+          "state": "NEEDS_REVIEW"
+        }
+      ]
+    },
+    "event_detection": {
+      "total_events_detected": 1,
+      "sustained_event_deduplication": true,
+      "events": [
+        {
+          "event_id": "evt_0001",
+          "track_id": "track_002",
+          "start_timestamp": 0.2,
+          "end_timestamp": 3.0,
+          "duration_seconds": 2.8,
+          "state": "COMPLETED"
+        }
+      ]
+    },
+    "sqlite_persistence": {
+      "records_persisted": 1,
+      "persistence_status": "VERIFIED_SAVED"
+    },
+    "status": "100% PASSING"
+  }
+}

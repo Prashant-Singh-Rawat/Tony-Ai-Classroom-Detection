@@ -1,0 +1,161 @@
+# ── Python ────────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+dist/
+build/
+*.egg
+.eggs/
+
+# ── Virtual environments ───────────────────────────────────────────────────────
+.venv/
+venv/
+env/
+ENV/
+
+# ── Model weights & large binary artefacts ────────────────────────────────────
+*.pt
+*.pth
+*.onnx
+*.tflite
+*.safetensors
+*.bin
+*.pkl
+*.h5
+*.pb
+models/*.pt
+models/*.onnx
+**/checkpoints/**
+!**/checkpoints/.gitkeep
+
+# ── Data directories (legacy & root data) ─────────────────────────────────────
+data/raw/**
+data/processed/**
+data/real/**
+data/synthetic/**
+data/evaluation/**
+!data/raw/.gitkeep
+!data/processed/.gitkeep
+!data/real/.gitkeep
+!data/synthetic/.gitkeep
+!data/evaluation/.gitkeep
+
+# ── Large Datasets, Raw Images, Videos, Audio, and Generated Data ─────────────
+# Video formats
+*.mp4
+*.avi
+*.mov
+*.mkv
+*.flv
+*.wmv
+*.webm
+
+# Audio formats
+*.wav
+*.mp3
+*.m4a
+*.flac
+*.aac
+*.ogg
+*.wma
+
+# Dataset folders with heavy media/binaries
+datasets/**/raw/**
+datasets/**/extracted/**
+datasets/**/processed/**
+datasets/**/generated/**
+datasets/**/augmented/**
+datasets/real_classroom/images/**
+datasets/real_classroom/videos/**
+datasets/real_classroom/audio/**
+datasets/real_classroom/board/**
+datasets/real_classroom/frames/**
+datasets/real_classroom/annotations/**/*.txt
+!datasets/real_classroom/annotations/README.md
+!datasets/real_classroom/annotations/labels.yaml
+!datasets/real_classroom/annotations/annotation_index.csv
+!datasets/real_classroom/metadata/**
+!datasets/real_classroom/splits/**
+datasets/evaluation/cv/**
+datasets/evaluation/nlp/**
+datasets/evaluation/ocr/**
+datasets/evaluation/speech/**
+datasets/evaluation/end_to_end/**
+
+# Raw image binaries in dataset trees
+datasets/**/*.jpg
+datasets/**/*.jpeg
+datasets/**/*.png
+datasets/**/*.bmp
+datasets/**/*.tiff
+datasets/**/*.webp
+
+# ── Dataset Whitelist Exceptions (Must Track) ─────────────────────────────────
+!**/.gitkeep
+!**/README.md
+!**/dataset_info.md
+!**/*.md
+!**/*.json
+!**/*.yaml
+!**/*.yml
+!datasets/manifests/**
+!datasets/**/metadata/**
+!docs/**
+
+# ── Secrets, databases and environment files ──────────────────────────────────
+.env
+.env.*
+!.env.example
+*.db
+*.sqlite
+*.sqlite3
+*.db-journal
+*.db-wal
+*.db-shm
+
+# ── Generated Audit & Test Media Artifacts ────────────────────────────────────
+audit_output/images/
+audit_output/frames/
+audit_output/benchmark/
+data/classroom_test/*.jpg
+data/classroom_test/*.png
+screenshots/
+classvision-ai/
+
+# ── Logs, caches, temp ────────────────────────────────────────────────────────
+*.log
+*.tmp
+.cache/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+htmlcov/
+.coverage
+coverage.xml
+
+# ── Node / frontend ───────────────────────────────────────────────────────────
+node_modules/
+frontend/dist/
+frontend/.next/
+frontend/build/
+
+# ── OS artefacts ──────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ── IDE / editor ──────────────────────────────────────────────────────────────
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# ── Jupyter ───────────────────────────────────────────────────────────────────
+.ipynb_checkpoints/
+
+# ── Always keep manifests and .gitkeep ────────────────────────────────────────
+!dataset_manifest.json
+!models/model_registry.json
+!**/.gitkeep

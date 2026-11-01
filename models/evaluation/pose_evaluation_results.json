@@ -1,0 +1,13 @@
+{
+  "dataset": "COCO 2017 Keypoints (Validation Split)",
+  "model": "YOLOv8n-pose (official checkpoint)",
+  "total_evaluated_images": 20,
+  "ground_truth_persons": 84,
+  "detected_persons": 72,
+  "person_detection_recall": 0.8571,
+  "mean_keypoint_confidence": 0.6297,
+  "total_extracted_keypoints": 1224,
+  "avg_inference_latency_ms": 99.42,
+  "device": "cpu",
+  "boundary_isolation": "Evaluates general COCO human keypoints; not representative of classroom hand-raising ground truth"
+}

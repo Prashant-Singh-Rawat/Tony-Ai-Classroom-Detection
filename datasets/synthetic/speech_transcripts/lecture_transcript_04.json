@@ -1,0 +1,33 @@
+{
+  "transcript_id": "synth_tx_04",
+  "course_code": "CS402",
+  "topic": "Deep Residual Learning & Skip Connections",
+  "data_source": "SYNTHETIC DATA",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 16.0,
+      "speaker": "Instructor",
+      "text": "As neural networks become deeper, gradient degradation hampers backpropagation."
+    },
+    {
+      "start": 17.0,
+      "end": 40.0,
+      "speaker": "Instructor",
+      "text": "Residual connections allow signals to bypass one or more layers via identity shortcuts, letting gradients flow unimpeded."
+    },
+    {
+      "start": 41.0,
+      "end": 58.0,
+      "speaker": "Student 4",
+      "text": "Does this enable training models with over one hundred layers without vanishing gradients?"
+    },
+    {
+      "start": 59.0,
+      "end": 84.0,
+      "speaker": "Instructor",
+      "text": "Precisely. ResNet-152 achieved state of the art by reformulating layers to learn residual mapping F of x plus x."
+    }
+  ],
+  "full_text": "As neural networks become deeper, gradient degradation hampers backpropagation. Residual connections allow signals to bypass one or more layers via identity shortcuts, letting gradients flow unimpeded. Does this enable training models with over one hundred layers without vanishing gradients? Precisely. ResNet-152 achieved state of the art by reformulating layers to learn residual mapping F of x plus x."
+}

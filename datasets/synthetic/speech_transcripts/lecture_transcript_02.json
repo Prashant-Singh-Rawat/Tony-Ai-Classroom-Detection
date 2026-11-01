@@ -1,0 +1,33 @@
+{
+  "transcript_id": "synth_tx_02",
+  "course_code": "CS403",
+  "topic": "Transformer Attention Mechanisms & Self-Attention",
+  "data_source": "SYNTHETIC DATA",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 15.0,
+      "speaker": "Instructor",
+      "text": "Let us examine the scaled dot-product attention formulation."
+    },
+    {
+      "start": 16.0,
+      "end": 42.0,
+      "speaker": "Instructor",
+      "text": "The scaling factor square root of d_k prevents the dot products from growing excessively large in high dimensions, which would push softmax into regions with tiny gradients."
+    },
+    {
+      "start": 43.0,
+      "end": 60.0,
+      "speaker": "Student 2",
+      "text": "Is multi-head attention executed in parallel across heads?"
+    },
+    {
+      "start": 61.0,
+      "end": 85.0,
+      "speaker": "Instructor",
+      "text": "Yes, each head projects queries, keys, and values into independent subspaces concurrently, then concatenates the outputs."
+    }
+  ],
+  "full_text": "Let us examine the scaled dot-product attention formulation. The scaling factor square root of d_k prevents the dot products from growing excessively large in high dimensions, which would push softmax into regions with tiny gradients. Is multi-head attention executed in parallel across heads? Yes, each head projects queries, keys, and values into independent subspaces concurrently, then concatenates the outputs."
+}

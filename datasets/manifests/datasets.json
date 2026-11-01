@@ -1,0 +1,68 @@
+{
+  "datasets": [
+    {
+      "dataset_name": "Kaggle Hand Gesture Recognition Dataset",
+      "source": "User-provided archives train.zip and test.zip (originating from Kaggle hand-gesture-recognition-dataset)",
+      "source_url": "https://www.kaggle.com/search?q=hand-gesture-recognition-dataset",
+      "train_portion": "verified",
+      "role": "supporting candidate only — not validated for classroom hand-raise",
+      "training_archive": {
+        "filename": "train.zip",
+        "size_bytes": 28591574,
+        "sha256": "f14185c413f165952f932f0b8d8ab7188a8b004524b5f9b511cdb031b85dac12"
+      },
+      "test_archive": {
+        "filename": "test.zip",
+        "size_bytes": 9458509,
+        "sha256": "1bd54afc823f5c0cd456fb0c0328e8f1be85d8691118acd1dd35730d93dd1be2"
+      },
+      "local_paths": {
+        "train": "datasets/kaggle/hand_gesture/extracted/train",
+        "test": "datasets/kaggle/hand_gesture/extracted/test"
+      },
+      "license_status": "NOT YET VERIFIED",
+      "total_images": 24000,
+      "train_count": 18000,
+      "validation_count": 0,
+      "test_count": 6000,
+      "number_of_classes": 20,
+      "class_names": [
+        "0",
+        "1",
+        "2",
+        "3",
+        "4",
+        "5",
+        "6",
+        "7",
+        "8",
+        "9",
+        "10",
+        "11",
+        "12",
+        "13",
+        "14",
+        "15",
+        "16",
+        "17",
+        "18",
+        "19"
+      ],
+      "folder_structure": "train/{class_id}/*.jpg (900/class), test/{class_id}/*.jpg (300/class)",
+      "images_per_class": {
+        "train": 900,
+        "test": 300
+      },
+      "train_test_class_match": true,
+      "train_test_overlap_count": 0,
+      "image_formats": [
+        ".jpg"
+      ],
+      "image_dimensions": [
+        "50x50"
+      ],
+      "verified_class_semantics": "CLASS SEMANTICS NOT YET VERIFIED",
+      "limitations": "Low resolution (50x50 pixels); tightly cropped hand gestures without whole-body or classroom context; numerical class folders 0-19 require verified ground-truth semantic mappings before any association with classroom activities like hand-raise detection."
+    }
+  ]
+}

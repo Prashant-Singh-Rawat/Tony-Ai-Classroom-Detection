@@ -1,0 +1,33 @@
+{
+  "transcript_id": "synth_tx_03",
+  "course_code": "CS402",
+  "topic": "Gradient Descent Optimization & Adam Algorithm",
+  "data_source": "SYNTHETIC DATA",
+  "segments": [
+    {
+      "start": 0.0,
+      "end": 18.0,
+      "speaker": "Instructor",
+      "text": "Standard Stochastic Gradient Descent struggles in ravines where surface curves much more steeply in one dimension."
+    },
+    {
+      "start": 19.0,
+      "end": 48.0,
+      "speaker": "Instructor",
+      "text": "Adam combines momentum by keeping an exponentially decaying average of past gradients with RMSprop's scaling by the root of second moments."
+    },
+    {
+      "start": 49.0,
+      "end": 65.0,
+      "speaker": "Student 3",
+      "text": "Why do we include the bias correction terms in Adam?"
+    },
+    {
+      "start": 66.0,
+      "end": 92.0,
+      "speaker": "Instructor",
+      "text": "Because m_t and v_t are initialized as zeros, they are biased towards zero, especially during early time steps."
+    }
+  ],
+  "full_text": "Standard Stochastic Gradient Descent struggles in ravines where surface curves much more steeply in one dimension. Adam combines momentum by keeping an exponentially decaying average of past gradients with RMSprop's scaling by the root of second moments. Why do we include the bias correction terms in Adam? Because m_t and v_t are initialized as zeros, they are biased towards zero, especially during early time steps."
+}

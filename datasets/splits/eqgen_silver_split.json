@@ -1,0 +1,18 @@
+{
+  "dataset_name": "E-QGen Silver Question-Paragraph Pairs (3-Vote Consensus)",
+  "category": "educational_nlp_qa",
+  "provenance": "GITHUB REPOSITORY (E-QGen)",
+  "source_url": "https://github.com/lead-ai/E-QGen",
+  "license": "MIT / Academic Research",
+  "total_samples": 4434,
+  "unique_paragraphs": 4434,
+  "split_strategy": "Grouped by source paragraph hash (70% train / 15% val / 15% test) with zero cross-split paragraph leakage",
+  "random_seed": 42,
+  "summary": {
+    "train": 3103,
+    "val": 665,
+    "test": 666,
+    "total": 4434
+  },
+  "boundary_isolation": "Preserved separate from Kaggle count; GPT-assisted consensus, not pure human annotation"
+}

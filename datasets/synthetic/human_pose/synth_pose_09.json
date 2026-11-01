@@ -1,0 +1,112 @@
+{
+  "pose_id": "synth_pose_09",
+  "image_path": "C:\\Users\\prash\\OneDrive\\Documents\\Desktop\\Tony-Ai-Classroom-Detection\\datasets\\synthetic\\human_pose\\synth_pose_09.jpg",
+  "width": 640,
+  "height": 480,
+  "data_source": "SYNTHETIC DATA",
+  "hand_raised_ground_truth": true,
+  "keypoints": [
+    {
+      "name": "nose",
+      "x": 320,
+      "y": 120,
+      "confidence": 0.99
+    },
+    {
+      "name": "left_eye",
+      "x": 310,
+      "y": 112,
+      "confidence": 0.99
+    },
+    {
+      "name": "right_eye",
+      "x": 330,
+      "y": 112,
+      "confidence": 0.99
+    },
+    {
+      "name": "left_ear",
+      "x": 298,
+      "y": 118,
+      "confidence": 0.99
+    },
+    {
+      "name": "right_ear",
+      "x": 342,
+      "y": 118,
+      "confidence": 0.99
+    },
+    {
+      "name": "left_shoulder",
+      "x": 270,
+      "y": 160,
+      "confidence": 0.99
+    },
+    {
+      "name": "right_shoulder",
+      "x": 370,
+      "y": 160,
+      "confidence": 0.99
+    },
+    {
+      "name": "left_elbow",
+      "x": 250,
+      "y": 110,
+      "confidence": 0.99
+    },
+    {
+      "name": "right_elbow",
+      "x": 390,
+      "y": 210,
+      "confidence": 0.99
+    },
+    {
+      "name": "left_wrist",
+      "x": 245,
+      "y": 60,
+      "confidence": 0.99
+    },
+    {
+      "name": "right_wrist",
+      "x": 395,
+      "y": 260,
+      "confidence": 0.99
+    },
+    {
+      "name": "left_hip",
+      "x": 285,
+      "y": 300,
+      "confidence": 0.99
+    },
+    {
+      "name": "right_hip",
+      "x": 355,
+      "y": 300,
+      "confidence": 0.99
+    },
+    {
+      "name": "left_knee",
+      "x": 282,
+      "y": 370,
+      "confidence": 0.99
+    },
+    {
+      "name": "right_knee",
+      "x": 358,
+      "y": 370,
+      "confidence": 0.99
+    },
+    {
+      "name": "left_ankle",
+      "x": 280,
+      "y": 440,
+      "confidence": 0.99
+    },
+    {
+      "name": "right_ankle",
+      "x": 360,
+      "y": 440,
+      "confidence": 0.99
+    }
+  ]
+}

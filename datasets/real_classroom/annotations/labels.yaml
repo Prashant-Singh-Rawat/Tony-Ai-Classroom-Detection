@@ -1,0 +1,31 @@
+# Real Classroom Hand-Raise Detection Annotation Schema
+# Version: 1.0.0
+# Target: Individual Person Bounding Boxes in YOLO Format
+
+schema_version: "1.0.0"
+format: "yolo_normalized"
+
+classes:
+  0:
+    name: "hand_raised"
+    description: "Student with hand distinctly raised above desk/shoulder level to attract instructor attention."
+    trainable: true
+    evaluation_metric: true
+  1:
+    name: "hand_not_raised"
+    description: "Student in classroom with hand resting, taking notes, using keyboard, touching face, or at desk."
+    trainable: true
+    evaluation_metric: true
+  2:
+    name: "ambiguous"
+    description: "Unclear, severely occluded, borderline posture, stretching, or indistinct movement."
+    trainable: false
+    evaluation_metric: false
+    policy: "EXCLUDED from training loss and benchmark accuracy calculations. Tracked and reported separately as candidate for NEEDS_REVIEW human escalation."
+
+rules:
+  coordinate_format: "[x_center, y_center, width, height] normalized to [0.0, 1.0]"
+  bounding_box_target: "Individual visible student (including head, torso, and raised or resting arm/hand)"
+  workflow_tiers:
+    raw: "First-pass human annotator annotations"
+    reviewed: "Second-person-verified annotations (ONLY reviewed annotations are eligible for dataset splits and training)"

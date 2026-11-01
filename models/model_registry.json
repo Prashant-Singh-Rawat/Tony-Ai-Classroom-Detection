@@ -1,0 +1,178 @@
+{
+  "registry_version": "2.0",
+  "updated_at": "2026-10-31T13:45:00+05:30",
+  "workstation_profile": {
+    "gpu": "NVIDIA GeForce GTX 1650 (4GB VRAM)",
+    "active_runtime_device": "cpu",
+    "torch_version": "2.15.0+cpu",
+    "automatic_cpu_fallback": true
+  },
+  "models": [
+    {
+      "id": "model_yolov8n_person",
+      "name": "YOLOv8n Person Detector",
+      "modality": "computer_vision",
+      "provenance": "PRETRAINED MODEL",
+      "status": "READY",
+      "checkpoint": "models/yolov8n.pt",
+      "task": "Bounding-box person detection",
+      "connected_to_pipeline": true,
+      "classes": [
+        "person"
+      ],
+      "metrics": {
+        "mAP50": 0.526,
+        "inference_latency_ms": 32.5
+      }
+    },
+    {
+      "id": "model_yolov8n_pose",
+      "name": "YOLOv8n-pose Human Pose Estimator",
+      "modality": "computer_vision_pose",
+      "provenance": "PRETRAINED MODEL",
+      "status": "READY",
+      "checkpoint": "models/yolov8n-pose.pt",
+      "task": "17 COCO human body keypoint detection and hand-raising geometry",
+      "connected_to_pipeline": true,
+      "num_keypoints": 17,
+      "metrics": {
+        "evaluated_images": 100,
+        "ground_truth_persons": 260,
+        "person_recall": 0.9692,
+        "mean_oks": 0.5138,
+        "ap50": 0.5808,
+        "ap75": 0.1808,
+        "map_50_95": 0.25,
+        "pck_overall_0_2": 0.9232,
+        "pck_upper_body_0_2": 0.9101,
+        "pck_lower_body_0_2": 0.9292,
+        "mean_pixel_error_px": 12.88,
+        "mean_keypoint_confidence": 0.6574,
+        "inference_latency_ms": 104.84,
+        "fps": 9.5
+      },
+      "dataset_path": "datasets/kaggle/human_pose/coco_keypoints",
+      "evaluation_file": "models/evaluation/coco_pose_evaluation_results.json",
+      "boundary_note": "General COCO 17 body keypoints; upper body keypoints (91.01% PCK) support observable posture analysis. Not semantic hand-raising ground truth."
+    },
+    {
+      "id": "model_faster_whisper",
+      "name": "Faster-Whisper Speech Recognizer",
+      "modality": "speech_recognition",
+      "provenance": "PRETRAINED MODEL",
+      "status": "READY",
+      "checkpoint": "Systran/faster-whisper-tiny",
+      "task": "Audio transcription with millisecond timestamps and keyword extraction",
+      "connected_to_pipeline": true,
+      "metrics": {
+        "benchmark_dataset": "Mozilla Common Voice",
+        "wer": 0.9956,
+        "cer": 0.927,
+        "avg_latency_seconds": 0.65
+      }
+    },
+    {
+      "id": "model_easyocr_whiteboard",
+      "name": "EasyOCR Whiteboard Text Extractor",
+      "modality": "ocr",
+      "provenance": "PRETRAINED MODEL",
+      "status": "READY",
+      "checkpoint": "EasyOCR (CRAFT + CRNN)",
+      "task": "Full-scene whiteboard and slide text and formula extraction",
+      "connected_to_pipeline": true,
+      "metrics": {
+        "engine": "EasyOCR",
+        "supported_languages": [
+          "en"
+        ]
+      }
+    },
+    {
+      "id": "model_character_cnn_62",
+      "name": "CharacterCNN-62 Alphanumeric Classifier",
+      "modality": "ocr_character",
+      "provenance": "TRAINED MODEL",
+      "status": "READY",
+      "checkpoint": "models/checkpoints/character_recognition/best_character_cnn.pth",
+      "training_dataset": "Kaggle English Character Recognition (62 classes)",
+      "num_classes": 62,
+      "connected_to_pipeline": false,
+      "pipeline_isolation_note": "Decoupled from live video stream until character crop segmentation module is built",
+      "metrics": {
+        "test_samples": 1364,
+        "test_accuracy": 0.8336,
+        "top3_accuracy": 0.9267,
+        "precision_macro": 0.8412,
+        "recall_macro": 0.8336,
+        "f1_score_macro": 0.8342,
+        "avg_inference_latency_ms": 0.39
+      }
+    },
+    {
+      "id": "model_sign_language_cnn",
+      "name": "SignLanguageCNN ASL Classifier",
+      "modality": "sign_language",
+      "provenance": "TRAINED MODEL",
+      "status": "READY",
+      "checkpoint": "models/checkpoints/sign_language/best_sign_language_cnn.pth",
+      "training_dataset": "Sign Language MNIST (24 ASL Alphabet Classes)",
+      "num_classes": 24,
+      "connected_to_pipeline": false,
+      "pipeline_isolation_note": "Isolated static ASL alphabet classifier; strictly NOT connected to classroom hand-raising detection",
+      "metrics": {
+        "test_samples": 7172,
+        "test_accuracy": 0.9564,
+        "top3_accuracy": 0.9844,
+        "precision_macro": 0.9533,
+        "recall_macro": 0.9582,
+        "f1_score_macro": 0.9524,
+        "avg_inference_latency_ms": 0.212
+      }
+    },
+    {
+      "id": "model_hand_gesture_cnn",
+      "name": "HandGestureCNN (20 Classes)",
+      "modality": "gesture_features",
+      "provenance": "TRAINED MODEL",
+      "status": "READY",
+      "checkpoint": "models/checkpoints/hand_gesture/best_gesture_cnn.pth",
+      "training_dataset": "Kaggle Hand Gesture Recognition (20 classes: 0-19)",
+      "num_classes": 20,
+      "connected_to_pipeline": false,
+      "pipeline_isolation_note": "Numerical gesture classes only; semantics unmapped to classroom behavior",
+      "metrics": {
+        "test_samples": 2000,
+        "test_accuracy": 1.0,
+        "top3_accuracy": 1.0,
+        "precision_macro": 1.0,
+        "recall_macro": 1.0,
+        "f1_score_macro": 1.0,
+        "avg_inference_latency_ms": 0.901
+      }
+    },
+    {
+      "id": "model_summary_scoring_regressor",
+      "name": "Educational Summary Quality Regressor",
+      "modality": "nlp_evaluation",
+      "provenance": "TRAINED MODEL",
+      "status": "READY",
+      "checkpoint": "models/checkpoints/summary_scoring/summary_regressor.joblib",
+      "training_dataset": "CommonLit Student Summaries (7,165 samples)",
+      "task": "Student summary content and wording scoring",
+      "connected_to_pipeline": false,
+      "pipeline_isolation_note": "Writing rubric assessment only; never used for student intelligence assessment",
+      "metrics": {
+        "test_samples": 1075,
+        "content_mae": 0.3764,
+        "content_rmse": 0.4841,
+        "content_r2": 0.7791,
+        "wording_mae": 0.5007,
+        "wording_rmse": 0.6358,
+        "wording_r2": 0.6115,
+        "overall_mean_mae": 0.4385,
+        "overall_mean_r2": 0.6953,
+        "avg_inference_latency_ms": 0.001
+      }
+    }
+  ]
+}

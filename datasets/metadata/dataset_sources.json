@@ -1,0 +1,80 @@
+{
+  "policy": {
+    "target_ratio": "50% Kaggle + 50% Synthetic",
+    "real_classroom_percentage": 0.0,
+    "real_classroom_recordings_allowed": false,
+    "privacy_protection": "No facial recognition, no biometric ID, no emotion inference. Only observable pose/activity bounding boxes.",
+    "provenance_labels": [
+      "KAGGLE DATA",
+      "SYNTHETIC DATA",
+      "PRETRAINED MODEL",
+      "DEMONSTRATION DATA"
+    ]
+  },
+  "sources": [
+    {
+      "id": "kaggle_human_detection",
+      "name": "Human Detection Dataset",
+      "source_type": "KAGGLE DATA",
+      "description": "Binary human detection classification dataset.",
+      "local_path": "datasets/kaggle/classroom_activity/human_detection",
+      "total_samples": 0,
+      "status": "MISSING"
+    },
+    {
+      "id": "kaggle_handwriting",
+      "name": "Kaggle English Character Recognition Dataset",
+      "source_type": "KAGGLE DATA",
+      "description": "40x60 RGB PNG images across 62 alphanumeric character classes (0-9, A-Z, a-z).",
+      "local_path": "datasets/kaggle/handwriting/english_character_recognition",
+      "total_samples": 210227,
+      "status": "VERIFIED_AND_INTEGRATED"
+    },
+    {
+      "id": "kaggle_common_voice",
+      "name": "Mozilla Common Voice (English)",
+      "source_type": "KAGGLE / MOZILLA",
+      "description": "English speech audio clips and transcription metadata.",
+      "local_path": "datasets/kaggle/speech/common_voice",
+      "total_samples": 203847,
+      "total_archive_samples": 380368,
+      "status": "FULLY_EXTRACTED_AND_VERIFIED"
+    },
+    {
+      "id": "kaggle_sign_language_mnist",
+      "name": "Sign Language MNIST",
+      "source_type": "KAGGLE DATA",
+      "description": "28x28 grayscale image pixels for 24 American Sign Language letters.",
+      "local_path": "datasets/kaggle/sign_language_mnist",
+      "total_samples": 34627,
+      "status": "VERIFIED_AND_INTEGRATED"
+    },
+    {
+      "id": "kaggle_coco_keypoints",
+      "name": "COCO 2017 Keypoints",
+      "source_type": "KAGGLE / COCO CONSORTIUM",
+      "description": "17 human body keypoint annotations and images from COCO 2017.",
+      "local_path": "datasets/kaggle/human_pose/coco_keypoints",
+      "total_samples": 58945,
+      "status": "VERIFIED_AND_INTEGRATED"
+    },
+    {
+      "id": "kaggle_commonlit_summaries",
+      "name": "CommonLit Student Summaries",
+      "source_type": "KAGGLE DATA",
+      "description": "Student summary writings scored for content and wording.",
+      "local_path": "datasets/kaggle/education_nlp/commonlit_summaries",
+      "total_samples": 7222,
+      "status": "VERIFIED_AND_INTEGRATED"
+    },
+    {
+      "id": "kaggle_hand_gesture",
+      "name": "Kaggle Hand Gesture Recognition Dataset",
+      "source_type": "KAGGLE DATA",
+      "description": "50x50 grayscale images across 20 numerical gesture classes (0-19).",
+      "local_path": "datasets/kaggle/hand_gesture/extracted",
+      "total_samples": 24000,
+      "status": "VERIFIED_AND_INTEGRATED"
+    }
+  ]
+}

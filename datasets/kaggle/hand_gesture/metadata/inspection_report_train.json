@@ -1,0 +1,85 @@
+{
+  "dataset_name": "Kaggle Hand Gesture Recognition Dataset (User-Provided)",
+  "training_archive": {
+    "filename": "train.zip",
+    "path": "datasets/kaggle/hand_gesture/raw/train.zip",
+    "size_bytes": 28591574,
+    "sha256": "f14185c413f165952f932f0b8d8ab7188a8b004524b5f9b511cdb031b85dac12"
+  },
+  "total_training_images": 18000,
+  "class_count": 20,
+  "class_ids": [
+    "0",
+    "1",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6",
+    "7",
+    "8",
+    "9",
+    "10",
+    "11",
+    "12",
+    "13",
+    "14",
+    "15",
+    "16",
+    "17",
+    "18",
+    "19"
+  ],
+  "images_per_class": {
+    "0": 900,
+    "1": 900,
+    "2": 900,
+    "3": 900,
+    "4": 900,
+    "5": 900,
+    "6": 900,
+    "7": 900,
+    "8": 900,
+    "9": 900,
+    "10": 900,
+    "11": 900,
+    "12": 900,
+    "13": 900,
+    "14": 900,
+    "15": 900,
+    "16": 900,
+    "17": 900,
+    "18": 900,
+    "19": 900
+  },
+  "class_balance_statistics": {
+    "min": 900,
+    "max": 900,
+    "mean": 900.0,
+    "std": 0.0
+  },
+  "image_dimensions": {
+    "50x50": 18000
+  },
+  "image_formats": {
+    "JPEG": 18000
+  },
+  "corrupted_files_count": 0,
+  "corrupted_files": [],
+  "zero_byte_files_count": 0,
+  "zero_byte_files": [],
+  "empty_folders": [],
+  "train_test_class_compatibility": {
+    "classes_match": true,
+    "train_only_classes": [],
+    "test_only_classes": [],
+    "test_classes_count": 20,
+    "train_classes_count": 20
+  },
+  "train_test_overlap": {
+    "exact_duplicate_count": 0,
+    "sample_duplicates": []
+  },
+  "class_semantic_status": "NOT VERIFIED (Numerical folder IDs 0 through 19 without ground-truth semantic mappings; no meanings assumed or invented)",
+  "license_status": "NOT YET VERIFIED"
+}

@@ -1,0 +1,108 @@
+{
+  "timestamp": "2026-10-30 17:30:25",
+  "hardware": {
+    "device": "cpu",
+    "cuda_available": false,
+    "gpu_name": "N/A (CPU Fallback Active)",
+    "torch_version": "2.15.0+cpu",
+    "input_source": "Kaggle Dataset Sample (train/0/1.jpg)"
+  },
+  "cold_start": {
+    "yolov8n_ms": 2666.14,
+    "yolov8n_pose_ms": 266.68
+  },
+  "warm_benchmarks": {
+    "yolov8n_320": {
+      "name": "YOLOv8n Person Detection",
+      "resolution": "320x320",
+      "iterations": 25,
+      "mean_ms": 83.63,
+      "median_ms": 73.91,
+      "p95_ms": 130.63,
+      "fps": 11.96,
+      "process_ram_mb": 500.56,
+      "avg_cpu_percent": 85.4
+    },
+    "yolov8n_640": {
+      "name": "YOLOv8n Person Detection",
+      "resolution": "640x640",
+      "iterations": 25,
+      "mean_ms": 73.01,
+      "median_ms": 74.54,
+      "p95_ms": 80.8,
+      "fps": 13.7,
+      "process_ram_mb": 511.47,
+      "avg_cpu_percent": 83.2
+    },
+    "yolov8n_pose_320": {
+      "name": "YOLOv8n-pose Estimation",
+      "resolution": "320x320",
+      "iterations": 25,
+      "mean_ms": 79.81,
+      "median_ms": 82.42,
+      "p95_ms": 89.76,
+      "fps": 12.53,
+      "process_ram_mb": 511.39,
+      "avg_cpu_percent": 85.3
+    },
+    "yolov8n_pose_640": {
+      "name": "YOLOv8n-pose Estimation",
+      "resolution": "640x640",
+      "iterations": 25,
+      "mean_ms": 77.69,
+      "median_ms": 79.94,
+      "p95_ms": 87.54,
+      "fps": 12.87,
+      "process_ram_mb": 512.98,
+      "avg_cpu_percent": 87.5
+    },
+    "combined_sequential_320": {
+      "name": "Combined Sequential (YOLO + Pose)",
+      "resolution": "320x320",
+      "iterations": 25,
+      "mean_ms": 167.86,
+      "median_ms": 158.5,
+      "p95_ms": 221.69,
+      "fps": 5.96,
+      "process_ram_mb": 512.08,
+      "avg_cpu_percent": 87.0
+    },
+    "combined_sequential_640": {
+      "name": "Combined Sequential (YOLO + Pose)",
+      "resolution": "640x640",
+      "iterations": 25,
+      "mean_ms": 158.77,
+      "median_ms": 159.96,
+      "p95_ms": 185.1,
+      "fps": 6.3,
+      "process_ram_mb": 501.4,
+      "avg_cpu_percent": 87.2
+    }
+  },
+  "frame_skipping": {
+    "skip_1": {
+      "frame_skip": 1,
+      "total_stream_frames": 30,
+      "processed_frames": 30,
+      "elapsed_seconds": 2.526,
+      "effective_stream_fps": 11.87,
+      "inference_throughput_fps": 11.87
+    },
+    "skip_5": {
+      "frame_skip": 5,
+      "total_stream_frames": 30,
+      "processed_frames": 6,
+      "elapsed_seconds": 0.454,
+      "effective_stream_fps": 66.01,
+      "inference_throughput_fps": 13.2
+    },
+    "skip_10": {
+      "frame_skip": 10,
+      "total_stream_frames": 30,
+      "processed_frames": 3,
+      "elapsed_seconds": 0.194,
+      "effective_stream_fps": 154.64,
+      "inference_throughput_fps": 15.46
+    }
+  }
+}

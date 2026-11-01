@@ -1,0 +1,19 @@
+{
+  "dataset_name": "CommonLit Student Summaries",
+  "expected_archive": "C:\\Users\\prash\\Downloads\\commonlit-evaluate-student-summaries.zip",
+  "archive_found": true,
+  "destination": "datasets\\kaggle\\education_nlp\\commonlit_summaries",
+  "status": "VERIFIED_AND_INTEGRATED",
+  "source_url": "https://www.kaggle.com/competitions/commonlit-evaluate-student-summaries",
+  "license": "Kaggle Competition Data License",
+  "physical_files_count": 5,
+  "usable_samples": 7222,
+  "classes_count": 2,
+  "train_samples": 7218,
+  "val_samples": 0,
+  "test_samples": 4,
+  "corrupted_files": 0,
+  "missing_files": 0,
+  "duplicate_files": 0,
+  "note": "Preserved original CSVs. Separates content and wording score targets. Never used to assess student ability."
+}

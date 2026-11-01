@@ -1,0 +1,81 @@
+{
+  "registry_version": "2.0",
+  "datasets": [
+    {
+      "id": "ds_kaggle_human_detection_v1",
+      "name": "Human Detection Dataset",
+      "category": "classroom_activity",
+      "origin": "KAGGLE DATA",
+      "root_dir": "datasets/kaggle/classroom_activity/human_detection",
+      "sample_count": 0,
+      "status": "MISSING",
+      "role": "person_detection_benchmark"
+    },
+    {
+      "id": "ds_kaggle_english_character_recognition_v1",
+      "name": "Kaggle English Character Recognition Dataset",
+      "category": "handwriting",
+      "origin": "KAGGLE DATA",
+      "root_dir": "datasets/kaggle/handwriting/english_character_recognition",
+      "sample_count": 210227,
+      "num_classes": 62,
+      "status": "VERIFIED_AND_INTEGRATED",
+      "role": "handwritten_character_recognition"
+    },
+    {
+      "id": "ds_kaggle_common_voice_v1",
+      "name": "Mozilla Common Voice (English)",
+      "category": "speech",
+      "origin": "KAGGLE / MOZILLA",
+      "root_dir": "datasets/kaggle/speech/common_voice",
+      "sample_count": 203847,
+      "archive_sample_count": 380368,
+      "status": "FULLY_EXTRACTED_AND_VERIFIED",
+      "role": "speech_recognition_asr"
+    },
+    {
+      "id": "ds_kaggle_sign_language_mnist_v1",
+      "name": "Sign Language MNIST",
+      "category": "sign_language",
+      "origin": "KAGGLE DATA",
+      "root_dir": "datasets/kaggle/sign_language_mnist",
+      "sample_count": 34627,
+      "num_classes": 24,
+      "status": "VERIFIED_AND_INTEGRATED",
+      "role": "sign_language_alphabet"
+    },
+    {
+      "id": "ds_kaggle_coco_keypoints_v1",
+      "name": "COCO 2017 Keypoints",
+      "category": "human_pose",
+      "origin": "KAGGLE / COCO CONSORTIUM",
+      "root_dir": "datasets/kaggle/human_pose/coco_keypoints",
+      "sample_count": 58945,
+      "num_classes": 1,
+      "status": "VERIFIED_AND_INTEGRATED",
+      "role": "body_pose_keypoints"
+    },
+    {
+      "id": "ds_kaggle_commonlit_summaries_v1",
+      "name": "CommonLit Student Summaries",
+      "category": "education_nlp",
+      "origin": "KAGGLE DATA",
+      "root_dir": "datasets/kaggle/education_nlp/commonlit_summaries",
+      "sample_count": 7222,
+      "num_classes": 2,
+      "status": "VERIFIED_AND_INTEGRATED",
+      "role": "summary_scoring_regression"
+    },
+    {
+      "id": "ds_kaggle_hand_gesture_v1",
+      "name": "Kaggle Hand Gesture Recognition Dataset",
+      "category": "hand_gesture",
+      "origin": "KAGGLE DATA",
+      "root_dir": "datasets/kaggle/hand_gesture/extracted",
+      "sample_count": 24000,
+      "num_classes": 20,
+      "status": "VERIFIED_AND_INTEGRATED",
+      "role": "gesture_features"
+    }
+  ]
+}

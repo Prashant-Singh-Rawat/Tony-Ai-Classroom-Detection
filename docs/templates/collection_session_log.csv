@@ -1,0 +1,3 @@
+session_id,date,classroom_label,recording_start,duration_min,camera_position,camera_distance,camera_angle,lighting,layout,approx_students_visible,permission_obtained,permission_ref,notes
+sess_01,2026-10-12,Room-302,09:15,08,front_left_corner,medium_5m,wide_elevated,fluorescent_daylight,tiered_lecture_hall,24,yes,ETHICS-CV-2026-01,Morning CS lecture; includes 1-min prompted hand-raise exercise
+sess_02,2026-10-12,Room-105,11:30,10,rear_right_side,far_8m,eye_level,artificial_warm,flat_seminar_room,16,yes,ETHICS-CV-2026-01,Math tutorial; small group interaction; natural questioning moments
