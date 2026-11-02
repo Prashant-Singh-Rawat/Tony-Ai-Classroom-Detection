@@ -94,7 +94,9 @@ export interface ClassVisionApi {
     imgsz?: number,
     detectPose?: boolean,
     instructorRoiPolygon?: number[][] | null,
-    zoneFilteringEnabled?: boolean
+    zoneFilteringEnabled?: boolean,
+    keypointThreshold?: number,
+    elevationMarginPx?: number
   ): Promise<any>
   getSessionZoneConfig(sessionId: string): Promise<{ sessionId: string; instructorRoiPolygon: number[][] | null; zoneFilteringEnabled: boolean }>
   updateSessionZoneConfig(sessionId: string, polygon: number[][] | null, enabled?: boolean): Promise<any>
@@ -291,7 +293,9 @@ export class DemoClassVisionApi implements ClassVisionApi {
     _imgsz?: number,
     _detectPose?: boolean,
     instructorRoiPolygon?: number[][] | null,
-    zoneFilteringEnabled?: boolean
+    zoneFilteringEnabled?: boolean,
+    _keypointThreshold?: number,
+    _elevationMarginPx?: number
   ): Promise<any> {
     return {
       videoFilename: file.name,
@@ -989,7 +993,9 @@ export class RealClassVisionApi implements ClassVisionApi {
     imgsz: number = 640,
     detectPose: boolean = true,
     instructorRoiPolygon?: number[][] | null,
-    zoneFilteringEnabled?: boolean
+    zoneFilteringEnabled?: boolean,
+    keypointThreshold?: number,
+    elevationMarginPx?: number
   ) {
     const formData = new FormData()
     formData.append('file', file)
@@ -998,6 +1004,12 @@ export class RealClassVisionApi implements ClassVisionApi {
     formData.append('imgsz', imgsz.toString())
     formData.append('detect_pose', detectPose.toString())
     formData.append('enable_tracking', 'true')
+    if (keypointThreshold !== undefined) {
+      formData.append('keypoint_threshold', keypointThreshold.toString())
+    }
+    if (elevationMarginPx !== undefined) {
+      formData.append('elevation_margin_px', elevationMarginPx.toString())
+    }
     if (instructorRoiPolygon && instructorRoiPolygon.length >= 3) {
       formData.append('instructor_roi_polygon', JSON.stringify(instructorRoiPolygon))
     }

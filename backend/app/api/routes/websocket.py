@@ -97,10 +97,14 @@ async def websocket_detections(websocket: WebSocket) -> None:
 
             if msg_type == "frame":
                 raw_frame = payload.get("frame", "")
-                conf_thresh = float(payload.get("confidenceThreshold", 0.35))
+                conf_thresh = float(payload.get("confidenceThreshold", 0.20))
                 detect_pose = bool(payload.get("detectPose", True))
                 server_side_blur = bool(payload.get("serverSideBlur", True))
                 client_side_blur = bool(payload.get("clientSideBlur", False))
+                keypoint_thresh = float(payload.get("keypointThreshold", 0.25))
+                elevation_margin = float(payload.get("elevationMarginPx", 15.0))
+                instructor_polygon = payload.get("instructorRoiPolygon")
+                zone_filtering = bool(payload.get("zoneFilteringEnabled", True))
                 sess_id = payload.get("sessionId", "sess_live")
 
                 server_blur_applied = False
@@ -122,6 +126,8 @@ async def websocket_detections(websocket: WebSocket) -> None:
                             pose_res = cv_service.estimate_pose(
                                 frame_bytes,
                                 confidence_threshold=conf_thresh,
+                                keypoint_threshold=keypoint_thresh,
+                                elevation_margin_px=elevation_margin,
                             )
 
                             # 2. Server-Side Privacy Safeguard: In-memory Gaussian blur on face/head regions
@@ -151,6 +157,20 @@ async def websocket_detections(websocket: WebSocket) -> None:
                             # 5. Enrich bounding boxes with stable anonymous track IDs and state
                             track_map = {t.bbox.id: t for t in active_tracks}
                             for b in summary.boxes:
+                                if instructor_polygon and zone_filtering:
+                                    try:
+                                        from backend.app.services.tracking.zone_filter import classify_detection_zone
+                                        z_cls, _ = classify_detection_zone(
+                                            b,
+                                            polygon=instructor_polygon,
+                                            enabled=zone_filtering,
+                                            video_width=summary.imageWidth,
+                                            video_height=summary.imageHeight,
+                                            confidence=b.confidence,
+                                        )
+                                        b.zoneClassification = z_cls.value
+                                    except Exception:
+                                        pass
                                 matched_t = track_map.get(b.id)
                                 if matched_t:
                                     b.id = matched_t.trackId

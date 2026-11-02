@@ -173,6 +173,8 @@ async def process_video(
     enable_tracking: bool = Form(default=True),
     instructor_roi_polygon: Optional[str] = Form(default=None),
     zone_filtering_enabled: bool = Form(default=True),
+    keypoint_threshold: float = Form(default=0.25),
+    elevation_margin_px: float = Form(default=15.0),
     db: DBSession = Depends(get_db),
 ) -> VideoProcessResponse:
     """
@@ -236,6 +238,8 @@ async def process_video(
             enable_tracking=enable_tracking,
             instructor_roi_polygon=parsed_polygon,
             zone_filtering_enabled=zone_filtering_enabled,
+            keypoint_threshold=keypoint_threshold,
+            elevation_margin_px=elevation_margin_px,
         )
     except Exception as e:
         raise HTTPException(

@@ -381,6 +381,8 @@ class ComputerVisionService:
         enable_tracking: bool = True,
         instructor_roi_polygon: Optional[List[List[float]]] = None,
         zone_filtering_enabled: bool = True,
+        keypoint_threshold: float = 0.25,
+        elevation_margin_px: float = 15.0,
     ) -> VideoProcessResponse:
         """
         Sequentially processes video frames with configurable frame skipping.
@@ -486,6 +488,8 @@ class ComputerVisionService:
                         pose_res = self.estimate_pose(
                             frame,
                             confidence_threshold=confidence_threshold,
+                            keypoint_threshold=keypoint_threshold,
+                            elevation_margin_px=elevation_margin_px,
                             imgsz=imgsz,
                         )
                         count = pose_res.totalPersons

@@ -278,7 +278,7 @@ export const MonitoringPage: React.FC = () => {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   const [isProcessing, setIsProcessing] = useState(false)
   const [inferenceMode, setInferenceMode] = useState<'person_detection' | 'pose_estimation'>('pose_estimation')
-  const [confidenceThreshold, setConfidenceThreshold] = useState<number>(0.35)
+  const [confidenceThreshold, setConfidenceThreshold] = useState<number>(0.20)
   const [keypointThreshold, setKeypointThreshold] = useState<number>(0.4)
   const [elevationMarginPx, setElevationMarginPx] = useState<number>(15.0)
   const [detectPose, setDetectPose] = useState<boolean>(true)
@@ -395,7 +395,7 @@ export const MonitoringPage: React.FC = () => {
   const [persistedEventsCount, setPersistedEventsCount] = useState(0)
   const [dbPersistenceStatus, setDbPersistenceStatus] = useState<'CONNECTED' | 'SAVED' | 'IDLE' | 'ERROR'>('CONNECTED')
   const [dbErrorMessage, setDbErrorMessage] = useState<string | null>(null)
-  const [serverSideBlurApplied, setServerSideBlurApplied] = useState(true)
+  const [serverSideBlurApplied, setServerSideBlurApplied] = useState(false)
   const [activeCategoryFilter, setActiveCategoryFilter] = useState<ActivityCategory | null>(null)
 
   const activeDetections: BoundingBox[] = useMemo(() => {
@@ -902,7 +902,6 @@ export const MonitoringPage: React.FC = () => {
         const url = URL.createObjectURL(file)
         setPreviewUrl(url)
         if (isVideoFile(file)) {
-          setConfidenceThreshold(0.20)
           setDetectPose(true)
         }
       } else {
@@ -935,7 +934,9 @@ export const MonitoringPage: React.FC = () => {
           640,
           detectPose,
           zoneFilteringEnabled ? instructorPolygon : null,
-          zoneFilteringEnabled
+          zoneFilteringEnabled,
+          keypointThreshold,
+          elevationMarginPx
         )
         setVideoResult(res)
         setDetectionResult(null)
@@ -1170,7 +1171,10 @@ export const MonitoringPage: React.FC = () => {
                 {/* Bounding Box & Skeleton Overlays on Webcam */}
                 {isWebcamActive && detectionResult && detectionResult.boxes && (
                   <div className="absolute inset-0 pointer-events-none">
-                    {detectionResult.boxes.map((det) => {
+                    {showBoxes && detectionResult.boxes.map((det) => {
+                      if (det.confidence < confidenceThreshold) {
+                        return null
+                      }
                       const cfg = getActivityBoxConfig(det)
                       if (activeCategoryFilter !== null && cfg.category !== activeCategoryFilter) {
                         return null
@@ -1201,7 +1205,7 @@ export const MonitoringPage: React.FC = () => {
                             )}
                           </div>
 
-                          {blurFaces && (
+                          {(clientSideBlurActive || serverSideBlurActive) && (
                             <div
                               className="absolute rounded-xl bg-slate-950/85 backdrop-blur-xl border border-cyan-400/50 shadow-lg shadow-cyan-500/20 flex flex-col items-center justify-center pointer-events-none z-10"
                               style={{
@@ -1249,7 +1253,7 @@ export const MonitoringPage: React.FC = () => {
                               {skeletonPairs.map(([p1, p2], idx) => {
                                 const k1 = kpMap[p1]
                                 const k2 = kpMap[p2]
-                                if (!k1 || !k2 || k1.confidence < 0.25 || k2.confidence < 0.25) return null
+                                if (!k1 || !k2 || k1.confidence < keypointThreshold || k2.confidence < keypointThreshold) return null
                                 const isArm = p1.includes('wrist') || p2.includes('wrist') || p1.includes('elbow') || p2.includes('elbow')
                                 return (
                                   <line
@@ -1268,7 +1272,7 @@ export const MonitoringPage: React.FC = () => {
 
                               {/* Keypoint dots */}
                               {b.keypoints.map((kp, kIdx) => {
-                                if (kp.confidence < 0.25) return null
+                                if (kp.confidence < keypointThreshold) return null
                                 const kx = (kp.x / imgW) * 100
                                 const ky = (kp.y / imgH) * 100
                                 const isWrist = kp.name.includes('wrist')
@@ -1291,6 +1295,22 @@ export const MonitoringPage: React.FC = () => {
                     )}
                   </div>
                 )}
+                {/* Teacher Zone Exclusion Polygon Preview (Webcam) */}
+                {isWebcamActive && showZoneOverlay && instructorPolygon && (
+                  <svg
+                    className="absolute inset-0 w-full h-full pointer-events-none rounded-lg z-10"
+                    viewBox="0 0 100 100"
+                    preserveAspectRatio="none"
+                  >
+                    <polygon
+                      points={instructorPolygon.map(([x, y]) => `${x * 100},${y * 100}`).join(' ')}
+                      fill="rgba(59, 130, 246, 0.05)"
+                      stroke="rgba(59, 130, 246, 0.7)"
+                      strokeWidth="1.2"
+                      strokeDasharray="4 4"
+                    />
+                  </svg>
+                )}
               </div>
 
               {/* 2. Uploaded Video Display */}
@@ -1312,7 +1332,10 @@ export const MonitoringPage: React.FC = () => {
                   {/* Synchronized Person Bounding Boxes & Skeletons Over Uploaded Video */}
                   {activeVideoFrame && activeVideoFrame.boxes && activeVideoFrame.boxes.length > 0 && (
                     <div className="absolute inset-0 pointer-events-none">
-                      {activeVideoFrame.boxes.map((det: BoundingBox) => {
+                      {showBoxes && activeVideoFrame.boxes.map((det: BoundingBox) => {
+                        if (det.confidence < confidenceThreshold) {
+                          return null
+                        }
                         const cfg = getActivityBoxConfig(det)
                         if (activeCategoryFilter !== null && cfg.category !== activeCategoryFilter) {
                           return null
@@ -1352,7 +1375,7 @@ export const MonitoringPage: React.FC = () => {
                               )}
                             </div>
 
-                            {blurFaces && (
+                            {(clientSideBlurActive || serverSideBlurActive) && (
                               <div
                                 className="absolute rounded-xl bg-slate-950/85 backdrop-blur-xl border border-cyan-400/50 shadow-lg shadow-cyan-500/20 flex flex-col items-center justify-center pointer-events-none z-10"
                                 style={{
@@ -1404,7 +1427,7 @@ export const MonitoringPage: React.FC = () => {
                                 {skeletonPairs.map(([p1, p2], idx) => {
                                   const k1 = kpMap[p1]
                                   const k2 = kpMap[p2]
-                                  if (!k1 || !k2 || k1.confidence < 0.20 || k2.confidence < 0.20) return null
+                                  if (!k1 || !k2 || k1.confidence < keypointThreshold || k2.confidence < keypointThreshold) return null
                                   const isArm =
                                     p1.includes('wrist') ||
                                     p2.includes('wrist') ||
@@ -1427,7 +1450,7 @@ export const MonitoringPage: React.FC = () => {
 
                                 {/* Keypoint dots */}
                                 {b.keypoints.map((kp: Keypoint, kIdx: number) => {
-                                  if (kp.confidence < 0.20) return null
+                                  if (kp.confidence < keypointThreshold) return null
                                   const kx = (kp.x / imgW) * 100
                                   const ky = (kp.y / imgH) * 100
                                   const isWrist = kp.name.includes('wrist')
@@ -1452,7 +1475,7 @@ export const MonitoringPage: React.FC = () => {
                   )}
 
                   {/* Teacher Zone Exclusion Polygon Preview */}
-                  {showZoneOverlay && zoneFilteringEnabled && instructorPolygon && (
+                  {showZoneOverlay && instructorPolygon && (
                     <svg
                       className="absolute inset-0 w-full h-full pointer-events-none rounded-lg"
                       viewBox="0 0 100 100"
@@ -1484,7 +1507,10 @@ export const MonitoringPage: React.FC = () => {
                   {detectionResult &&
                     detectionResult.boxes && (
                       <div className="absolute inset-0 pointer-events-none">
-                        {detectionResult.boxes.map((det) => {
+                        {showBoxes && detectionResult.boxes.map((det) => {
+                          if (det.confidence < confidenceThreshold) {
+                            return null
+                          }
                           const cfg = getActivityBoxConfig(det)
                           if (activeCategoryFilter !== null && cfg.category !== activeCategoryFilter) {
                             return null
@@ -1515,7 +1541,7 @@ export const MonitoringPage: React.FC = () => {
                                 )}
                               </div>
 
-                              {blurFaces && (
+                              {(clientSideBlurActive || serverSideBlurActive) && (
                                 <div
                                   className="absolute rounded-xl bg-slate-950/85 backdrop-blur-xl border border-cyan-400/50 shadow-lg shadow-cyan-500/20 flex flex-col items-center justify-center pointer-events-none z-10"
                                   style={{
@@ -1562,7 +1588,7 @@ export const MonitoringPage: React.FC = () => {
                                   {skeletonPairs.map(([p1, p2], idx) => {
                                     const k1 = kpMap[p1]
                                     const k2 = kpMap[p2]
-                                    if (!k1 || !k2 || k1.confidence < 0.25 || k2.confidence < 0.25) return null
+                                    if (!k1 || !k2 || k1.confidence < keypointThreshold || k2.confidence < keypointThreshold) return null
                                     const isArm = p1.includes('wrist') || p2.includes('wrist') || p1.includes('elbow') || p2.includes('elbow')
                                     return (
                                       <line
@@ -1580,7 +1606,7 @@ export const MonitoringPage: React.FC = () => {
                                   })}
 
                                   {b.keypoints.map((kp, kIdx) => {
-                                    if (kp.confidence < 0.25) return null
+                                    if (kp.confidence < keypointThreshold) return null
                                     const kx = (kp.x / imgW) * 100
                                     const ky = (kp.y / imgH) * 100
                                     const isWrist = kp.name.includes('wrist')
@@ -2661,7 +2687,7 @@ export const MonitoringPage: React.FC = () => {
 
                 <label className="flex items-center justify-between cursor-pointer py-0.5">
                   <span className="text-slate-700 font-medium">
-                    Client Face Blur {clientSideBlurDetected ? '(Active)' : ''}
+                    Client Face Blur {isWebcamActive && clientSideBlurActive && clientSideBlurDetected ? '(Active)' : ''}
                   </span>
                   <input
                     type="checkbox"
@@ -2673,12 +2699,15 @@ export const MonitoringPage: React.FC = () => {
 
                 <label className="flex items-center justify-between cursor-pointer py-0.5">
                   <span className="text-slate-700 font-medium">
-                    Server In-Memory Blur {serverSideBlurApplied ? '(Active)' : ''}
+                    Server In-Memory Blur {isWebcamActive && serverSideBlurActive && serverSideBlurApplied ? '(Active)' : ''}
                   </span>
                   <input
                     type="checkbox"
                     checked={serverSideBlurActive}
-                    onChange={(e) => setServerSideBlurActive(e.target.checked)}
+                    onChange={(e) => {
+                      setServerSideBlurActive(e.target.checked)
+                      if (!e.target.checked) setServerSideBlurApplied(false)
+                    }}
                     className="rounded border-slate-300 text-blue-600 focus:ring-blue-500 h-4 w-4"
                   />
                 </label>
@@ -2687,11 +2716,8 @@ export const MonitoringPage: React.FC = () => {
                   <span className="text-slate-700 font-medium">Teacher Zone Outline</span>
                   <input
                     type="checkbox"
-                    checked={zoneFilteringEnabled}
-                    onChange={(e) => {
-                      setZoneFilteringEnabled(e.target.checked)
-                      setShowZoneOverlay(e.target.checked)
-                    }}
+                    checked={showZoneOverlay}
+                    onChange={(e) => setShowZoneOverlay(e.target.checked)}
                     className="rounded border-slate-300 text-blue-600 focus:ring-blue-500 h-4 w-4"
                   />
                 </label>
