@@ -1,6 +1,6 @@
 // frontend/src/pages/DashboardPage.tsx
 import React, { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import {
   Users,
   Hand,
@@ -13,6 +13,9 @@ import {
   Sparkles,
   AlertCircle,
   RefreshCw,
+  Activity,
+  BookOpen,
+  ArrowRight,
 } from 'lucide-react'
 import { api } from '../services'
 import type { DashboardSummary } from '../types'
@@ -23,6 +26,7 @@ import { Card, CardHeader, CardTitle, CardContent } from '../components/ui/Card'
 import { TrendLineChart } from '../components/Charts'
 
 export const DashboardPage: React.FC = () => {
+  const navigate = useNavigate()
   const [data, setData] = useState<DashboardSummary | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -125,6 +129,54 @@ export const DashboardPage: React.FC = () => {
         </div>
       )}
 
+      {/* ── Analysis Mode Selector ────────────────────────────────────────── */}
+      <div className="rounded-2xl border border-slate-200 bg-white shadow-xs overflow-hidden">
+        <div className="px-5 py-3.5 border-b border-slate-100 flex items-center justify-between">
+          <div>
+            <h3 className="text-sm font-bold text-slate-900">Choose Analysis Mode</h3>
+            <p className="text-xs text-slate-500 mt-0.5">Two independent video analysis workflows</p>
+          </div>
+        </div>
+        <div className="p-4 grid grid-cols-1 sm:grid-cols-2 gap-4">
+          {/* Option 1 */}
+          <div
+            className="group flex items-center gap-4 rounded-xl border border-slate-200 bg-slate-50/50 p-4 cursor-pointer hover:border-blue-300 hover:bg-blue-50/40 transition-all"
+            onClick={() => navigate('/live')}
+          >
+            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-100 text-blue-600 flex-shrink-0 group-hover:bg-blue-200 transition-colors">
+              <Activity className="h-5 w-5" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-xs font-bold text-slate-900">Classroom Activity &amp; Gesture Detection</p>
+              <p className="text-[11px] text-slate-500 mt-0.5 leading-relaxed">
+                Person detection, pose estimation, hand raises &amp; activity classification.
+              </p>
+            </div>
+            <ArrowRight className="h-4 w-4 text-slate-400 group-hover:text-blue-500 flex-shrink-0 transition-colors" />
+          </div>
+
+          {/* Option 2 */}
+          <div
+            className="group flex items-center gap-4 rounded-xl border border-slate-200 bg-slate-50/50 p-4 cursor-pointer hover:border-violet-300 hover:bg-violet-50/40 transition-all"
+            onClick={() => navigate('/lecture-notes')}
+          >
+            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-violet-100 text-violet-600 flex-shrink-0 group-hover:bg-violet-200 transition-colors">
+              <BookOpen className="h-5 w-5" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-xs font-bold text-slate-900">AI Lecture Notes &amp; Summary</p>
+              <p className="text-[11px] text-slate-500 mt-0.5 leading-relaxed">
+                Transcribe speech, read slides &amp; board, generate organized study notes.
+              </p>
+            </div>
+            <div className="flex flex-col items-end gap-1 flex-shrink-0">
+              <ArrowRight className="h-4 w-4 text-slate-400 group-hover:text-violet-500 transition-colors" />
+              <span className="text-[9px] font-bold text-violet-500 uppercase tracking-wide">Phase 2</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* Primary KPI Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         <MetricCard
@@ -216,9 +268,9 @@ export const DashboardPage: React.FC = () => {
             <thead className="bg-slate-50 text-slate-500 font-semibold uppercase tracking-wider border-b border-slate-200">
               <tr>
                 <th className="py-3 px-5">Session ID</th>
-                <th className="py-3 px-5">Course & Title</th>
+                <th className="py-3 px-5">Course &amp; Title</th>
                 <th className="py-3 px-5">Classroom</th>
-                <th className="py-3 px-5">Date & Time</th>
+                <th className="py-3 px-5">Date &amp; Time</th>
                 <th className="py-3 px-5">Students</th>
                 <th className="py-3 px-5">Hand Raises</th>
                 <th className="py-3 px-5">Status</th>

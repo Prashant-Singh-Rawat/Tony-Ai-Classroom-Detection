@@ -14,6 +14,7 @@ import {
   Database,
   Bot,
   ExternalLink,
+  BookOpen,
 } from 'lucide-react'
 
 interface SidebarProps {
@@ -28,6 +29,7 @@ export const Sidebar: React.FC<SidebarProps> = () => {
     { to: '/live', label: 'Live Classroom', icon: Video },
     { to: '/analytics', label: 'Analytics', icon: BarChart3 },
     { to: '/intelligence', label: 'Lecture Intelligence', icon: Brain },
+    { to: '/lecture-notes', label: 'Lecture Notes', icon: BookOpen },
     { to: '/ask', label: 'Ask ClassVision', icon: MessageSquareCode },
     { to: '/reports', label: 'Reports', icon: FileSpreadsheet },
     { to: '/settings', label: 'Settings', icon: Settings },
@@ -64,6 +66,7 @@ export const Sidebar: React.FC<SidebarProps> = () => {
           </div>
           {primaryNav.map((item) => {
             const Icon = item.icon
+            const isLectureNotes = item.to === '/lecture-notes'
             return (
               <NavLink
                 key={item.to}
@@ -71,13 +74,24 @@ export const Sidebar: React.FC<SidebarProps> = () => {
                 className={({ isActive }) =>
                   `flex items-center gap-3 px-3 py-2 rounded-lg text-xs font-medium transition-all ${
                     isActive
-                      ? 'bg-blue-50 text-blue-700 font-semibold shadow-2xs'
+                      ? isLectureNotes
+                        ? 'bg-violet-50 text-violet-700 font-semibold shadow-2xs'
+                        : 'bg-blue-50 text-blue-700 font-semibold shadow-2xs'
                       : 'text-slate-600 hover:text-slate-900 hover:bg-slate-50'
                   }`
                 }
               >
-                <Icon className="h-4 w-4 flex-shrink-0" />
+                <Icon
+                  className={`h-4 w-4 flex-shrink-0 ${
+                    isLectureNotes ? 'text-violet-500' : ''
+                  }`}
+                />
                 <span>{item.label}</span>
+                {isLectureNotes && (
+                  <span className="ml-auto rounded bg-violet-100 px-1.5 py-0.5 text-[9px] font-bold text-violet-600 uppercase tracking-wide">
+                    New
+                  </span>
+                )}
               </NavLink>
             )
           })}

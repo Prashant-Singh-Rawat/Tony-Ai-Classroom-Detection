@@ -12,6 +12,7 @@ import { ReportsPage } from './pages/ReportsPage'
 import { ModelStatusPage } from './pages/ModelStatusPage'
 import { SettingsPage } from './pages/SettingsPage'
 import { AgentCommandCenterPage } from './pages/AgentCommandCenterPage'
+import { LectureNotesPage } from './pages/LectureNotesPage'
 
 export const App: React.FC = () => {
   return (
@@ -31,6 +32,7 @@ export const App: React.FC = () => {
           <Route path="/ask" element={<AskClassVisionPage />} />
           <Route path="/reports" element={<ReportsPage />} />
           <Route path="/settings" element={<SettingsPage />} />
+          <Route path="/lecture-notes" element={<LectureNotesPage />} />
 
           {/* Developer Tools Routes (under /dev/... and legacy aliases) */}
           <Route path="/dev/agents" element={<AgentCommandCenterPage />} />
