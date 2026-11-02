@@ -23,6 +23,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 from backend.app.database.db import SessionLocal
+from backend.app.database.models import ActivityEventRecord
 from backend.app.database.repositories import ActivityEventRepository
 from backend.app.main import app
 from backend.app.schemas.activities import ActivityLabel
@@ -332,18 +333,18 @@ def test_evaluation_metrics_precision_recall_f1():
 def test_database_persistence_and_repository():
     """Verifies that activity events are persisted to SQLite table activity_events."""
     db = SessionLocal()
+    event_id = f"test_act_{int(time.time() * 1000)}"
+    session_id = "sess_test_act"
     try:
         repo = ActivityEventRepository(db)
-        event_id = f"test_act_{int(time.time())}"
-        session_id = "sess_test_act"
 
         rec = repo.create(
             event_id=event_id,
             session_id=session_id,
-            track_id="track_042",
+            track_id="anon_042",
             activity_label="HEAD_DOWN_POSTURE",
-            display_label="HEAD-DOWN POSTURE",
-            status_color="RED",
+            display_label="Head down",
+            status_color="ORANGE",
             status="COMPLETED",
             start_timestamp_seconds=12.0,
             end_timestamp_seconds=15.5,
@@ -367,6 +368,12 @@ def test_database_persistence_and_repository():
         assert dist["total_activity_events"] >= 1
         assert "HEAD_DOWN_POSTURE" in dist["activity_counts"]
     finally:
+        # Clean up test event to avoid polluting production DB
+        try:
+            db.query(ActivityEventRecord).filter(ActivityEventRecord.event_id == event_id).delete()
+            db.commit()
+        except Exception:
+            db.rollback()
         db.close()
 
 
@@ -395,3 +402,162 @@ def test_ethical_compliance_no_identity_or_discipline():
         assert "DISCIPLINE" not in val
         assert "EMOTION" not in val
         assert "CHEATING" not in val
+
+
+def test_phone_pixel_coordinates_with_wrist_proximity():
+    """
+    Verifies that raw pixel phone coordinates (from YOLO) are correctly matched
+    to a person with normalized coordinates [0-100] using wrist proximity and torso overlap.
+    """
+    svc = ActivityRecognitionService()
+    # Image size: 640x480
+    # Person box: normalized x=25.0% (160px), y=20.0% (96px), w=40.0% (256px), h=60.0% (288px)
+    # Wrists near center of body: right_wrist at px (240, 240)
+    kps = make_coco_keypoints(l_wr_y=240.0, r_wr_y=240.0)
+    # Set wrist keypoints in pixel space
+    for kp in kps:
+        if kp.name == "right_wrist":
+            kp.x = 240.0
+            kp.y = 240.0
+            kp.confidence = 0.85
+        elif kp.name == "left_wrist":
+            kp.x = 200.0
+            kp.y = 240.0
+            kp.confidence = 0.80
+
+    person = BoundingBox(
+        id="anon_001",
+        personId=1,
+        classId=1,
+        className="hand_not_raised",
+        confidence=0.88,
+        x=25.0,
+        y=20.0,
+        w=40.0,
+        h=60.0,
+        width=256.0,
+        height=288.0,
+        keypoints=kps,
+    )
+
+    # Phone detected in raw pixel coordinates: [220, 230, 260, 290] px (conf 0.78)
+    pixel_phone = {
+        "bbox": [220.0, 230.0, 260.0, 290.0],
+        "confidence": 0.78,
+    }
+
+    enriched = []
+    for frame_idx in range(3):
+        enriched, _ = svc.analyze_frame([person], detected_phones=[pixel_phone], is_pose_mode=True, timestamp_seconds=frame_idx * 0.1)
+
+    assert len(enriched) == 1
+    assert enriched[0].activityLabel in (ActivityLabel.PHONE_VISIBLE.value, DISPLAY_LABELS[ActivityLabel.PHONE_VISIBLE])
+    assert enriched[0].statusColor == "RED"
+    assert "cell phone" in enriched[0].detectedObjects
+
+
+def test_phone_person_mode_integration():
+    """
+    Verifies that in Person Mode (no pose keypoints), phone detections are correctly
+    associated with person upper-body bounding boxes and emit PHONE_VISIBLE.
+    """
+    svc = ActivityRecognitionService()
+    person = BoundingBox(
+        id="anon_002",
+        personId=2,
+        classId=1,
+        className="hand_not_raised",
+        confidence=0.85,
+        x=30.0,
+        y=25.0,
+        w=35.0,
+        h=55.0,
+        width=224.0,
+        height=264.0,
+        keypoints=None,
+    )
+    # Phone in chest region: center in normalized space (47.5%, 45.0%)
+    phone = {
+        "bbox": [40.0, 38.0, 55.0, 52.0],
+        "confidence": 0.72,
+    }
+
+    enriched = []
+    for frame_idx in range(3):
+        enriched, _ = svc.analyze_frame([person], detected_phones=[phone], is_pose_mode=False, timestamp_seconds=frame_idx * 0.1)
+
+    assert len(enriched) == 1
+    assert enriched[0].activityLabel in (ActivityLabel.PHONE_VISIBLE.value, DISPLAY_LABELS[ActivityLabel.PHONE_VISIBLE])
+    assert enriched[0].statusColor == "RED"
+
+
+def test_negative_control_no_false_positive_objects():
+    """
+    Verifies that a person sitting normally without a phone NEVER produces PHONE_VISIBLE,
+    and a phone far away from a person is not falsely associated.
+    """
+    svc = ActivityRecognitionService()
+    kps = make_coco_keypoints()
+    person = BoundingBox(
+        id="anon_003",
+        personId=3,
+        classId=1,
+        className="hand_not_raised",
+        confidence=0.90,
+        x=10.0,
+        y=10.0,
+        w=25.0,
+        h=50.0,
+        width=160.0,
+        height=240.0,
+        keypoints=kps,
+    )
+    # Phone detected in opposite corner of the room: [500, 400, 550, 470] px
+    distant_phone = {
+        "bbox": [500.0, 400.0, 550.0, 470.0],
+        "confidence": 0.85,
+    }
+
+    enriched = []
+    for frame_idx in range(5):
+        enriched, _ = svc.analyze_frame([person], detected_phones=[distant_phone], is_pose_mode=True, timestamp_seconds=frame_idx * 0.1)
+
+    assert len(enriched) == 1
+    assert enriched[0].activityLabel != ActivityLabel.PHONE_VISIBLE.value
+    assert enriched[0].activityLabel != DISPLAY_LABELS[ActivityLabel.PHONE_VISIBLE]
+    assert enriched[0].statusColor == "GREEN"
+
+
+def test_phone_temporal_hysteresis():
+    """
+    Verifies temporal hysteresis:
+    - 1 momentary frame of phone detection does NOT trigger PHONE_VISIBLE.
+    - >= 2 consecutive frames triggers PHONE_VISIBLE.
+    """
+    svc = ActivityRecognitionService()
+    kps = make_coco_keypoints()
+    person = BoundingBox(
+        id="anon_004",
+        personId=4,
+        classId=1,
+        className="hand_not_raised",
+        confidence=0.88,
+        x=20.0,
+        y=20.0,
+        w=30.0,
+        h=50.0,
+        width=192.0,
+        height=240.0,
+        keypoints=kps,
+    )
+    phone = {"bbox": [25.0, 30.0, 35.0, 45.0], "confidence": 0.80}
+
+    # Frame 1: Only 1 observation -> should NOT trigger PHONE_VISIBLE yet
+    enriched, _ = svc.analyze_frame([person], detected_phones=[phone], is_pose_mode=True, timestamp_seconds=0.1)
+    assert enriched[0].activityLabel != ActivityLabel.PHONE_VISIBLE.value
+    assert enriched[0].activityLabel != DISPLAY_LABELS[ActivityLabel.PHONE_VISIBLE]
+
+    # Frame 2: Second consecutive observation -> triggers PHONE_VISIBLE
+    enriched, _ = svc.analyze_frame([person], detected_phones=[phone], is_pose_mode=True, timestamp_seconds=0.2)
+    assert enriched[0].activityLabel in (ActivityLabel.PHONE_VISIBLE.value, DISPLAY_LABELS[ActivityLabel.PHONE_VISIBLE])
+    assert enriched[0].statusColor == "RED"

@@ -1,0 +1,1205 @@
+{
+  "video": "data\\classroom_test\\ClassVision_Sample_Classroom_Test_Compatible.mp4",
+  "model": "yolov8n-pose.pt",
+  "human_verified_seated_students": 7,
+  "api_schema_verification": {
+    "endpoint": "http://127.0.0.1:8000/api/vision/video/process",
+    "timestamp_field": "timestampSeconds",
+    "boxes_field": "boxes",
+    "keypoints_attached": true,
+    "keypoints_count": 17,
+    "sample_box_fields": [
+      "id",
+      "personId",
+      "classId",
+      "className",
+      "confidence",
+      "x",
+      "y",
+      "w",
+      "h",
+      "width",
+      "height",
+      "handRaised",
+      "status",
+      "keypoints",
+      "zoneClassification",
+      "activityLabel",
+      "activityConfidence",
+      "activityDurationSeconds",
+      "activityEvidence",
+      "detectedObjects",
+      "statusColor"
+    ]
+  },
+  "conf_0_20": {
+    "confidence_threshold": 0.2,
+    "processed_frames": 48,
+    "avg_persons_per_frame": 2.5,
+    "max_persons_in_frame": 4,
+    "precision_recall_f1_note": "UNAVAILABLE: Ground-truth bounding box coordinate annotations are not present in this dataset. Per Phase C guidelines, metrics are not fabricated from heuristics.",
+    "temporal_tracking_iou_note": "UNAVAILABLE: Ground-truth identity trajectories are not available in dataset. Heuristic adjacent overlap is omitted.",
+    "track_id_continuity": {
+      "unique_ids_detected": 4,
+      "id_frame_counts": {
+        "anon_004": 21,
+        "anon_003": 25,
+        "anon_002": 25,
+        "anon_001": 48
+      }
+    },
+    "diagnostic_frames": [
+      {
+        "diagnostic_frame_index": 10,
+        "target_timestamp_sec": 0.5,
+        "matched_timestamp_sec": 0.5,
+        "time_delta_sec": 0.0,
+        "human_verified_student_count": 7,
+        "total_detected_count": 4,
+        "student_detected_count": 4,
+        "instructor_detected_count": 0,
+        "all_boxes_have_17_keypoints": true,
+        "keypoint_counts": [
+          17,
+          17,
+          17,
+          17
+        ],
+        "detected_boxes": [
+          {
+            "id": "anon_001",
+            "confidence": 0.375,
+            "x_pct": 37.21,
+            "y_pct": 48.0,
+            "w_pct": 9.17,
+            "h_pct": 17.52,
+            "handRaised": false,
+            "status": "ARMS_NOT_RAISED",
+            "activityLabel": "NO_FLAG_OBSERVED"
+          },
+          {
+            "id": "anon_002",
+            "confidence": 0.343,
+            "x_pct": 62.17,
+            "y_pct": 47.59,
+            "w_pct": 9.14,
+            "h_pct": 17.69,
+            "handRaised": false,
+            "status": "ARMS_NOT_RAISED",
+            "activityLabel": "NO_FLAG_OBSERVED"
+          },
+          {
+            "id": "anon_003",
+            "confidence": 0.23,
+            "x_pct": 37.19,
+            "y_pct": 48.26,
+            "w_pct": 9.25,
+            "h_pct": 24.7,
+            "handRaised": false,
+            "status": "ARMS_NOT_RAISED",
+            "activityLabel": "NO_FLAG_OBSERVED"
+          },
+          {
+            "id": "anon_004",
+            "confidence": 0.208,
+            "x_pct": 14.3,
+            "y_pct": 48.52,
+            "w_pct": 9.14,
+            "h_pct": 27.78,
+            "handRaised": false,
+            "status": "ARMS_NOT_RAISED",
+            "activityLabel": "NO_FLAG_OBSERVED"
+          }
+        ]
+      },
+      {
+        "diagnostic_frame_index": 35,
+        "target_timestamp_sec": 1.75,
+        "matched_timestamp_sec": 1.75,
+        "time_delta_sec": 0.0,
+        "human_verified_student_count": 7,
+        "total_detected_count": 4,
+        "student_detected_count": 4,
+        "instructor_detected_count": 0,
+        "all_boxes_have_17_keypoints": true,
+        "keypoint_counts": [
+          17,
+          17,
+          17,
+          17
+        ],
+        "detected_boxes": [
+          {
+            "id": "anon_001",
+            "confidence": 0.374,
+            "x_pct": 37.21,
+            "y_pct": 48.0,
+            "w_pct": 9.17,
+            "h_pct": 17.52,
+            "handRaised": false,
+            "status": "ARMS_NOT_RAISED",
+            "activityLabel": "NO_FLAG_OBSERVED"
+          },
+          {
+            "id": "anon_002",
+            "confidence": 0.344,
+            "x_pct": 62.17,
+            "y_pct": 47.56,
+            "w_pct": 9.14,
+            "h_pct": 17.7,
+            "handRaised": false,
+            "status": "ARMS_NOT_RAISED",
+            "activityLabel": "NO_FLAG_OBSERVED"
+          },
+          {
+            "id": "anon_003",
+            "confidence": 0.216,
+            "x_pct": 37.14,
+            "y_pct": 48.17,
+            "w_pct": 9.32,
+            "h_pct": 28.22,
+            "handRaised": false,
+            "status": "ARMS_NOT_RAISED",
+            "activityLabel": "NO_FLAG_OBSERVED"
+          },
+          {
+            "id": "anon_004",
+            "confidence": 0.203,
+            "x_pct": 14.3,
+            "y_pct": 48.52,
+            "w_pct": 9.14,
+            "h_pct": 27.76,
+            "handRaised": false,
+            "status": "ARMS_NOT_RAISED",
+            "activityLabel": "NO_FLAG_OBSERVED"
+          }
+        ]
+      },
+      {
+        "diagnostic_frame_index": 60,
+        "target_timestamp_sec": 3.0,
+        "matched_timestamp_sec": 3.0,
+        "time_delta_sec": 0.0,
+        "human_verified_student_count": 7,
+        "total_detected_count": 1,
+        "student_detected_count": 1,
+        "instructor_detected_count": 0,
+        "all_boxes_have_17_keypoints": true,
+        "keypoint_counts": [
+          17
+        ],
+        "detected_boxes": [
+          {
+            "id": "anon_001",
+            "confidence": 0.35,
+            "x_pct": 62.18,
+            "y_pct": 47.67,
+            "w_pct": 9.12,
+            "h_pct": 17.56,
+            "handRaised": false,
+            "status": "ARMS_NOT_RAISED",
+            "activityLabel": "NO_FLAG_OBSERVED"
+          }
+        ]
+      },
+      {
+        "diagnostic_frame_index": 85,
+        "target_timestamp_sec": 4.25,
+        "matched_timestamp_sec": 4.25,
+        "time_delta_sec": 0.0,
+        "human_verified_student_count": 7,
+        "total_detected_count": 1,
+        "student_detected_count": 1,
+        "instructor_detected_count": 0,
+        "all_boxes_have_17_keypoints": true,
+        "keypoint_counts": [
+          17
+        ],
+        "detected_boxes": [
+          {
+            "id": "anon_001",
+            "confidence": 0.349,
+            "x_pct": 62.18,
+            "y_pct": 47.67,
+            "w_pct": 9.12,
+            "h_pct": 17.56,
+            "handRaised": false,
+            "status": "ARMS_NOT_RAISED",
+            "activityLabel": "NO_FLAG_OBSERVED"
+          }
+        ]
+      },
+      {
+        "diagnostic_frame_index": 110,
+        "target_timestamp_sec": 5.5,
+        "matched_timestamp_sec": 5.5,
+        "time_delta_sec": 0.0,
+        "human_verified_student_count": 7,
+        "total_detected_count": 1,
+        "student_detected_count": 1,
+        "instructor_detected_count": 0,
+        "all_boxes_have_17_keypoints": true,
+        "keypoint_counts": [
+          17
+        ],
+        "detected_boxes": [
+          {
+            "id": "anon_001",
+            "confidence": 0.349,
+            "x_pct": 62.18,
+            "y_pct": 47.67,
+            "w_pct": 9.12,
+            "h_pct": 17.56,
+            "handRaised": false,
+            "status": "ARMS_NOT_RAISED",
+            "activityLabel": "NO_FLAG_OBSERVED"
+          }
+        ]
+      },
+      {
+        "diagnostic_frame_index": 135,
+        "target_timestamp_sec": 6.75,
+        "matched_timestamp_sec": 6.75,
+        "time_delta_sec": 0.0,
+        "human_verified_student_count": 7,
+        "total_detected_count": 1,
+        "student_detected_count": 1,
+        "instructor_detected_count": 0,
+        "all_boxes_have_17_keypoints": true,
+        "keypoint_counts": [
+          17
+        ],
+        "detected_boxes": [
+          {
+            "id": "anon_001",
+            "confidence": 0.349,
+            "x_pct": 62.18,
+            "y_pct": 47.67,
+            "w_pct": 9.12,
+            "h_pct": 17.56,
+            "handRaised": false,
+            "status": "ARMS_NOT_RAISED",
+            "activityLabel": "NO_FLAG_OBSERVED"
+          }
+        ]
+      },
+      {
+        "diagnostic_frame_index": 160,
+        "target_timestamp_sec": 8.0,
+        "matched_timestamp_sec": 8.0,
+        "time_delta_sec": 0.0,
+        "human_verified_student_count": 7,
+        "total_detected_count": 1,
+        "student_detected_count": 1,
+        "instructor_detected_count": 0,
+        "all_boxes_have_17_keypoints": true,
+        "keypoint_counts": [
+          17
+        ],
+        "detected_boxes": [
+          {
+            "id": "anon_001",
+            "confidence": 0.349,
+            "x_pct": 62.18,
+            "y_pct": 47.67,
+            "w_pct": 9.12,
+            "h_pct": 17.56,
+            "handRaised": false,
+            "status": "ARMS_NOT_RAISED",
+            "activityLabel": "NO_FLAG_OBSERVED"
+          }
+        ]
+      },
+      {
+        "diagnostic_frame_index": 185,
+        "target_timestamp_sec": 9.25,
+        "matched_timestamp_sec": 9.25,
+        "time_delta_sec": 0.0,
+        "human_verified_student_count": 7,
+        "total_detected_count": 3,
+        "student_detected_count": 3,
+        "instructor_detected_count": 0,
+        "all_boxes_have_17_keypoints": true,
+        "keypoint_counts": [
+          17,
+          17,
+          17
+        ],
+        "detected_boxes": [
+          {
+            "id": "anon_001",
+            "confidence": 0.356,
+            "x_pct": 37.22,
+            "y_pct": 47.94,
+            "w_pct": 9.14,
+            "h_pct": 17.61,
+            "handRaised": false,
+            "status": "ARMS_NOT_RAISED",
+            "activityLabel": "NO_FLAG_OBSERVED"
+          },
+          {
+            "id": "anon_002",
+            "confidence": 0.344,
+            "x_pct": 62.17,
+            "y_pct": 47.57,
+            "w_pct": 9.14,
+            "h_pct": 17.69,
+            "handRaised": false,
+            "status": "ARMS_NOT_RAISED",
+            "activityLabel": "NO_FLAG_OBSERVED"
+          },
+          {
+            "id": "anon_003",
+            "confidence": 0.219,
+            "x_pct": 37.19,
+            "y_pct": 48.22,
+            "w_pct": 9.23,
+            "h_pct": 24.89,
+            "handRaised": false,
+            "status": "ARMS_NOT_RAISED",
+            "activityLabel": "NO_FLAG_OBSERVED"
+          }
+        ]
+      },
+      {
+        "diagnostic_frame_index": 210,
+        "target_timestamp_sec": 10.5,
+        "matched_timestamp_sec": 10.5,
+        "time_delta_sec": 0.0,
+        "human_verified_student_count": 7,
+        "total_detected_count": 4,
+        "student_detected_count": 4,
+        "instructor_detected_count": 0,
+        "all_boxes_have_17_keypoints": true,
+        "keypoint_counts": [
+          17,
+          17,
+          17,
+          17
+        ],
+        "detected_boxes": [
+          {
+            "id": "anon_001",
+            "confidence": 0.351,
+            "x_pct": 37.21,
+            "y_pct": 47.93,
+            "w_pct": 9.15,
+            "h_pct": 17.61,
+            "handRaised": false,
+            "status": "ARMS_NOT_RAISED",
+            "activityLabel": "NO_FLAG_OBSERVED"
+          },
+          {
+            "id": "anon_002",
+            "confidence": 0.343,
+            "x_pct": 62.17,
+            "y_pct": 47.57,
+            "w_pct": 9.14,
+            "h_pct": 17.69,
+            "handRaised": false,
+            "status": "ARMS_NOT_RAISED",
+            "activityLabel": "NO_FLAG_OBSERVED"
+          },
+          {
+            "id": "anon_003",
+            "confidence": 0.217,
+            "x_pct": 37.19,
+            "y_pct": 48.2,
+            "w_pct": 9.23,
+            "h_pct": 25.19,
+            "handRaised": false,
+            "status": "ARMS_NOT_RAISED",
+            "activityLabel": "NO_FLAG_OBSERVED"
+          },
+          {
+            "id": "anon_004",
+            "confidence": 0.202,
+            "x_pct": 14.3,
+            "y_pct": 48.52,
+            "w_pct": 9.14,
+            "h_pct": 27.78,
+            "handRaised": false,
+            "status": "ARMS_NOT_RAISED",
+            "activityLabel": "NO_FLAG_OBSERVED"
+          }
+        ]
+      },
+      {
+        "diagnostic_frame_index": 235,
+        "target_timestamp_sec": 11.75,
+        "matched_timestamp_sec": 11.75,
+        "time_delta_sec": 0.0,
+        "human_verified_student_count": 7,
+        "total_detected_count": 4,
+        "student_detected_count": 4,
+        "instructor_detected_count": 0,
+        "all_boxes_have_17_keypoints": true,
+        "keypoint_counts": [
+          17,
+          17,
+          17,
+          17
+        ],
+        "detected_boxes": [
+          {
+            "id": "anon_001",
+            "confidence": 0.351,
+            "x_pct": 37.21,
+            "y_pct": 47.93,
+            "w_pct": 9.15,
+            "h_pct": 17.61,
+            "handRaised": false,
+            "status": "ARMS_NOT_RAISED",
+            "activityLabel": "NO_FLAG_OBSERVED"
+          },
+          {
+            "id": "anon_002",
+            "confidence": 0.345,
+            "x_pct": 62.17,
+            "y_pct": 47.56,
+            "w_pct": 9.14,
+            "h_pct": 17.7,
+            "handRaised": false,
+            "status": "ARMS_NOT_RAISED",
+            "activityLabel": "NO_FLAG_OBSERVED"
+          },
+          {
+            "id": "anon_003",
+            "confidence": 0.217,
+            "x_pct": 37.19,
+            "y_pct": 48.2,
+            "w_pct": 9.23,
+            "h_pct": 25.22,
+            "handRaised": false,
+            "status": "ARMS_NOT_RAISED",
+            "activityLabel": "NO_FLAG_OBSERVED"
+          },
+          {
+            "id": "anon_004",
+            "confidence": 0.201,
+            "x_pct": 14.3,
+            "y_pct": 48.5,
+            "w_pct": 9.14,
+            "h_pct": 27.8,
+            "handRaised": false,
+            "status": "ARMS_NOT_RAISED",
+            "activityLabel": "NO_FLAG_OBSERVED"
+          }
+        ]
+      }
+    ],
+    "api_wall_time_seconds": 3.95
+  },
+  "conf_0_15": {
+    "confidence_threshold": 0.15,
+    "processed_frames": 48,
+    "avg_persons_per_frame": 4.5,
+    "max_persons_in_frame": 6,
+    "precision_recall_f1_note": "UNAVAILABLE: Ground-truth bounding box coordinate annotations are not present in this dataset. Per Phase C guidelines, metrics are not fabricated from heuristics.",
+    "temporal_tracking_iou_note": "UNAVAILABLE: Ground-truth identity trajectories are not available in dataset. Heuristic adjacent overlap is omitted.",
+    "track_id_continuity": {
+      "unique_ids_detected": 6,
+      "id_frame_counts": {
+        "anon_004": 48,
+        "anon_003": 48,
+        "anon_002": 48,
+        "anon_005": 25,
+        "anon_006": 1,
+        "anon_001": 48
+      }
+    },
+    "diagnostic_frames": [
+      {
+        "diagnostic_frame_index": 10,
+        "target_timestamp_sec": 0.5,
+        "matched_timestamp_sec": 0.5,
+        "time_delta_sec": 0.0,
+        "human_verified_student_count": 7,
+        "total_detected_count": 5,
+        "student_detected_count": 5,
+        "instructor_detected_count": 0,
+        "all_boxes_have_17_keypoints": true,
+        "keypoint_counts": [
+          17,
+          17,
+          17,
+          17,
+          17
+        ],
+        "detected_boxes": [
+          {
+            "id": "anon_001",
+            "confidence": 0.375,
+            "x_pct": 37.21,
+            "y_pct": 48.0,
+            "w_pct": 9.17,
+            "h_pct": 17.52,
+            "handRaised": false,
+            "status": "ARMS_NOT_RAISED",
+            "activityLabel": "NO_FLAG_OBSERVED"
+          },
+          {
+            "id": "anon_002",
+            "confidence": 0.343,
+            "x_pct": 62.17,
+            "y_pct": 47.59,
+            "w_pct": 9.14,
+            "h_pct": 17.69,
+            "handRaised": false,
+            "status": "ARMS_NOT_RAISED",
+            "activityLabel": "NO_FLAG_OBSERVED"
+          },
+          {
+            "id": "anon_003",
+            "confidence": 0.23,
+            "x_pct": 37.19,
+            "y_pct": 48.26,
+            "w_pct": 9.25,
+            "h_pct": 24.7,
+            "handRaised": false,
+            "status": "ARMS_NOT_RAISED",
+            "activityLabel": "NO_FLAG_OBSERVED"
+          },
+          {
+            "id": "anon_004",
+            "confidence": 0.208,
+            "x_pct": 14.3,
+            "y_pct": 48.52,
+            "w_pct": 9.14,
+            "h_pct": 27.78,
+            "handRaised": false,
+            "status": "ARMS_NOT_RAISED",
+            "activityLabel": "NO_FLAG_OBSERVED"
+          },
+          {
+            "id": "anon_005",
+            "confidence": 0.187,
+            "x_pct": 62.1,
+            "y_pct": 47.85,
+            "w_pct": 9.3,
+            "h_pct": 27.35,
+            "handRaised": false,
+            "status": "ARMS_NOT_RAISED",
+            "activityLabel": "NO_FLAG_OBSERVED"
+          }
+        ]
+      },
+      {
+        "diagnostic_frame_index": 35,
+        "target_timestamp_sec": 1.75,
+        "matched_timestamp_sec": 1.75,
+        "time_delta_sec": 0.0,
+        "human_verified_student_count": 7,
+        "total_detected_count": 5,
+        "student_detected_count": 5,
+        "instructor_detected_count": 0,
+        "all_boxes_have_17_keypoints": true,
+        "keypoint_counts": [
+          17,
+          17,
+          17,
+          17,
+          17
+        ],
+        "detected_boxes": [
+          {
+            "id": "anon_001",
+            "confidence": 0.374,
+            "x_pct": 37.21,
+            "y_pct": 48.0,
+            "w_pct": 9.17,
+            "h_pct": 17.52,
+            "handRaised": false,
+            "status": "ARMS_NOT_RAISED",
+            "activityLabel": "NO_FLAG_OBSERVED"
+          },
+          {
+            "id": "anon_002",
+            "confidence": 0.344,
+            "x_pct": 62.17,
+            "y_pct": 47.56,
+            "w_pct": 9.14,
+            "h_pct": 17.7,
+            "handRaised": false,
+            "status": "ARMS_NOT_RAISED",
+            "activityLabel": "NO_FLAG_OBSERVED"
+          },
+          {
+            "id": "anon_003",
+            "confidence": 0.216,
+            "x_pct": 37.14,
+            "y_pct": 48.17,
+            "w_pct": 9.32,
+            "h_pct": 28.22,
+            "handRaised": false,
+            "status": "ARMS_NOT_RAISED",
+            "activityLabel": "NO_FLAG_OBSERVED"
+          },
+          {
+            "id": "anon_004",
+            "confidence": 0.203,
+            "x_pct": 14.3,
+            "y_pct": 48.52,
+            "w_pct": 9.14,
+            "h_pct": 27.76,
+            "handRaised": false,
+            "status": "ARMS_NOT_RAISED",
+            "activityLabel": "NO_FLAG_OBSERVED"
+          },
+          {
+            "id": "anon_005",
+            "confidence": 0.181,
+            "x_pct": 62.11,
+            "y_pct": 47.83,
+            "w_pct": 9.3,
+            "h_pct": 26.98,
+            "handRaised": false,
+            "status": "ARMS_NOT_RAISED",
+            "activityLabel": "NO_FLAG_OBSERVED"
+          }
+        ]
+      },
+      {
+        "diagnostic_frame_index": 60,
+        "target_timestamp_sec": 3.0,
+        "matched_timestamp_sec": 3.0,
+        "time_delta_sec": 0.0,
+        "human_verified_student_count": 7,
+        "total_detected_count": 4,
+        "student_detected_count": 4,
+        "instructor_detected_count": 0,
+        "all_boxes_have_17_keypoints": true,
+        "keypoint_counts": [
+          17,
+          17,
+          17,
+          17
+        ],
+        "detected_boxes": [
+          {
+            "id": "anon_001",
+            "confidence": 0.35,
+            "x_pct": 62.18,
+            "y_pct": 47.67,
+            "w_pct": 9.12,
+            "h_pct": 17.56,
+            "handRaised": false,
+            "status": "ARMS_NOT_RAISED",
+            "activityLabel": "NO_FLAG_OBSERVED"
+          },
+          {
+            "id": "anon_002",
+            "confidence": 0.182,
+            "x_pct": 14.31,
+            "y_pct": 48.63,
+            "w_pct": 9.1,
+            "h_pct": 27.67,
+            "handRaised": false,
+            "status": "ARMS_NOT_RAISED",
+            "activityLabel": "NO_FLAG_OBSERVED"
+          },
+          {
+            "id": "anon_003",
+            "confidence": 0.175,
+            "x_pct": 62.11,
+            "y_pct": 47.94,
+            "w_pct": 9.3,
+            "h_pct": 26.06,
+            "handRaised": false,
+            "status": "ARMS_NOT_RAISED",
+            "activityLabel": "NO_FLAG_OBSERVED"
+          },
+          {
+            "id": "anon_004",
+            "confidence": 0.156,
+            "x_pct": 37.21,
+            "y_pct": 38.85,
+            "w_pct": 9.6,
+            "h_pct": 26.59,
+            "handRaised": true,
+            "status": "LEFT_ARM_RAISED",
+            "activityLabel": "NO_FLAG_OBSERVED"
+          }
+        ]
+      },
+      {
+        "diagnostic_frame_index": 85,
+        "target_timestamp_sec": 4.25,
+        "matched_timestamp_sec": 4.25,
+        "time_delta_sec": 0.0,
+        "human_verified_student_count": 7,
+        "total_detected_count": 4,
+        "student_detected_count": 4,
+        "instructor_detected_count": 0,
+        "all_boxes_have_17_keypoints": true,
+        "keypoint_counts": [
+          17,
+          17,
+          17,
+          17
+        ],
+        "detected_boxes": [
+          {
+            "id": "anon_001",
+            "confidence": 0.349,
+            "x_pct": 62.18,
+            "y_pct": 47.67,
+            "w_pct": 9.12,
+            "h_pct": 17.56,
+            "handRaised": false,
+            "status": "ARMS_NOT_RAISED",
+            "activityLabel": "NO_FLAG_OBSERVED"
+          },
+          {
+            "id": "anon_002",
+            "confidence": 0.182,
+            "x_pct": 14.31,
+            "y_pct": 48.63,
+            "w_pct": 9.11,
+            "h_pct": 27.67,
+            "handRaised": false,
+            "status": "ARMS_NOT_RAISED",
+            "activityLabel": "NEEDS_REVIEW"
+          },
+          {
+            "id": "anon_003",
+            "confidence": 0.174,
+            "x_pct": 62.11,
+            "y_pct": 47.94,
+            "w_pct": 9.3,
+            "h_pct": 25.98,
+            "handRaised": false,
+            "status": "ARMS_NOT_RAISED",
+            "activityLabel": "NO_FLAG_OBSERVED"
+          },
+          {
+            "id": "anon_004",
+            "confidence": 0.154,
+            "x_pct": 37.21,
+            "y_pct": 38.85,
+            "w_pct": 9.6,
+            "h_pct": 26.59,
+            "handRaised": true,
+            "status": "LEFT_ARM_RAISED",
+            "activityLabel": "LEFT_HAND_RAISED"
+          }
+        ]
+      },
+      {
+        "diagnostic_frame_index": 110,
+        "target_timestamp_sec": 5.5,
+        "matched_timestamp_sec": 5.5,
+        "time_delta_sec": 0.0,
+        "human_verified_student_count": 7,
+        "total_detected_count": 4,
+        "student_detected_count": 4,
+        "instructor_detected_count": 0,
+        "all_boxes_have_17_keypoints": true,
+        "keypoint_counts": [
+          17,
+          17,
+          17,
+          17
+        ],
+        "detected_boxes": [
+          {
+            "id": "anon_001",
+            "confidence": 0.349,
+            "x_pct": 62.18,
+            "y_pct": 47.67,
+            "w_pct": 9.12,
+            "h_pct": 17.56,
+            "handRaised": false,
+            "status": "ARMS_NOT_RAISED",
+            "activityLabel": "NO_FLAG_OBSERVED"
+          },
+          {
+            "id": "anon_002",
+            "confidence": 0.184,
+            "x_pct": 14.31,
+            "y_pct": 48.63,
+            "w_pct": 9.11,
+            "h_pct": 27.69,
+            "handRaised": false,
+            "status": "ARMS_NOT_RAISED",
+            "activityLabel": "NEEDS_REVIEW"
+          },
+          {
+            "id": "anon_003",
+            "confidence": 0.174,
+            "x_pct": 62.11,
+            "y_pct": 47.94,
+            "w_pct": 9.3,
+            "h_pct": 26.0,
+            "handRaised": false,
+            "status": "ARMS_NOT_RAISED",
+            "activityLabel": "NO_FLAG_OBSERVED"
+          },
+          {
+            "id": "anon_004",
+            "confidence": 0.154,
+            "x_pct": 37.21,
+            "y_pct": 38.85,
+            "w_pct": 9.6,
+            "h_pct": 26.59,
+            "handRaised": true,
+            "status": "LEFT_ARM_RAISED",
+            "activityLabel": "LEFT_HAND_RAISED"
+          }
+        ]
+      },
+      {
+        "diagnostic_frame_index": 135,
+        "target_timestamp_sec": 6.75,
+        "matched_timestamp_sec": 6.75,
+        "time_delta_sec": 0.0,
+        "human_verified_student_count": 7,
+        "total_detected_count": 4,
+        "student_detected_count": 4,
+        "instructor_detected_count": 0,
+        "all_boxes_have_17_keypoints": true,
+        "keypoint_counts": [
+          17,
+          17,
+          17,
+          17
+        ],
+        "detected_boxes": [
+          {
+            "id": "anon_001",
+            "confidence": 0.349,
+            "x_pct": 62.18,
+            "y_pct": 47.67,
+            "w_pct": 9.12,
+            "h_pct": 17.56,
+            "handRaised": false,
+            "status": "ARMS_NOT_RAISED",
+            "activityLabel": "NO_FLAG_OBSERVED"
+          },
+          {
+            "id": "anon_002",
+            "confidence": 0.182,
+            "x_pct": 14.31,
+            "y_pct": 48.63,
+            "w_pct": 9.11,
+            "h_pct": 27.67,
+            "handRaised": false,
+            "status": "ARMS_NOT_RAISED",
+            "activityLabel": "NEEDS_REVIEW"
+          },
+          {
+            "id": "anon_003",
+            "confidence": 0.174,
+            "x_pct": 62.11,
+            "y_pct": 47.94,
+            "w_pct": 9.3,
+            "h_pct": 25.98,
+            "handRaised": false,
+            "status": "ARMS_NOT_RAISED",
+            "activityLabel": "NO_FLAG_OBSERVED"
+          },
+          {
+            "id": "anon_004",
+            "confidence": 0.154,
+            "x_pct": 37.21,
+            "y_pct": 38.85,
+            "w_pct": 9.6,
+            "h_pct": 26.59,
+            "handRaised": true,
+            "status": "LEFT_ARM_RAISED",
+            "activityLabel": "LEFT_HAND_RAISED"
+          }
+        ]
+      },
+      {
+        "diagnostic_frame_index": 160,
+        "target_timestamp_sec": 8.0,
+        "matched_timestamp_sec": 8.0,
+        "time_delta_sec": 0.0,
+        "human_verified_student_count": 7,
+        "total_detected_count": 4,
+        "student_detected_count": 4,
+        "instructor_detected_count": 0,
+        "all_boxes_have_17_keypoints": true,
+        "keypoint_counts": [
+          17,
+          17,
+          17,
+          17
+        ],
+        "detected_boxes": [
+          {
+            "id": "anon_001",
+            "confidence": 0.349,
+            "x_pct": 62.18,
+            "y_pct": 47.67,
+            "w_pct": 9.12,
+            "h_pct": 17.56,
+            "handRaised": false,
+            "status": "ARMS_NOT_RAISED",
+            "activityLabel": "NO_FLAG_OBSERVED"
+          },
+          {
+            "id": "anon_002",
+            "confidence": 0.182,
+            "x_pct": 14.31,
+            "y_pct": 48.63,
+            "w_pct": 9.11,
+            "h_pct": 27.69,
+            "handRaised": false,
+            "status": "ARMS_NOT_RAISED",
+            "activityLabel": "NEEDS_REVIEW"
+          },
+          {
+            "id": "anon_003",
+            "confidence": 0.174,
+            "x_pct": 62.11,
+            "y_pct": 47.94,
+            "w_pct": 9.3,
+            "h_pct": 26.0,
+            "handRaised": false,
+            "status": "ARMS_NOT_RAISED",
+            "activityLabel": "NO_FLAG_OBSERVED"
+          },
+          {
+            "id": "anon_004",
+            "confidence": 0.153,
+            "x_pct": 37.21,
+            "y_pct": 38.85,
+            "w_pct": 9.6,
+            "h_pct": 26.59,
+            "handRaised": true,
+            "status": "LEFT_ARM_RAISED",
+            "activityLabel": "LEFT_HAND_RAISED"
+          }
+        ]
+      },
+      {
+        "diagnostic_frame_index": 185,
+        "target_timestamp_sec": 9.25,
+        "matched_timestamp_sec": 9.25,
+        "time_delta_sec": 0.0,
+        "human_verified_student_count": 7,
+        "total_detected_count": 5,
+        "student_detected_count": 5,
+        "instructor_detected_count": 0,
+        "all_boxes_have_17_keypoints": true,
+        "keypoint_counts": [
+          17,
+          17,
+          17,
+          17,
+          17
+        ],
+        "detected_boxes": [
+          {
+            "id": "anon_001",
+            "confidence": 0.356,
+            "x_pct": 37.22,
+            "y_pct": 47.94,
+            "w_pct": 9.14,
+            "h_pct": 17.61,
+            "handRaised": false,
+            "status": "ARMS_NOT_RAISED",
+            "activityLabel": "NO_FLAG_OBSERVED"
+          },
+          {
+            "id": "anon_002",
+            "confidence": 0.344,
+            "x_pct": 62.17,
+            "y_pct": 47.57,
+            "w_pct": 9.14,
+            "h_pct": 17.69,
+            "handRaised": false,
+            "status": "ARMS_NOT_RAISED",
+            "activityLabel": "NEEDS_REVIEW"
+          },
+          {
+            "id": "anon_003",
+            "confidence": 0.219,
+            "x_pct": 37.19,
+            "y_pct": 48.22,
+            "w_pct": 9.23,
+            "h_pct": 24.89,
+            "handRaised": false,
+            "status": "ARMS_NOT_RAISED",
+            "activityLabel": "NO_FLAG_OBSERVED"
+          },
+          {
+            "id": "anon_004",
+            "confidence": 0.198,
+            "x_pct": 14.3,
+            "y_pct": 48.52,
+            "w_pct": 9.14,
+            "h_pct": 27.76,
+            "handRaised": false,
+            "status": "ARMS_NOT_RAISED",
+            "activityLabel": "LEFT_HAND_RAISED"
+          },
+          {
+            "id": "anon_005",
+            "confidence": 0.185,
+            "x_pct": 62.11,
+            "y_pct": 47.85,
+            "w_pct": 9.3,
+            "h_pct": 27.17,
+            "handRaised": false,
+            "status": "ARMS_NOT_RAISED",
+            "activityLabel": "NO_FLAG_OBSERVED"
+          }
+        ]
+      },
+      {
+        "diagnostic_frame_index": 210,
+        "target_timestamp_sec": 10.5,
+        "matched_timestamp_sec": 10.5,
+        "time_delta_sec": 0.0,
+        "human_verified_student_count": 7,
+        "total_detected_count": 5,
+        "student_detected_count": 5,
+        "instructor_detected_count": 0,
+        "all_boxes_have_17_keypoints": true,
+        "keypoint_counts": [
+          17,
+          17,
+          17,
+          17,
+          17
+        ],
+        "detected_boxes": [
+          {
+            "id": "anon_001",
+            "confidence": 0.351,
+            "x_pct": 37.21,
+            "y_pct": 47.93,
+            "w_pct": 9.15,
+            "h_pct": 17.61,
+            "handRaised": false,
+            "status": "ARMS_NOT_RAISED",
+            "activityLabel": "NO_FLAG_OBSERVED"
+          },
+          {
+            "id": "anon_002",
+            "confidence": 0.343,
+            "x_pct": 62.17,
+            "y_pct": 47.57,
+            "w_pct": 9.14,
+            "h_pct": 17.69,
+            "handRaised": false,
+            "status": "ARMS_NOT_RAISED",
+            "activityLabel": "NO_FLAG_OBSERVED"
+          },
+          {
+            "id": "anon_003",
+            "confidence": 0.217,
+            "x_pct": 37.19,
+            "y_pct": 48.2,
+            "w_pct": 9.23,
+            "h_pct": 25.19,
+            "handRaised": false,
+            "status": "ARMS_NOT_RAISED",
+            "activityLabel": "NO_FLAG_OBSERVED"
+          },
+          {
+            "id": "anon_004",
+            "confidence": 0.202,
+            "x_pct": 14.3,
+            "y_pct": 48.52,
+            "w_pct": 9.14,
+            "h_pct": 27.78,
+            "handRaised": false,
+            "status": "ARMS_NOT_RAISED",
+            "activityLabel": "NO_FLAG_OBSERVED"
+          },
+          {
+            "id": "anon_005",
+            "confidence": 0.184,
+            "x_pct": 62.11,
+            "y_pct": 47.85,
+            "w_pct": 9.3,
+            "h_pct": 27.17,
+            "handRaised": false,
+            "status": "ARMS_NOT_RAISED",
+            "activityLabel": "NO_FLAG_OBSERVED"
+          }
+        ]
+      },
+      {
+        "diagnostic_frame_index": 235,
+        "target_timestamp_sec": 11.75,
+        "matched_timestamp_sec": 11.75,
+        "time_delta_sec": 0.0,
+        "human_verified_student_count": 7,
+        "total_detected_count": 5,
+        "student_detected_count": 5,
+        "instructor_detected_count": 0,
+        "all_boxes_have_17_keypoints": true,
+        "keypoint_counts": [
+          17,
+          17,
+          17,
+          17,
+          17
+        ],
+        "detected_boxes": [
+          {
+            "id": "anon_001",
+            "confidence": 0.351,
+            "x_pct": 37.21,
+            "y_pct": 47.93,
+            "w_pct": 9.15,
+            "h_pct": 17.61,
+            "handRaised": false,
+            "status": "ARMS_NOT_RAISED",
+            "activityLabel": "NO_FLAG_OBSERVED"
+          },
+          {
+            "id": "anon_002",
+            "confidence": 0.345,
+            "x_pct": 62.17,
+            "y_pct": 47.56,
+            "w_pct": 9.14,
+            "h_pct": 17.7,
+            "handRaised": false,
+            "status": "ARMS_NOT_RAISED",
+            "activityLabel": "NO_FLAG_OBSERVED"
+          },
+          {
+            "id": "anon_003",
+            "confidence": 0.217,
+            "x_pct": 37.19,
+            "y_pct": 48.2,
+            "w_pct": 9.23,
+            "h_pct": 25.22,
+            "handRaised": false,
+            "status": "ARMS_NOT_RAISED",
+            "activityLabel": "NO_FLAG_OBSERVED"
+          },
+          {
+            "id": "anon_004",
+            "confidence": 0.201,
+            "x_pct": 14.3,
+            "y_pct": 48.5,
+            "w_pct": 9.14,
+            "h_pct": 27.8,
+            "handRaised": false,
+            "status": "ARMS_NOT_RAISED",
+            "activityLabel": "NO_FLAG_OBSERVED"
+          },
+          {
+            "id": "anon_005",
+            "confidence": 0.183,
+            "x_pct": 62.11,
+            "y_pct": 47.83,
+            "w_pct": 9.3,
+            "h_pct": 27.07,
+            "handRaised": false,
+            "status": "ARMS_NOT_RAISED",
+            "activityLabel": "NO_FLAG_OBSERVED"
+          }
+        ]
+      }
+    ],
+    "api_wall_time_seconds": 3.44
+  }
+}

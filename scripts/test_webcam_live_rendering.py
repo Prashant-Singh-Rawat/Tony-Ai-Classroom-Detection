@@ -25,7 +25,7 @@ SCREENSHOT_DIR = ROOT / "docs" / "screenshots"
 SCREENSHOT_DIR.mkdir(parents=True, exist_ok=True)
 
 CDP_PORT = 9225
-FRONTEND_URL = "http://127.0.0.1:5174/monitoring"
+FRONTEND_URL = "http://127.0.0.1:5174/live"
 
 async def send_cdp(ws, method, params=None):
     msg_id = int(time.time() * 1000) % 1000000
@@ -124,12 +124,12 @@ async def run_verification():
             # Capture initial screenshot (no stream active)
             await take_screenshot(ws, "webcam_01_initial_idle.png")
 
-            # Step 2: Click 'Start Laptop Webcam'
-            print("\nStep 2: Triggering 'Start Laptop Webcam'...")
+            # Step 2: Click 'Start Webcam'
+            print("\nStep 2: Triggering 'Start Webcam'...")
             start_result = await evaluate_js(ws, """
                 (() => {
                     const buttons = Array.from(document.querySelectorAll('button'));
-                    const startBtn = buttons.find(b => b.innerText.includes('Start Laptop Webcam'));
+                    const startBtn = buttons.find(b => b.innerText.includes('Start Webcam'));
                     if (startBtn) {
                         startBtn.click();
                         return { clicked: true, text: startBtn.innerText };
@@ -138,7 +138,7 @@ async def run_verification():
                 })()
             """)
             print(f"  Button click result: {start_result}")
-            assert start_result["clicked"] is True, "Start Laptop Webcam button must be clicked!"
+            assert start_result["clicked"] is True, "Start Webcam button must be clicked!"
 
             # Wait for stream acquisition, play(), loadedmetadata, and first frames
             print("  Waiting 3.5s for webcam stream acquisition and frame playback...")
@@ -184,8 +184,8 @@ async def run_verification():
             hud_and_overlay_status = await evaluate_js(ws, """
                 (() => {
                     const text = document.body.innerText;
-                    const stopBtn = Array.from(document.querySelectorAll('button')).find(b => b.innerText.includes('Stop Webcam Stream'));
-                    const isWsLive = text.includes('WS Live') || text.includes('connected');
+                    const stopBtn = Array.from(document.querySelectorAll('button')).find(b => b.innerText.includes('Stop Webcam'));
+                    const isWsLive = text.includes('Stream Connected') || text.includes('WS Live') || text.toLowerCase().includes('connected');
                     const hasFps = /FPS:\\s*\\d+/.test(text) || text.includes('FPS');
                     const hasLatency = /Latency:\\s*\\d+/.test(text) || text.includes('Latency');
                     const hasPersons = text.includes('Persons:');
@@ -248,7 +248,7 @@ async def run_verification():
             stop_result = await evaluate_js(ws, """
                 (() => {
                     const buttons = Array.from(document.querySelectorAll('button'));
-                    const stopBtn = buttons.find(b => b.innerText.includes('Stop Webcam Stream'));
+                    const stopBtn = buttons.find(b => b.innerText.includes('Stop Webcam'));
                     if (stopBtn) {
                         stopBtn.click();
                         return { clicked: true };
@@ -267,7 +267,7 @@ async def run_verification():
                     const video = document.querySelector('video');
                     const container = video ? video.closest('div') : null;
                     const buttons = Array.from(document.querySelectorAll('button'));
-                    const startBtn = buttons.find(b => b.innerText.includes('Start Laptop Webcam'));
+                    const startBtn = buttons.find(b => b.innerText.includes('Start Webcam'));
 
                     return {
                         hasSrcObject: !!video?.srcObject,
@@ -281,7 +281,7 @@ async def run_verification():
             assert stop_cleanup_status["hasSrcObject"] is False, "video.srcObject must be null after stop!"
             assert stop_cleanup_status["isPaused"] is True, "video must be paused after stop!"
             assert stop_cleanup_status["containerHidden"] is True, "Video container must be hidden after stop!"
-            assert stop_cleanup_status["startButtonRestored"] is True, "Start Laptop Webcam button must be restored!"
+            assert stop_cleanup_status["startButtonRestored"] is True, "Start Webcam button must be restored!"
             print("  [SUCCESS] All media tracks stopped and hardware released cleanly!")
 
             # Capture screenshot of cleanly stopped state
@@ -291,14 +291,14 @@ async def run_verification():
             print("\nStep 7: Testing Multiple Consecutive Start/Stop Cycles...")
             for cycle in range(1, 3):
                 # Start
-                await evaluate_js(ws, "document.querySelectorAll('button').forEach(b => { if(b.innerText.includes('Start Laptop Webcam')) b.click(); });")
+                await evaluate_js(ws, "document.querySelectorAll('button').forEach(b => { if(b.innerText.includes('Start Webcam')) b.click(); });")
                 await asyncio.sleep(2.0)
                 cycle_active = await evaluate_js(ws, "(() => { const v = document.querySelector('video'); return !!v?.srcObject && !v?.paused; })()")
                 print(f"  Cycle {cycle} - Start: isPlaying={cycle_active}")
                 assert cycle_active is True, f"Cycle {cycle}: video must start successfully"
 
                 # Stop
-                await evaluate_js(ws, "document.querySelectorAll('button').forEach(b => { if(b.innerText.includes('Stop Webcam Stream')) b.click(); });")
+                await evaluate_js(ws, "document.querySelectorAll('button').forEach(b => { if(b.innerText.includes('Stop Webcam')) b.click(); });")
                 await asyncio.sleep(1.0)
                 cycle_stopped = await evaluate_js(ws, "(() => { const v = document.querySelector('video'); return !v?.srcObject; })()")
                 print(f"  Cycle {cycle} - Stop: srcObjectCleared={cycle_stopped}")

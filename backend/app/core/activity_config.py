@@ -55,6 +55,7 @@ TAG_COLOR_MAP: Dict[str, str] = {
 HEAD_DOWN_DURATION_THRESHOLD_SEC = 20.0  # Configurable threshold before amber flag (default 20s)
 HEAD_DOWN_NOSE_ELEVATION_RATIO = 0.08   # Nose drops near/below shoulder line relative to shoulder width
 PHONE_CONSECUTIVE_FRAMES = 3             # Consecutive frames phone object must overlap person
+SIDEWAYS_SUSTAINED_SECONDS = 5.0         # Configurable seconds-based sustained threshold (default 5.0s)
 SIDEWAYS_SUSTAINED_FRAMES = 5            # Sustained frames oriented sideways
 PEER_INTERACTION_MAX_DIST_RATIO = 2.5    # Max distance between shoulder centroids relative to torso height
 HYSTERESIS_SMOOTHING_FRAMES = 3          # Frames required to confirm state transition (anti-flicker)
@@ -66,4 +67,5 @@ WHITEBOARD_DEFAULT_CALIBRATION: Dict[str, Any] = {
     "x2": 80.0,
     "y2": 35.0,
     "forward_vector": [0.0, -1.0],  # Vector pointing from rear toward board
+    "min_facing_alignment": 0.35,   # Minimum cosine similarity to be considered facing board
 }

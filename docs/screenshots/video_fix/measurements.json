@@ -1,0 +1,229 @@
+{
+  "empty_1920x1080": {
+    "panel": {
+      "width": 1201.5,
+      "height": 675.8,
+      "left": 280,
+      "top": 188
+    },
+    "video": null,
+    "diffW": null,
+    "diffH": null,
+    "panelAspect": 1.778,
+    "videoAspect": null
+  },
+  "empty_1366x768": {
+    "panel": {
+      "width": 786,
+      "height": 442.1,
+      "left": 280,
+      "top": 188
+    },
+    "video": null,
+    "diffW": null,
+    "diffH": null,
+    "panelAspect": 1.778,
+    "videoAspect": null
+  },
+  "empty_1280x720": {
+    "panel": {
+      "width": 721.5,
+      "height": 405.8,
+      "left": 280,
+      "top": 188
+    },
+    "video": null,
+    "diffW": null,
+    "diffH": null,
+    "panelAspect": 1.778,
+    "videoAspect": null
+  },
+  "empty_768x1024": {
+    "panel": {
+      "width": 458,
+      "height": 257.6,
+      "left": 280,
+      "top": 244
+    },
+    "video": null,
+    "diffW": null,
+    "diffH": null,
+    "panelAspect": 1.778,
+    "videoAspect": null
+  },
+  "empty_375x667": {
+    "panel": {
+      "width": 65,
+      "height": 36.6,
+      "left": 280,
+      "top": 498
+    },
+    "video": null,
+    "diffW": null,
+    "diffH": null,
+    "panelAspect": 1.778,
+    "videoAspect": null
+  },
+  "video16_9_1920x1080": {
+    "panel": {
+      "width": 1201.5,
+      "height": 675.8,
+      "left": 280,
+      "top": 188
+    },
+    "video": {
+      "width": 1199.5,
+      "height": 673.8,
+      "left": 281,
+      "top": 189
+    },
+    "diffW": 2,
+    "diffH": 2,
+    "panelAspect": 1.778,
+    "videoAspect": 1.78
+  },
+  "video16_9_1366x768": {
+    "panel": {
+      "width": 786,
+      "height": 442.1,
+      "left": 280,
+      "top": 188
+    },
+    "video": {
+      "width": 784,
+      "height": 440.1,
+      "left": 281,
+      "top": 189
+    },
+    "diffW": 2,
+    "diffH": 2,
+    "panelAspect": 1.778,
+    "videoAspect": 1.781
+  },
+  "video16_9_1280x720": {
+    "panel": {
+      "width": 721.5,
+      "height": 405.8,
+      "left": 280,
+      "top": 188
+    },
+    "video": {
+      "width": 719.5,
+      "height": 403.8,
+      "left": 281,
+      "top": 189
+    },
+    "diffW": 2,
+    "diffH": 2,
+    "panelAspect": 1.778,
+    "videoAspect": 1.782
+  },
+  "video16_9_768x1024": {
+    "panel": {
+      "width": 458,
+      "height": 257.6,
+      "left": 280,
+      "top": 228
+    },
+    "video": {
+      "width": 456,
+      "height": 255.6,
+      "left": 281,
+      "top": 229
+    },
+    "diffW": 2,
+    "diffH": 2,
+    "panelAspect": 1.778,
+    "videoAspect": 1.784
+  },
+  "video16_9_375x667": {
+    "panel": {
+      "width": 65,
+      "height": 36.6,
+      "left": 280,
+      "top": 498
+    },
+    "video": {
+      "width": 63,
+      "height": 34.6,
+      "left": 281,
+      "top": 499
+    },
+    "diffW": 2,
+    "diffH": 2,
+    "panelAspect": 1.778,
+    "videoAspect": 1.823
+  },
+  "seek_2_5s": {
+    "panel": {
+      "width": 786,
+      "height": 442.1,
+      "left": 280,
+      "top": 188
+    },
+    "video": {
+      "width": 784,
+      "height": 440.1,
+      "left": 281,
+      "top": 189
+    },
+    "diffW": 2,
+    "diffH": 2,
+    "panelAspect": 1.778,
+    "videoAspect": 1.781
+  },
+  "video_4_3_1920x1080": {
+    "panel": {
+      "width": 1066.7,
+      "height": 800,
+      "left": 347.4,
+      "top": 188
+    },
+    "video": {
+      "width": 1064.7,
+      "height": 798,
+      "left": 348.4,
+      "top": 189
+    },
+    "diffW": 2,
+    "diffH": 2,
+    "panelAspect": 1.333,
+    "videoAspect": 1.334
+  },
+  "video_portrait_1920x1080": {
+    "panel": {
+      "width": 274.5,
+      "height": 488,
+      "left": 535.8,
+      "top": 188
+    },
+    "video": {
+      "width": 272.5,
+      "height": 486,
+      "left": 536.8,
+      "top": 189
+    },
+    "diffW": 2,
+    "diffH": 2,
+    "panelAspect": 0.563,
+    "videoAspect": 0.561
+  },
+  "webcam_1280x720": {
+    "panel": {
+      "width": 274.5,
+      "height": 488,
+      "left": 535.8,
+      "top": 188
+    },
+    "video": {
+      "width": 272.5,
+      "height": 486,
+      "left": 536.8,
+      "top": 189
+    },
+    "diffW": 2,
+    "diffH": 2,
+    "panelAspect": 0.563,
+    "videoAspect": 0.561
+  }
+}

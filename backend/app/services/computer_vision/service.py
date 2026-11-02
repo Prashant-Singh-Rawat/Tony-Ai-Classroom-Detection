@@ -180,12 +180,13 @@ class ComputerVisionService:
         model = self._get_yolo()
         device = self.get_device()
 
-        # Execute inference with CUDA OOM safety — strictly filters for class 0 (person)
+        # Execute inference with CUDA OOM safety — detects persons (class 0) and cell phones (class 67)
+        effective_conf = min(confidence_threshold, 0.20)
         try:
             results = model(
                 img,
-                classes=[0],
-                conf=confidence_threshold,
+                classes=[0, 67],
+                conf=effective_conf,
                 imgsz=imgsz,
                 device=device,
                 verbose=False,
@@ -195,8 +196,8 @@ class ComputerVisionService:
                 # Fallback to CPU immediately
                 results = model(
                     img,
-                    classes=[0],
-                    conf=confidence_threshold,
+                    classes=[0, 67],
+                    conf=effective_conf,
                     imgsz=imgsz,
                     device="cpu",
                     verbose=False,
@@ -207,6 +208,7 @@ class ComputerVisionService:
 
         detections: List[PersonDetection] = []
         bounding_boxes: List[BoundingBox] = []
+        detected_phones: List[Dict[str, Any]] = []
 
         if results and len(results) > 0:
             boxes = results[0].boxes
@@ -217,7 +219,21 @@ class ComputerVisionService:
                 cls_id = int(box.cls[0].cpu().numpy()) if hasattr(box, "cls") and box.cls is not None else 0
                 x1, y1, x2, y2 = coords
 
-                if cls_id != 0:
+                if cls_id == 67:
+                    if conf >= 0.20:
+                        detected_phones.append({
+                            "bbox": [float(x1), float(y1), float(x2), float(y2)],
+                            "bbox_normalized": [
+                                float((x1 / w) * 100),
+                                float((y1 / h) * 100),
+                                float((x2 / w) * 100),
+                                float((y2 / h) * 100),
+                            ],
+                            "confidence": conf,
+                        })
+                    continue
+
+                if cls_id != 0 or conf < confidence_threshold:
                     continue
 
                 person_id = f"anon_{person_idx:03d}"
@@ -266,7 +282,7 @@ class ComputerVisionService:
         from backend.app.services.activity_recognition.service import activity_service
         bounding_boxes, _ = activity_service.analyze_frame(
             person_boxes=bounding_boxes,
-            detected_phones=[],
+            detected_phones=detected_phones,
             is_pose_mode=False,
         )
 
@@ -850,7 +866,7 @@ class ComputerVisionService:
             phone_results = yolo_detector(
                 img,
                 classes=[67],
-                conf=0.25,
+                conf=0.20,
                 imgsz=640,
                 device=self.get_device(),
                 verbose=False,
@@ -861,6 +877,12 @@ class ComputerVisionService:
                     p_conf = float(p_box.conf[0].cpu().numpy())
                     detected_phones.append({
                         "bbox": [float(p_coords[0]), float(p_coords[1]), float(p_coords[2]), float(p_coords[3])],
+                        "bbox_normalized": [
+                            float((p_coords[0] / w) * 100),
+                            float((p_coords[1] / h) * 100),
+                            float((p_coords[2] / w) * 100),
+                            float((p_coords[3] / h) * 100),
+                        ],
                         "confidence": p_conf,
                     })
         except Exception as phone_err:

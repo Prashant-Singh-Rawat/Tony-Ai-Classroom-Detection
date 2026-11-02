@@ -146,7 +146,7 @@ class TemporalTracker:
         keypoint_confidence_threshold: float = 0.40,
         elevation_margin_px: float = 15.0,
         min_raised_frames: int = 2,
-        max_missing_frames: int = 10,
+        max_missing_frames: int = 90,
         cooldown_seconds: float = 1.0,
         iou_match_threshold: float = 0.20,
     ) -> None:

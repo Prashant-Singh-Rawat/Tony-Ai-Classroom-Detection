@@ -115,8 +115,23 @@ datasets/**/*.webp
 audit_output/images/
 audit_output/frames/
 audit_output/benchmark/
+audit_output/edge_profile_vid/
+audit_output/*.jpg
+audit_output/*.png
+audit_output/*.html
+audit_output/duplicate_box_analysis/
+audit_output/ground_truth_review/
+audit_output/phase5_final_check/
+audit_output/phase_1/
+audit_output/phase_2/
+audit_output/real_classroom_stock/
+audit_output/section_d/
+audit_output/tracking_audit/
 data/classroom_test/*.jpg
 data/classroom_test/*.png
+data/generated_reports/*.pdf
+data/generated_reports/*.xlsx
+scratch/
 /screenshots/
 classvision-ai/
 

@@ -50,6 +50,7 @@ from backend.app.core.activity_config import (
     COLOR_YELLOW,
     HEAD_DOWN_DURATION_THRESHOLD_SEC,
     PHONE_CONSECUTIVE_FRAMES,
+    SIDEWAYS_SUSTAINED_SECONDS,
     SIDEWAYS_SUSTAINED_FRAMES,
     WHITEBOARD_DEFAULT_CALIBRATION,
 )
@@ -106,6 +107,7 @@ class TrackTemporalBuffer:
         # Frame observation history (candidate per frame)
         self.raw_observations: deque[Tuple[ActivityLabel, float, Dict[str, Any]]] = deque(maxlen=window_size)
         self.active_event_id: Optional[str] = None
+        self.candidate_peer_start_time: Optional[float] = None
 
 
 class ActivityRecognitionService:
@@ -117,14 +119,16 @@ class ActivityRecognitionService:
     def __init__(
         self,
         head_down_min_duration_s: float = 1.5,
-        peer_interaction_min_duration_s: float = 1.5,
+        peer_interaction_min_duration_s: float = 1.0,
         phone_min_frames: int = 2,
         keypoint_confidence_threshold: float = 0.35,
+        board_calibration: Optional[Dict[str, Any]] = None,
     ) -> None:
         self.head_down_min_duration_s = head_down_min_duration_s
         self.peer_interaction_min_duration_s = peer_interaction_min_duration_s
         self.phone_min_frames = phone_min_frames
         self.keypoint_conf_thresh = keypoint_confidence_threshold
+        self.board_calibration = board_calibration or WHITEBOARD_DEFAULT_CALIBRATION.copy()
 
         self.track_buffers: Dict[str, TrackTemporalBuffer] = {}
         self.completed_activity_events: List[ActivityEventSchema] = []
@@ -137,6 +141,82 @@ class ActivityRecognitionService:
         self.completed_activity_events.clear()
         self.next_event_idx = 1
         self.current_frame_index = 0
+
+    def set_board_calibration(
+        self,
+        x1: float = 20.0,
+        y1: float = 5.0,
+        x2: float = 80.0,
+        y2: float = 35.0,
+        forward_vector: Optional[List[float]] = None,
+        min_facing_alignment: float = 0.35,
+    ) -> None:
+        """Configures per-camera whiteboard region and forward direction calibration."""
+        self.board_calibration = {
+            "x1": x1,
+            "y1": y1,
+            "x2": x2,
+            "y2": y2,
+            "forward_vector": forward_vector or [0.0, -1.0],
+            "min_facing_alignment": min_facing_alignment,
+        }
+
+    def _evaluate_facing_board(
+        self,
+        box: BoundingBox,
+        kp_map: Dict[str, Keypoint],
+    ) -> Tuple[bool, float, Dict[str, Any]]:
+        """
+        Evaluates student facing alignment against the calibrated whiteboard region.
+        In elevated rear-camera positions, student orientation is derived from the shoulder vector.
+        """
+        calib = self.board_calibration or WHITEBOARD_DEFAULT_CALIBRATION
+        board_cx = (calib.get("x1", 20.0) + calib.get("x2", 80.0)) / 2.0
+        board_cy = (calib.get("y1", 5.0) + calib.get("y2", 35.0)) / 2.0
+
+        student_cx = box.x + box.w / 2.0
+        student_cy = box.y + box.h / 2.0
+
+        # Vector pointing from student toward whiteboard center
+        target_vec = np.array([board_cx - student_cx, board_cy - student_cy], dtype=float)
+        norm_t = np.linalg.norm(target_vec)
+        if norm_t > 0:
+            target_vec /= norm_t
+        else:
+            target_vec = np.array([0.0, -1.0])
+
+        l_sh = kp_map.get("left_shoulder")
+        r_sh = kp_map.get("right_shoulder")
+        if l_sh and r_sh and l_sh.confidence >= 0.25 and r_sh.confidence >= 0.25:
+            # Body forward vector orthogonal to shoulder axis (pointing toward front of person)
+            # Body forward vector orthogonal to shoulder axis (pointing toward front of person, away from camera)
+            # In screen coordinates (+X right, +Y down), right shoulder is at greater X than left shoulder (sh_dx > 0).
+            # Vector pointing forward into classroom toward board (negative Y) is (sh_dy, -sh_dx).
+            sh_dx = r_sh.x - l_sh.x
+            sh_dy = r_sh.y - l_sh.y
+            body_vec = np.array([sh_dy, -sh_dx], dtype=float)
+            norm_b = np.linalg.norm(body_vec)
+            if norm_b > 0:
+                body_vec /= norm_b
+            else:
+                body_vec = np.array([0.0, -1.0])
+
+            alignment = float(np.dot(body_vec, target_vec))
+            min_align = calib.get("min_facing_alignment", 0.35)
+            is_facing = alignment >= min_align
+            return is_facing, round(alignment, 3), {
+                "alignmentScore": round(alignment, 3),
+                "boardCenterX": float(board_cx),
+                "boardCenterY": float(board_cy),
+                "minAlignmentThreshold": float(min_align),
+            }
+
+        return False, 0.0, {
+            "alignmentScore": 0.0,
+            "boardCenterX": float(board_cx),
+            "boardCenterY": float(board_cy),
+            "shouldersAvailable": 0.0,
+        }
 
     # ---------------------------------------------------------------------------
     # Core Evaluation Pipeline
@@ -249,8 +329,10 @@ class ActivityRecognitionService:
         phones: List[Dict[str, Any]],
     ) -> Dict[str, Dict[str, Any]]:
         """
-        Associates detected COCO cell phones to nearby tracked people based on
-        spatial bounding-box containment and wrist proximity.
+        Associates detected COCO cell phones to nearby tracked people based on:
+        1. Bounding-box containment / upper-body & desk overlap.
+        2. Wrist keypoint proximity (left/right wrist within reach of phone).
+        Robust to both raw pixel coordinates and normalized [0-100] coordinates.
         """
         assignments: Dict[str, Dict[str, Any]] = {}
         if not phones or not person_boxes:
@@ -259,28 +341,77 @@ class ActivityRecognitionService:
         for phone in phones:
             p_bbox = phone.get("bbox", []) # [x1, y1, x2, y2]
             p_conf = float(phone.get("confidence", 0.0))
-            if len(p_bbox) < 4 or p_conf < 0.30:
+            if len(p_bbox) < 4 or p_conf < 0.20:
                 continue
-
-            px_center = (p_bbox[0] + p_bbox[2]) / 2.0
-            py_center = (p_bbox[1] + p_bbox[3]) / 2.0
 
             best_match: Optional[str] = None
             min_dist = float("inf")
 
             for p in person_boxes:
-                # normalized coords [0-100] or pixel coords
+                # Determine image dimensions from person box if available
+                img_w = None
+                img_h = None
+                if p.w and p.w > 0 and p.width and p.width > 0:
+                    img_w = (p.width / p.w) * 100.0
+                if p.h and p.h > 0 and p.height and p.height > 0:
+                    img_h = (p.height / p.h) * 100.0
+
+                # Derive phone coordinates in normalized percentage [0-100] space
+                phone_norm = phone.get("bbox_normalized")
+                if phone_norm and len(phone_norm) >= 4:
+                    ph_nx1, ph_ny1, ph_nx2, ph_ny2 = phone_norm[:4]
+                elif max(p_bbox) > 100.0:
+                    # Raw pixel coordinates (e.g. [220, 230, 260, 290])
+                    ref_w = img_w or 640.0
+                    ref_h = img_h or 480.0
+                    ph_nx1 = (p_bbox[0] / ref_w) * 100.0
+                    ph_ny1 = (p_bbox[1] / ref_h) * 100.0
+                    ph_nx2 = (p_bbox[2] / ref_w) * 100.0
+                    ph_ny2 = (p_bbox[3] / ref_h) * 100.0
+                else:
+                    # Already in percentage space [0-100] (e.g. test fixtures)
+                    ph_nx1, ph_ny1, ph_nx2, ph_ny2 = p_bbox[:4]
+
+                ph_ncx = (ph_nx1 + ph_nx2) / 2.0
+                ph_ncy = (ph_ny1 + ph_ny2) / 2.0
+
+                # Person box in percentage space [0-100]
                 bx1 = p.x
                 by1 = p.y
                 bx2 = p.x + p.w
                 by2 = p.y + p.h
 
-                # Expand slightly for hands holding phone near edges
-                margin_x = p.w * 0.15
-                margin_y = p.h * 0.10
+                # Expanded upper-body margin (hands holding phone near lap, chest, or desk surface)
+                margin_x = p.w * 0.25
+                margin_y_top = p.h * 0.10
+                margin_y_bottom = p.h * 0.35  # covers phone resting on desk just below torso box
 
-                if (bx1 - margin_x <= px_center <= bx2 + margin_x) and (by1 <= py_center <= by2 + margin_y):
-                    dist = abs(px_center - (bx1 + bx2) / 2.0)
+                overlap_match = (
+                    (bx1 - margin_x <= ph_ncx <= bx2 + margin_x) and
+                    (by1 - margin_y_top <= ph_ncy <= by2 + margin_y_bottom)
+                )
+
+                # Wrist proximity check (using pose keypoints if available)
+                wrist_match = False
+                if p.keypoints:
+                    ph_px_cx = (p_bbox[0] + p_bbox[2]) / 2.0
+                    ph_px_cy = (p_bbox[1] + p_bbox[3]) / 2.0
+                    max_wrist_dist_px = max(50.0, (p.height or 150.0) * 0.35)
+                    max_wrist_dist_norm = max(10.0, p.h * 0.35)
+
+                    for kp in p.keypoints:
+                        if kp.name in ("left_wrist", "right_wrist") and kp.confidence >= 0.20:
+                            dist_px = ((kp.x - ph_px_cx) ** 2 + (kp.y - ph_px_cy) ** 2) ** 0.5
+                            if dist_px <= max_wrist_dist_px:
+                                wrist_match = True
+                                break
+                            dist_norm = ((kp.x - ph_ncx) ** 2 + (kp.y - ph_ncy) ** 2) ** 0.5
+                            if dist_norm <= max_wrist_dist_norm:
+                                wrist_match = True
+                                break
+
+                if overlap_match or wrist_match:
+                    dist = abs(ph_ncx - (bx1 + bx2) / 2.0)
                     if dist < min_dist:
                         min_dist = dist
                         best_match = p.id
@@ -308,7 +439,7 @@ class ActivityRecognitionService:
     ) -> Tuple[ActivityLabel, float, ActivityEvidence]:
         """Evaluates instantaneous activity candidates for an individual person."""
         # 1. Priority A: Phone Visible (Requires actual phone object detection)
-        if has_phone and phone_conf >= 0.30:
+        if has_phone and phone_conf >= 0.20:
             evidence = ActivityEvidence(
                 detectorUsed="YOLOv8n (COCO Class 67)",
                 observedFeatures=["Spatial proximity of detected cell phone to tracked person body/hands"],
@@ -362,11 +493,21 @@ class ActivityRecognitionService:
             )
             return ActivityLabel.NEEDS_REVIEW, 0.50, evidence
 
-        # 6. Default: No Flag Observed
+        # 6. Facing Board (Calibrated forward direction)
+        is_facing, align_score, align_meta = self._evaluate_facing_board(box, kp_map)
+        features = ["Upright posture", "Arms lowered"]
+        if is_facing:
+            features.append(f"Oriented toward calibrated board (score: {align_score:.2f})")
+            rationale = f"Seated upright facing calibrated whiteboard region (alignment {align_score:.0%}). No supported physical activity flag observed."
+        else:
+            features.append(f"Angle deviated from board (score: {align_score:.2f})")
+            rationale = f"Seated posture. Angle slightly deviated from whiteboard axis. No supported physical activity flag observed."
+
         evidence = ActivityEvidence(
-            detectorUsed="YOLOv8n-pose",
-            observedFeatures=["Upright posture", "Arms lowered", "Forward facing"],
-            rationale="Normal upright classroom seating posture. No supported physical activity flag observed.",
+            detectorUsed="YOLOv8n-pose + Board Calibration",
+            observedFeatures=features,
+            geometryMetrics=align_meta,
+            rationale=rationale,
         )
         return ActivityLabel.NO_FLAG_OBSERVED, box.confidence, evidence
 
@@ -592,11 +733,23 @@ class ActivityRecognitionService:
                     break
         elif cand_counts.get(ActivityLabel.HEAD_DOWN_POSTURE, 0) >= 6:
             target_label = ActivityLabel.HEAD_DOWN_POSTURE
-        elif cand_counts.get(ActivityLabel.POSSIBLE_PEER_INTERACTION, 0) >= 6:
-            target_label = ActivityLabel.POSSIBLE_PEER_INTERACTION
+        elif cand_counts.get(ActivityLabel.POSSIBLE_PEER_INTERACTION, 0) >= 4:
+            # Check sustained seconds-based duration threshold
+            if buffer.candidate_peer_start_time is None:
+                # If first time reaching 4 observations, backdate to start of recent window (4 frames * dt)
+                buffer.candidate_peer_start_time = max(0.0, current_time - 0.8)
+            peer_elapsed = max(0.0, current_time - buffer.candidate_peer_start_time)
+
+            if peer_elapsed >= self.peer_interaction_min_duration_s or buffer.current_label == ActivityLabel.POSSIBLE_PEER_INTERACTION:
+                target_label = ActivityLabel.POSSIBLE_PEER_INTERACTION
+            else:
+                # Brief glance or turn under duration threshold: keep current label to prevent false accusations
+                target_label = buffer.current_label
         elif cand_counts.get(ActivityLabel.NEEDS_REVIEW, 0) >= 4:
+            buffer.candidate_peer_start_time = None
             target_label = ActivityLabel.NEEDS_REVIEW
         else:
+            buffer.candidate_peer_start_time = None
             # Hysteresis: If current state was an alert, require at least 4 consecutive frames of NO_FLAG to exit
             if buffer.current_label != ActivityLabel.NO_FLAG_OBSERVED:
                 normal_count = cand_counts.get(ActivityLabel.NO_FLAG_OBSERVED, 0)

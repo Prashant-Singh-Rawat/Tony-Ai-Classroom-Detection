@@ -1,0 +1,68 @@
+{
+  "currentTime": 0.5,
+  "videoDimensions": {
+    "width": 216,
+    "height": 150
+  },
+  "totalPersonsDetectedInFrame": 4,
+  "totalSkeletonLinesRendered": 64,
+  "totalKeypointCirclesRendered": 73,
+  "boxes": [
+    {
+      "id": "det_0",
+      "label": "ANON_001:\nNO FLAG OBSERVED\n(36%)\n9.6S\nPRIVACY BLUR",
+      "cssLeft": "37.22%",
+      "cssTop": "48%",
+      "cssWidth": "9.16%",
+      "cssHeight": "17.54%",
+      "renderedPixelRect": {
+        "left": 725,
+        "top": 362,
+        "width": 53,
+        "height": 57
+      }
+    },
+    {
+      "id": "det_1",
+      "label": "ANON_002:\nNO FLAG OBSERVED\n(35%)\n2.6S\nPRIVACY BLUR",
+      "cssLeft": "62.17%",
+      "cssTop": "47.61%",
+      "cssWidth": "9.14%",
+      "cssHeight": "17.65%",
+      "renderedPixelRect": {
+        "left": 869,
+        "top": 361,
+        "width": 53,
+        "height": 58
+      }
+    },
+    {
+      "id": "det_2",
+      "label": "ANON_003:\nNO FLAG OBSERVED\n(24%)\n2.6S\nPRIVACY BLUR",
+      "cssLeft": "37.15%",
+      "cssTop": "48.17%",
+      "cssWidth": "9.32%",
+      "cssHeight": "28.26%",
+      "renderedPixelRect": {
+        "left": 724,
+        "top": 363,
+        "width": 54,
+        "height": 92
+      }
+    },
+    {
+      "id": "det_3",
+      "label": "ANON_004:\nNO FLAG OBSERVED\n(23%)\n1.6S\nPRIVACY BLUR",
+      "cssLeft": "14.3%",
+      "cssTop": "48.52%",
+      "cssWidth": "9.12%",
+      "cssHeight": "27.76%",
+      "renderedPixelRect": {
+        "left": 592,
+        "top": 364,
+        "width": 53,
+        "height": 91
+      }
+    }
+  ]
+}
