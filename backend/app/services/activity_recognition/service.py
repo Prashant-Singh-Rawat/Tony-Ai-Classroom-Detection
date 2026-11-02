@@ -697,8 +697,12 @@ class ActivityRecognitionService:
             re_conf = r_ear.confidence if r_ear else 0.0
             one_ear_vis = (max(le_conf, re_conf) >= 0.35 and min(le_conf, re_conf) < 0.15)
 
+            mean_sh_conf = (ls_conf + rs_conf) / 2.0
+
+            mean_sh_conf = (ls_conf + rs_conf) / 2.0
+
             # A. Facing Away from Board (alignment < -0.25)
-            if alignment < -0.25:
+            if alignment < -0.25 and mean_sh_conf >= 0.28:
                 ev = ActivityEvidence(
                     detectorUsed="YOLOv8n-pose Torso Vector",
                     observedFeatures=["Torso facing away from whiteboard", f"Antiparallel board alignment ({alignment:.2f})"],
@@ -707,8 +711,8 @@ class ActivityRecognitionService:
                 )
                 return True, round(max(ls_conf, rs_conf), 2), ev
 
-            # B. Heavy Torso Foreshortening (shoulders/hips compressed horizontally)
-            if ratio_torso < 0.58:
+            # B. Heavy Torso Foreshortening (shoulders/hips compressed horizontally from sideways seating)
+            if ratio_torso < 0.58 and mean_sh_conf >= 0.28:
                 ev = ActivityEvidence(
                     detectorUsed="YOLOv8n-pose Torso Foreshortening",
                     observedFeatures=["Horizontal shoulder span foreshortened", f"Torso foreshortening ratio {ratio_torso:.2f} < 0.58"],
@@ -718,17 +722,17 @@ class ActivityRecognitionService:
                 return True, 0.85, ev
 
             # C. Steep Shoulder Tilt with moderate foreshortening (perspective yaw angle)
-            if sh_tilt_deg > 32.0 and ratio_sh < 0.75:
+            if sh_tilt_deg > 32.0 and ratio_sh < 0.72 and mean_sh_conf >= 0.30:
                 ev = ActivityEvidence(
                     detectorUsed="YOLOv8n-pose Shoulder Axis Tilt",
-                    observedFeatures=[f"Shoulder axis tilted ({sh_tilt_deg:.1f}°)", "Perspective yaw displacement"],
+                    observedFeatures=[f"Shoulder axis tilted ({sh_tilt_deg:.1f}°)", "Perspective yaw displacement", "Torso foreshortened"],
                     geometryMetrics={"shoulderTiltDeg": round(sh_tilt_deg, 1), "foreshorteningRatio": round(ratio_sh, 3)},
-                    rationale=f"Shoulder line tilted {sh_tilt_deg:.1f}° with horizontal compression {ratio_sh:.2f}, indicating sideways yaw.",
+                    rationale=f"Torso foreshortened sideways: shoulder line tilted {sh_tilt_deg:.1f}° with horizontal compression {ratio_sh:.2f}, indicating sideways yaw.",
                 )
                 return True, 0.82, ev
 
-            # D. Deviated orientation relative to calibrated whiteboard
-            if alignment < 0.15:
+            # D. Deviated orientation relative to calibrated whiteboard (requires non-forward torso)
+            if alignment < 0.15 and ratio_torso < 0.70 and mean_sh_conf >= 0.28:
                 ev = ActivityEvidence(
                     detectorUsed="YOLOv8n-pose + Board Alignment",
                     observedFeatures=["Body vector perpendicular to whiteboard axis", f"Alignment {alignment:.2f} < 0.15"],
@@ -737,15 +741,17 @@ class ActivityRecognitionService:
                 )
                 return True, 0.80, ev
 
-            # E. Sustained Head Turn Sideways (yaw offset > 0.48 or one ear dominant)
-            if abs(yaw_offset) > 0.48 or (abs(yaw_offset) > 0.35 and one_ear_vis):
-                ev = ActivityEvidence(
-                    detectorUsed="YOLOv8n-pose Lateral Head Yaw",
-                    observedFeatures=[f"Head turned sideways ({abs(yaw_offset):.2f}x offset from shoulder midline)"],
-                    geometryMetrics={"yawOffset": round(yaw_offset, 2)},
-                    rationale=f"Head turned sideways ({abs(yaw_offset):.2f}x lateral offset from shoulder midline) toward adjacent desk.",
-                )
-                return True, 0.78, ev
+            # E. Substantial Lateral Head Turn toward neighbor (requires strong nose confidence and large offset)
+            if nose and nose_conf >= 0.40 and abs(yaw_offset) >= 0.55 and sh_width_x > 8.0:
+                # If torso is firmly aligned and yaw is moderate (< 0.80), consider it attentive glance
+                if not (alignment >= 0.65 and abs(yaw_offset) < 0.80):
+                    ev = ActivityEvidence(
+                        detectorUsed="YOLOv8n-pose Lateral Head Yaw",
+                        observedFeatures=[f"Head turned sideways ({abs(yaw_offset):.2f}x offset from shoulder midline)"],
+                        geometryMetrics={"yawOffset": round(yaw_offset, 2)},
+                        rationale=f"Head turned sideways ({abs(yaw_offset):.2f}x lateral offset from shoulder midline) toward adjacent desk.",
+                    )
+                    return True, 0.78, ev
 
         # Case 2: Asymmetric Shoulder Profile View (one shoulder dominant, far shoulder occluded in narrow box)
         if one_shoulder_vis:
@@ -811,6 +817,7 @@ class ActivityRecognitionService:
         Identifies pairs of tracked persons who are:
         1. In spatial proximity (adjacent desks/benches).
         2. Mutually oriented towards each other (converging head/shoulder angles).
+        Strictly verifies that neither person is firmly facing the board.
         """
         candidates: Dict[str, Dict[str, Any]] = {}
         if len(person_boxes) < 2:
@@ -828,11 +835,11 @@ class ActivityRecognitionService:
                 c2_x = b2.x + b2.w / 2.0
                 c2_y = b2.y + b2.h / 2.0
 
-                # Check horizontal interaction distance (e.g. within 2x bbox width)
+                # Check horizontal interaction distance (focused on adjacent desk)
                 dx = abs(c1_x - c2_x)
                 dy = abs(c1_y - c2_y)
-                max_interaction_dx = (b1.w + b2.w) * 1.35
-                max_interaction_dy = (b1.h + b2.h) * 0.40
+                max_interaction_dx = (b1.w + b2.w) * 1.15
+                max_interaction_dy = (b1.h + b2.h) * 0.35
 
                 if dx > max_interaction_dx or dy > max_interaction_dy:
                     continue
@@ -846,7 +853,7 @@ class ActivityRecognitionService:
                 right_facing_left = self._is_facing_left(right_person)
 
                 if left_facing_right and right_facing_left:
-                    # Mutual convergence
+                    # Mutual convergence: both turned to each other
                     metrics = {"peerDistanceDx": round(dx, 1), "peerDistanceDy": round(dy, 1)}
                     candidates[left_person.id] = {"peerId": right_person.id, "metrics": metrics}
                     candidates[right_person.id] = {"peerId": left_person.id, "metrics": metrics}
@@ -854,30 +861,46 @@ class ActivityRecognitionService:
         return candidates
 
     def _is_facing_right(self, box: BoundingBox) -> bool:
-        """Determines if a person's upper body / head is oriented to the right."""
+        """Determines if a person's upper body / head is genuinely oriented to the right."""
         if not box.keypoints:
             return False
         kp_map = {kp.name: kp for kp in box.keypoints}
         nose = kp_map.get("nose")
         l_sh = kp_map.get("left_shoulder")
         r_sh = kp_map.get("right_shoulder")
-        if nose and l_sh and r_sh and l_sh.confidence >= 0.25 and r_sh.confidence >= 0.25:
-            mid_x = (l_sh.x + r_sh.x) / 2.0
-            return nose.x > (mid_x + 3.0)
-        return False
+        if not (nose and l_sh and r_sh and nose.confidence >= 0.40 and l_sh.confidence >= 0.30 and r_sh.confidence >= 0.30):
+            return False
+
+        # Guard: If student's torso is broadly facing the board, they are not turned to a peer
+        is_fb, align, _ = self._evaluate_facing_board(box, kp_map)
+        sh_span = abs(r_sh.x - l_sh.x)
+        if align >= 0.65 and sh_span > 14.0:
+            return False
+
+        mid_x = (l_sh.x + r_sh.x) / 2.0
+        min_offset = max(6.0, 0.35 * (sh_span / 2.0))
+        return (nose.x - mid_x) > min_offset
 
     def _is_facing_left(self, box: BoundingBox) -> bool:
-        """Determines if a person's upper body / head is oriented to the left."""
+        """Determines if a person's upper body / head is genuinely oriented to the left."""
         if not box.keypoints:
             return False
         kp_map = {kp.name: kp for kp in box.keypoints}
         nose = kp_map.get("nose")
         l_sh = kp_map.get("left_shoulder")
         r_sh = kp_map.get("right_shoulder")
-        if nose and l_sh and r_sh and l_sh.confidence >= 0.25 and r_sh.confidence >= 0.25:
-            mid_x = (l_sh.x + r_sh.x) / 2.0
-            return nose.x < (mid_x - 3.0)
-        return False
+        if not (nose and l_sh and r_sh and nose.confidence >= 0.40 and l_sh.confidence >= 0.30 and r_sh.confidence >= 0.30):
+            return False
+
+        # Guard: If student's torso is broadly facing the board, they are not turned to a peer
+        is_fb, align, _ = self._evaluate_facing_board(box, kp_map)
+        sh_span = abs(r_sh.x - l_sh.x)
+        if align >= 0.65 and sh_span > 14.0:
+            return False
+
+        mid_x = (l_sh.x + r_sh.x) / 2.0
+        min_offset = max(6.0, 0.35 * (sh_span / 2.0))
+        return (mid_x - nose.x) > min_offset
 
     # ---------------------------------------------------------------------------
     # Temporal Rules, Hysteresis & Event Finalization
@@ -925,27 +948,25 @@ class ActivityRecognitionService:
                     break
         elif cand_counts.get(ActivityLabel.HEAD_DOWN_POSTURE, 0) >= 6:
             target_label = ActivityLabel.HEAD_DOWN_POSTURE
-        elif cand_counts.get(ActivityLabel.POSSIBLE_PEER_INTERACTION, 0) >= 3:
-            # Check sustained seconds-based duration threshold
+        elif cand_counts.get(ActivityLabel.POSSIBLE_PEER_INTERACTION, 0) >= 5:
+            # Require at least 5 out of 8 observations to avoid momentary noise triggers
             if buffer.candidate_peer_start_time is None:
-                # If first time reaching 3 observations, backdate to start of recent window (3 frames * dt)
                 buffer.candidate_peer_start_time = max(0.0, current_time - 0.6)
             peer_elapsed = max(0.0, current_time - buffer.candidate_peer_start_time)
 
-            if peer_elapsed >= 0.5 or buffer.current_label == ActivityLabel.POSSIBLE_PEER_INTERACTION:
+            if peer_elapsed >= 0.6 or buffer.current_label == ActivityLabel.POSSIBLE_PEER_INTERACTION:
                 target_label = ActivityLabel.POSSIBLE_PEER_INTERACTION
             else:
-                # Brief glance or turn under duration threshold: keep current label to prevent false accusations
                 target_label = buffer.current_label
         elif cand_counts.get(ActivityLabel.NEEDS_REVIEW, 0) >= 4:
             buffer.candidate_peer_start_time = None
             target_label = ActivityLabel.NEEDS_REVIEW
         else:
             buffer.candidate_peer_start_time = None
-            # Hysteresis: If current state was an alert, require at least 4 consecutive frames of NO_FLAG to exit
+            # Hysteresis: If current state was an alert, recover to NO_FLAG once normal count reaches 3
             if buffer.current_label != ActivityLabel.NO_FLAG_OBSERVED:
                 normal_count = cand_counts.get(ActivityLabel.NO_FLAG_OBSERVED, 0)
-                if normal_count >= 4:
+                if normal_count >= 3:
                     target_label = ActivityLabel.NO_FLAG_OBSERVED
                 else:
                     target_label = buffer.current_label
@@ -978,6 +999,15 @@ class ActivityRecognitionService:
 
         latest_ev.durationSeconds = buffer.current_duration_seconds
         latest_ev.persistenceFrames = buffer.frames_in_state
+
+        if buffer.current_label == ActivityLabel.NO_FLAG_OBSERVED and "peer" in latest_ev.rationale.lower():
+            latest_ev = ActivityEvidence(
+                detectorUsed="YOLOv8n-pose + Board Calibration",
+                observedFeatures=["Upright posture", "Facing board"],
+                rationale="Seated upright facing calibrated whiteboard region. No supported physical activity flag observed.",
+                durationSeconds=buffer.current_duration_seconds,
+                persistenceFrames=buffer.frames_in_state,
+            )
 
         return buffer.current_label, buffer.current_confidence, latest_ev, completed_event
 

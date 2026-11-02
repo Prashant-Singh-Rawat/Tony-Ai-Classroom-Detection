@@ -234,3 +234,36 @@ def test_temporal_stability_and_hysteresis():
     for f in range(10, 15):
         res, _ = svc.analyze_frame([box_normal], is_pose_mode=True, timestamp_seconds=f * 0.1)
     assert res[0].activityLabel == DISPLAY_LABELS[ActivityLabel.NO_FLAG_OBSERVED]
+
+
+def test_center_student_facing_board_with_minor_head_jitter_and_peer_proximity():
+    """
+    Guarantees that a center student sitting upright with broad horizontal shoulders facing
+    the whiteboard is classified as Facing board (Green), even if their head exhibits minor
+    landmark jitter or an adjacent student sits in the next desk.
+    Eliminates false positive Turned sideways classifications.
+    """
+    svc = ActivityRecognitionService()
+    center_kps = make_test_keypoints(
+        l_sh_x=40.0, r_sh_x=60.0, l_sh_y=45.0, r_sh_y=46.0,
+        nose_x=47.0, nose_y=30.0, nose_conf=0.35,
+        l_hip_x=42.0, r_hip_x=58.0, l_hip_y=70.0, r_hip_y=70.0,
+    )
+    peer_kps = make_test_keypoints(
+        l_sh_x=70.0, r_sh_x=90.0, l_sh_y=45.0, r_sh_y=45.0,
+        nose_x=83.0, nose_y=30.0, nose_conf=0.35,
+    )
+
+    box_center = BoundingBox(id="center_student", personId=1, classId=1, className="hand_not_raised", confidence=0.92, x=35.0, y=20.0, w=20.0, h=50.0, keypoints=center_kps)
+    box_peer = BoundingBox(id="peer_student", personId=2, classId=1, className="hand_not_raised", confidence=0.90, x=60.0, y=20.0, w=20.0, h=50.0, keypoints=peer_kps)
+
+    enriched = []
+    for f in range(6):
+        enriched, _ = svc.analyze_frame([box_center, box_peer], is_pose_mode=True, timestamp_seconds=f * 0.1)
+
+    center_res = [b for b in enriched if b.id == "center_student"][0]
+    assert center_res.activityLabel == DISPLAY_LABELS[ActivityLabel.NO_FLAG_OBSERVED]
+    assert center_res.statusColor == "GREEN"
+    assert "facing" in center_res.activityEvidence.lower() or "board" in center_res.activityEvidence.lower()
+
+
