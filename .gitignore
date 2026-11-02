@@ -83,6 +83,8 @@ datasets/evaluation/nlp/**
 datasets/evaluation/ocr/**
 datasets/evaluation/speech/**
 datasets/evaluation/end_to_end/**
+datasets/kaggle/**
+!datasets/kaggle/**/metadata/**
 
 # Raw image binaries in dataset trees
 datasets/**/*.jpg
