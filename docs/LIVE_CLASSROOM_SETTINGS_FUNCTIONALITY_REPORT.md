@@ -95,3 +95,4 @@ Automated Chrome DevTools Protocol (CDP) verification executed on `http://127.0.
 - **Screenshot 04 (`04_uploaded_video_before_infer.png`)**: Classroom video loaded with exact aspect ratio.
 - **Screenshot 05 (`05_uploaded_video_with_inference_overlays.png`)**: Inference executed with user settings; synchronized bounding boxes and activity classes displayed.
 - **Screenshot 06 (`06_boxes_hidden_overlays_only.png`)**: Bounding Boxes unchecked during playback; boxes count drops to 0 immediately while timeline and overlays continue running.
+
